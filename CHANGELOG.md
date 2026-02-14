@@ -2,6 +2,18 @@
 
 All notable changes to HNBCRM (formerly ClawCRM) will be documented in this file.
 
+## [0.4.1] - 2026-02-14
+
+### Fixed
+- Logo distortion in AuthScreen and WelcomeScreen — added `object-contain` to prevent squeezing of non-square (528x488) image in square containers
+
+### Improved
+- **WelcomeScreen** is now the primary org selection/creation interface:
+  - Displays existing organizations as interactive cards with icon, name, slug, and role badge
+  - "Criar Organização" card opens a modal creation form with auto-generated slug
+  - Auto-selects newly created org; works on both desktop and mobile
+- **OrganizationSelector** simplified to just a `<select>` dropdown for switching orgs in the sidebar — removed buried absolute-positioned popup and inline creation form
+
 ## [0.4.0] - 2026-02-14
 
 ### HNBCRM Rebrand & Frontend Overhaul
