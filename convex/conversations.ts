@@ -48,7 +48,7 @@ export const getConversations = query({
         const [lead, contact, assignee] = await Promise.all([
           ctx.db.get(conversation.leadId),
           conversation.leadId ? ctx.db.get(conversation.leadId).then(lead =>
-            lead ? ctx.db.get(lead.contactId) : null
+            lead?.contactId ? ctx.db.get(lead.contactId) : null
           ) : null,
           conversation.leadId ? ctx.db.get(conversation.leadId).then(lead =>
             lead?.assignedTo ? ctx.db.get(lead.assignedTo) : null
@@ -289,7 +289,7 @@ export const internalGetConversations = internalQuery({
         const [lead, contact, assignee] = await Promise.all([
           ctx.db.get(conversation.leadId),
           conversation.leadId ? ctx.db.get(conversation.leadId).then(lead =>
-            lead ? ctx.db.get(lead.contactId) : null
+            lead?.contactId ? ctx.db.get(lead.contactId) : null
           ) : null,
           conversation.leadId ? ctx.db.get(conversation.leadId).then(lead =>
             lead?.assignedTo ? ctx.db.get(lead.assignedTo) : null

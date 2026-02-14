@@ -4,8 +4,19 @@ import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { SlideOver } from "@/components/ui/SlideOver";
 import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
 import { Spinner } from "@/components/ui/Spinner";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import {
+  X,
+  Search,
+  ChevronDown,
+  User,
+  UserPlus,
+  Link as LinkIcon,
+  ExternalLink,
+} from "lucide-react";
 
 interface LeadDetailPanelProps {
   leadId: Id<"leads">;
@@ -53,7 +64,7 @@ export function LeadDetailPanel({ leadId, organizationId, onClose }: LeadDetailP
           />
         )}
         {activeTab === "details" && (
-          <DetailsTab leadId={leadId} />
+          <DetailsTab leadId={leadId} organizationId={organizationId} />
         )}
         {activeTab === "activity" && (
           <ActivityTab leadId={leadId} />
@@ -260,10 +271,31 @@ function ConversationTab({
 /*  Details Tab                                                        */
 /* ------------------------------------------------------------------ */
 
-function DetailsTab({ leadId }: { leadId: Id<"leads"> }) {
+function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizationId: Id<"organizations"> }) {
   const lead = useQuery(api.leads.getLead, { leadId });
   const updateLead = useMutation(api.leads.updateLead);
   const updateQualification = useMutation(api.leads.updateLeadQualification);
+  const linkContactMutation = useMutation(api.leads.linkContact);
+  const assignLeadMutation = useMutation(api.leads.assignLead);
+  const moveLeadToStageMutation = useMutation(api.leads.moveLeadToStage);
+
+  // Contact picker state
+  const [showContactPicker, setShowContactPicker] = useState(false);
+  const [contactSearchText, setContactSearchText] = useState("");
+  const contacts = useQuery(api.contacts.getContacts, { organizationId });
+
+  // Assignee picker state
+  const [showAssigneePicker, setShowAssigneePicker] = useState(false);
+  const teamMembers = useQuery(api.teamMembers.getTeamMembers, { organizationId });
+
+  // Stage picker state
+  const [showStagePicker, setShowStagePicker] = useState(false);
+  const boards = useQuery(api.boards.getBoards, { organizationId });
+  const [selectedBoardId, setSelectedBoardId] = useState<Id<"boards"> | null>(null);
+  const stages = useQuery(
+    api.boards.getStages,
+    selectedBoardId ? { boardId: selectedBoardId } : "skip"
+  );
 
   const [title, setTitle] = useState("");
   const [value, setValue] = useState(0);
@@ -338,35 +370,346 @@ function DetailsTab({ leadId }: { leadId: Id<"leads"> }) {
     }
   };
 
+  // Contact handlers
+  const handleLinkContact = async (contactId: Id<"contacts">) => {
+    try {
+      await linkContactMutation({ leadId, contactId });
+      setShowContactPicker(false);
+      setContactSearchText("");
+      toast.success("Contato vinculado com sucesso");
+    } catch (error: any) {
+      toast.error(error.message || "Falha ao vincular contato");
+    }
+  };
+
+  const handleUnlinkContact = async () => {
+    try {
+      await linkContactMutation({ leadId });
+      toast.success("Contato desvinculado com sucesso");
+    } catch (error: any) {
+      toast.error(error.message || "Falha ao desvincular contato");
+    }
+  };
+
+  // Assignee handlers
+  const handleAssignLead = async (assignedTo?: Id<"teamMembers">) => {
+    try {
+      await assignLeadMutation({ leadId, assignedTo });
+      setShowAssigneePicker(false);
+      toast.success(assignedTo ? "Lead atribuído com sucesso" : "Lead desatribuído com sucesso");
+    } catch (error: any) {
+      toast.error(error.message || "Falha ao atribuir lead");
+    }
+  };
+
+  // Stage handlers
+  const handleMoveToStage = async (stageId: Id<"stages">) => {
+    try {
+      await moveLeadToStageMutation({ leadId, stageId });
+      setShowStagePicker(false);
+      setSelectedBoardId(null);
+      toast.success("Lead movido com sucesso");
+    } catch (error: any) {
+      toast.error(error.message || "Falha ao mover lead");
+    }
+  };
+
+  // Filter contacts by search text
+  const filteredContacts = contacts?.filter((contact) => {
+    if (!contactSearchText.trim()) return true;
+    const searchLower = contactSearchText.toLowerCase();
+    const fullName = `${contact.firstName || ""} ${contact.lastName || ""}`.toLowerCase();
+    const email = contact.email?.toLowerCase() || "";
+    const company = contact.company?.toLowerCase() || "";
+    return fullName.includes(searchLower) || email.includes(searchLower) || company.includes(searchLower);
+  });
+
   return (
     <div className="p-4 space-y-6">
-      {/* Contact Info (read-only) */}
+      {/* Contact Section - Interactive */}
       <div>
         <h3 className="text-[13px] font-semibold text-text-secondary uppercase tracking-wide mb-3">
-          Informações do Contato
+          Contato Vinculado
         </h3>
-        <div className="bg-surface-sunken rounded-card p-4 space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span className="text-text-muted">Nome</span>
-            <span className="text-text-primary font-medium">
-              {lead.contact
-                ? `${lead.contact.firstName || ""} ${lead.contact.lastName || ""}`.trim() || "—"
-                : "—"}
+        {lead.contact ? (
+          <div className="bg-surface-sunken rounded-card p-4 space-y-3">
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-text-muted">Nome</span>
+                <span className="text-text-primary font-medium">
+                  {`${lead.contact.firstName || ""} ${lead.contact.lastName || ""}`.trim() || "—"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-text-muted">Email</span>
+                <span className="text-text-primary">{lead.contact.email || "—"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-text-muted">Telefone</span>
+                <span className="text-text-primary">{lead.contact.phone || "—"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-text-muted">Empresa</span>
+                <span className="text-text-primary">{lead.contact.company || "—"}</span>
+              </div>
+            </div>
+            <div className="flex gap-2 pt-2 border-t border-border">
+              <Button
+                onClick={() => setShowContactPicker(true)}
+                variant="secondary"
+                size="sm"
+                className="flex-1"
+              >
+                <ExternalLink size={16} />
+                Alterar
+              </Button>
+              <Button
+                onClick={handleUnlinkContact}
+                variant="ghost"
+                size="sm"
+                aria-label="Desvincular contato"
+              >
+                <X size={16} />
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-surface-sunken rounded-card p-4 text-center">
+            <p className="text-sm text-text-muted mb-3">Nenhum contato vinculado</p>
+            <Button
+              onClick={() => setShowContactPicker(true)}
+              variant="primary"
+              size="sm"
+            >
+              <LinkIcon size={16} />
+              Vincular Contato
+            </Button>
+          </div>
+        )}
+
+        {/* Contact Picker Dropdown */}
+        {showContactPicker && (
+          <>
+            <div
+              className="fixed inset-0 z-40"
+              onClick={() => {
+                setShowContactPicker(false);
+                setContactSearchText("");
+              }}
+            />
+            <div className="relative z-50 mt-2 bg-surface-overlay border border-border rounded-xl shadow-xl max-h-80 overflow-hidden">
+              <div className="p-3 border-b border-border">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={16} />
+                  <input
+                    type="text"
+                    value={contactSearchText}
+                    onChange={(e) => setContactSearchText(e.target.value)}
+                    placeholder="Buscar contato..."
+                    className="w-full pl-9 pr-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 placeholder:text-text-muted"
+                    style={{ fontSize: "16px" }}
+                    autoFocus
+                  />
+                </div>
+              </div>
+              <div className="overflow-y-auto max-h-64">
+                {filteredContacts && filteredContacts.length > 0 ? (
+                  filteredContacts.map((contact) => (
+                    <button
+                      key={contact._id}
+                      onClick={() => handleLinkContact(contact._id)}
+                      className="w-full px-4 py-3 text-left hover:bg-surface-raised transition-colors border-b border-border-subtle last:border-0"
+                    >
+                      <div className="font-medium text-sm text-text-primary">
+                        {`${contact.firstName || ""} ${contact.lastName || ""}`.trim() || "Sem nome"}
+                      </div>
+                      <div className="text-xs text-text-muted mt-0.5">
+                        {contact.email}
+                        {contact.company && ` • ${contact.company}`}
+                      </div>
+                    </button>
+                  ))
+                ) : (
+                  <div className="px-4 py-8 text-center text-sm text-text-muted">
+                    {contacts === undefined ? (
+                      <Spinner size="sm" />
+                    ) : (
+                      "Nenhum contato encontrado"
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Assignee Section */}
+      <div className="relative">
+        <h3 className="text-[13px] font-semibold text-text-secondary uppercase tracking-wide mb-3">
+          Atribuído a
+        </h3>
+        <button
+          onClick={() => setShowAssigneePicker(!showAssigneePicker)}
+          className="w-full px-4 py-3 bg-surface-sunken rounded-card text-left hover:bg-surface-raised transition-colors flex items-center justify-between"
+        >
+          <div className="flex items-center gap-2">
+            <User size={16} className="text-text-muted" />
+            <span className="text-sm text-text-primary font-medium">
+              {lead.assignee ? lead.assignee.name : "Não atribuído"}
             </span>
+            {lead.assignee && (
+              <Badge variant="default" className="text-xs">
+                {lead.assignee.type === "ai" ? "IA" : lead.assignee.role === "admin" ? "Admin" : lead.assignee.role === "manager" ? "Gerente" : "Agente"}
+              </Badge>
+            )}
           </div>
-          <div className="flex justify-between">
-            <span className="text-text-muted">Email</span>
-            <span className="text-text-primary">{lead.contact?.email || "—"}</span>
+          <ChevronDown size={16} className="text-text-muted" />
+        </button>
+
+        {/* Assignee Picker Dropdown */}
+        {showAssigneePicker && (
+          <>
+            <div
+              className="fixed inset-0 z-40"
+              onClick={() => setShowAssigneePicker(false)}
+            />
+            <div className="absolute left-0 right-0 top-full mt-2 z-50 bg-surface-overlay border border-border rounded-xl shadow-xl max-h-80 overflow-y-auto">
+              <button
+                onClick={() => handleAssignLead()}
+                className={cn(
+                  "w-full px-4 py-3 text-left hover:bg-surface-raised transition-colors border-b border-border-subtle",
+                  !lead.assignedTo && "bg-brand-500/10"
+                )}
+              >
+                <div className="flex items-center gap-2">
+                  <UserPlus size={16} className="text-text-muted" />
+                  <span className="text-sm text-text-primary font-medium">Não atribuído</span>
+                </div>
+              </button>
+              {teamMembers?.map((member) => (
+                <button
+                  key={member._id}
+                  onClick={() => handleAssignLead(member._id)}
+                  className={cn(
+                    "w-full px-4 py-3 text-left hover:bg-surface-raised transition-colors border-b border-border-subtle last:border-0",
+                    lead.assignedTo === member._id && "bg-brand-500/10"
+                  )}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-text-primary font-medium">{member.name}</span>
+                      <Badge variant="default" className="text-xs">
+                        {member.type === "ai" ? "IA" : member.role === "admin" ? "Admin" : member.role === "manager" ? "Gerente" : "Agente"}
+                      </Badge>
+                    </div>
+                  </div>
+                  {member.email && (
+                    <div className="text-xs text-text-muted mt-0.5">{member.email}</div>
+                  )}
+                </button>
+              ))}
+              {!teamMembers && (
+                <div className="px-4 py-8 text-center">
+                  <Spinner size="sm" />
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* Stage Section */}
+      <div className="relative">
+        <h3 className="text-[13px] font-semibold text-text-secondary uppercase tracking-wide mb-3">
+          Pipeline e Etapa
+        </h3>
+        <button
+          onClick={() => {
+            setShowStagePicker(!showStagePicker);
+            if (!showStagePicker && lead.board) {
+              setSelectedBoardId(lead.board._id);
+            }
+          }}
+          className="w-full px-4 py-3 bg-surface-sunken rounded-card text-left hover:bg-surface-raised transition-colors flex items-center justify-between"
+        >
+          <div>
+            <div className="text-xs text-text-muted">{lead.board?.name || "Pipeline"}</div>
+            <div className="text-sm text-text-primary font-medium mt-0.5">
+              {lead.stage?.name || "Sem etapa"}
+            </div>
           </div>
-          <div className="flex justify-between">
-            <span className="text-text-muted">Telefone</span>
-            <span className="text-text-primary">{lead.contact?.phone || "—"}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-text-muted">Empresa</span>
-            <span className="text-text-primary">{lead.contact?.company || "—"}</span>
-          </div>
-        </div>
+          <ChevronDown size={16} className="text-text-muted" />
+        </button>
+
+        {/* Stage Picker Dropdown */}
+        {showStagePicker && (
+          <>
+            <div
+              className="fixed inset-0 z-40"
+              onClick={() => {
+                setShowStagePicker(false);
+                setSelectedBoardId(null);
+              }}
+            />
+            <div className="absolute left-0 right-0 top-full mt-2 z-50 bg-surface-overlay border border-border rounded-xl shadow-xl max-h-96 overflow-hidden">
+              {/* Board selector */}
+              <div className="p-3 border-b border-border bg-surface-raised">
+                <label className="block text-xs text-text-muted mb-1.5">Pipeline</label>
+                <select
+                  value={selectedBoardId || ""}
+                  onChange={(e) => setSelectedBoardId(e.target.value as Id<"boards">)}
+                  className="w-full px-3 py-2 bg-surface-sunken border border-border-strong text-text-primary rounded-field text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                  style={{ fontSize: "16px" }}
+                >
+                  <option value="">Selecione um pipeline</option>
+                  {boards?.map((board) => (
+                    <option key={board._id} value={board._id}>
+                      {board.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Stages list */}
+              <div className="overflow-y-auto max-h-64">
+                {stages && stages.length > 0 ? (
+                  stages.map((stage) => (
+                    <button
+                      key={stage._id}
+                      onClick={() => handleMoveToStage(stage._id)}
+                      className={cn(
+                        "w-full px-4 py-3 text-left hover:bg-surface-raised transition-colors border-b border-border-subtle last:border-0",
+                        lead.stageId === stage._id && "bg-brand-500/10"
+                      )}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-text-primary font-medium">{stage.name}</span>
+                        {(stage.isClosedWon || stage.isClosedLost) && (
+                          <Badge variant={stage.isClosedWon ? "success" : "error"} className="text-xs">
+                            {stage.isClosedWon ? "Ganho" : "Perdido"}
+                          </Badge>
+                        )}
+                      </div>
+                    </button>
+                  ))
+                ) : selectedBoardId ? (
+                  <div className="px-4 py-8 text-center text-sm text-text-muted">
+                    {stages === undefined ? (
+                      <Spinner size="sm" />
+                    ) : (
+                      "Nenhuma etapa encontrada"
+                    )}
+                  </div>
+                ) : (
+                  <div className="px-4 py-8 text-center text-sm text-text-muted">
+                    Selecione um pipeline acima
+                  </div>
+                )}
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Editable Fields */}

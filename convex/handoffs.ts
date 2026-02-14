@@ -34,7 +34,7 @@ export const getHandoffs = query({
           handoff.acceptedBy ? ctx.db.get(handoff.acceptedBy) : null,
         ]);
 
-        const contact = lead ? await ctx.db.get(lead.contactId) : null;
+        const contact = lead?.contactId ? await ctx.db.get(lead.contactId) : null;
 
         return {
           ...handoff,
@@ -306,7 +306,7 @@ export const internalGetHandoffs = internalQuery({
           handoff.acceptedBy ? ctx.db.get(handoff.acceptedBy) : null,
         ]);
 
-        const contact = lead ? await ctx.db.get(lead.contactId) : null;
+        const contact = lead?.contactId ? await ctx.db.get(lead.contactId) : null;
 
         return {
           ...handoff,

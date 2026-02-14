@@ -24,7 +24,7 @@ export function CreateLeadModal({ organizationId, boardId, onClose }: CreateLead
   const [error, setError] = useState<string | null>(null);
 
   // Contact selection
-  const [createNewContact, setCreateNewContact] = useState(false);
+  const [contactMode, setContactMode] = useState<"none" | "select" | "create">("none");
   const [selectedContactId, setSelectedContactId] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -48,18 +48,14 @@ export function CreateLeadModal({ organizationId, boardId, onClose }: CreateLead
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
-    if (!createNewContact && !selectedContactId) {
-      setError("Selecione um contato ou crie um novo.");
-      return;
-    }
 
     setSubmitting(true);
     setError(null);
 
     try {
-      let contactId: Id<"contacts">;
+      let contactId: Id<"contacts"> | undefined;
 
-      if (createNewContact) {
+      if (contactMode === "create") {
         if (!firstName.trim() && !lastName.trim() && !email.trim()) {
           setError("Forneça pelo menos um nome ou email.");
           setSubmitting(false);
@@ -74,9 +70,15 @@ export function CreateLeadModal({ organizationId, boardId, onClose }: CreateLead
           phone: phone.trim() || undefined,
           company: company.trim() || undefined,
         });
-      } else {
+      } else if (contactMode === "select") {
+        if (!selectedContactId) {
+          setError("Selecione um contato.");
+          setSubmitting(false);
+          return;
+        }
         contactId = selectedContactId as Id<"contacts">;
       }
+      // If contactMode === "none", contactId remains undefined
 
       await createLead({
         organizationId,
@@ -125,21 +127,58 @@ export function CreateLeadModal({ organizationId, boardId, onClose }: CreateLead
 
         {/* Contact Selection */}
         <div>
-          <div className="flex items-center justify-between mb-1">
-            <label className="block text-[13px] font-medium text-text-secondary">Contato</label>
+          <label className="block text-[13px] font-medium text-text-secondary mb-2">Contato</label>
+
+          {/* Mode selector */}
+          <div className="flex gap-2 mb-3">
             <button
               type="button"
               onClick={() => {
-                setCreateNewContact(!createNewContact);
+                setContactMode("none");
                 setSelectedContactId("");
               }}
-              className="text-xs text-brand-500 hover:text-brand-400 font-medium transition-colors"
+              className={cn(
+                "flex-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors",
+                contactMode === "none"
+                  ? "bg-brand-500/10 text-brand-500 border-2 border-brand-500"
+                  : "bg-surface-raised text-text-secondary border-2 border-border hover:border-border-strong"
+              )}
             >
-              {createNewContact ? "Selecionar Existente" : "Criar Novo"}
+              Sem contato
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setContactMode("select");
+                setSelectedContactId("");
+              }}
+              className={cn(
+                "flex-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors",
+                contactMode === "select"
+                  ? "bg-brand-500/10 text-brand-500 border-2 border-brand-500"
+                  : "bg-surface-raised text-text-secondary border-2 border-border hover:border-border-strong"
+              )}
+            >
+              Selecionar
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setContactMode("create");
+                setSelectedContactId("");
+              }}
+              className={cn(
+                "flex-1 px-3 py-2 text-sm font-medium rounded-lg transition-colors",
+                contactMode === "create"
+                  ? "bg-brand-500/10 text-brand-500 border-2 border-brand-500"
+                  : "bg-surface-raised text-text-secondary border-2 border-border hover:border-border-strong"
+              )}
+            >
+              Criar novo
             </button>
           </div>
 
-          {!createNewContact ? (
+          {contactMode === "select" && (
             <select
               value={selectedContactId}
               onChange={(e) => setSelectedContactId(e.target.value)}
@@ -154,7 +193,9 @@ export function CreateLeadModal({ organizationId, boardId, onClose }: CreateLead
                 </option>
               ))}
             </select>
-          ) : (
+          )}
+
+          {contactMode === "create" && (
             <div className="space-y-3 p-3 bg-surface-sunken rounded-card border border-border">
               <div className="grid grid-cols-2 gap-3">
                 <div>

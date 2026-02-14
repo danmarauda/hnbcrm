@@ -2,6 +2,55 @@
 
 All notable changes to HNBCRM (formerly ClawCRM) will be documented in this file.
 
+## [0.5.0] - 2026-02-14
+
+### Contacts, Saved Views, Pipeline Management & Kanban UX Overhaul
+
+Major feature release adding contacts management, saved views, pipeline CRUD modals, and a kanban UX overhaul based on research of Pipedrive, HubSpot, and modern CRM patterns.
+
+#### Contacts Page & Management
+- **ContactsPage** — New dedicated contacts tab with search, table view, and contact detail panel
+- **ContactDetailPanel** — SlideOver panel showing contact info and linked leads
+- **CreateContactModal** — Modal for creating new contacts with full field support
+- **Contacts nav** — Added "Contatos" tab to both Sidebar (desktop) and BottomTabBar (mobile); moved "Equipe" to "Mais" menu on mobile
+- Contact search text indexing (`searchText` field + `buildSearchText` helper) for full-text search
+- **CreateLeadModal** improved — Contact selection now supports three modes: none, select existing, or create new
+
+#### Saved Views
+- **savedViews.ts** backend — CRUD queries/mutations for saved views with filters, sort, and column preferences
+- **ViewSelector** — Dropdown component for selecting and managing saved views
+- **CreateViewModal** — Modal for creating new saved views with filter configuration
+
+#### Pipeline Management Modals
+- **EditBoardModal** — Modal for editing pipeline name, description, and color
+- **ManageStagesModal** — Full stage management: rename, recolor, reorder (up/down), add, delete, toggle closedWon/closedLost
+
+#### Lead Detail Panel Overhaul
+- **Contact link/unlink** — Interactive contact section replaces read-only text; searchable contact picker dropdown with link, change, and unlink buttons
+- **Assignee selector** — Dropdown of all team members with role badges (Admin/Gerente/Agente/IA) and "Não atribuído" option
+- **Stage/Pipeline selector** — Cascading pipeline > stage picker with closedWon/closedLost badges, move leads between pipelines from the detail panel
+
+#### Deal Aging & Stage Stats
+- **Days-in-stage indicator** on kanban cards — Clock icon with color-coded aging (green < 3d, yellow 3-7d, red > 7d)
+- **Stage column summary stats** — Each column header now shows lead count and total value (e.g. "8 leads · R$ 125.000")
+
+#### Win/Loss Reason Capture
+- Added `closedAt`, `closedReason`, `closedType` fields to leads schema
+- **CloseReasonModal** intercepts drag-to-close and stage-change-to-close, capturing reason (required for lost) and final value
+- `moveLeadToStage` mutation now accepts `closedReason` and `finalValue`, auto-sets close fields for closedWon/closedLost stages
+
+#### Pipeline & Stage Management UX
+- **Pipeline selector redesign** — Color dot indicators, visible "+" Novo button in tab bar, gear icon for active pipeline only
+- **Inline stage management** — "..." menu on each column header for rename, change color, mark as won/lost, delete stage
+- **Add stage column** — Dashed placeholder column at the far right of the kanban for quick stage creation
+- **Pipeline creation with default stages** — New pipelines auto-include 5 stages (Novo Lead, Qualificado, Proposta, Negociação, Fechado) via new `createBoardWithStages` mutation
+
+#### UI Components
+- **EmptyState** — Reusable empty state component with icon, title, description, and action button
+
+#### Bug Fixes
+- Fixed null safety in `conversations.ts` and `handoffs.ts` when accessing `lead.contactId` (could crash if contactId was undefined)
+
 ## [0.4.1] - 2026-02-14
 
 ### Fixed

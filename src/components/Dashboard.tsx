@@ -3,6 +3,7 @@ import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { DashboardOverview } from "./DashboardOverview";
 import { KanbanBoard } from "./KanbanBoard";
+import { ContactsPage } from "./ContactsPage";
 import { Inbox } from "./Inbox";
 import { HandoffQueue } from "./HandoffQueue";
 import { TeamPage } from "./TeamPage";
@@ -42,6 +43,11 @@ export function Dashboard({ organizationId, activeTab, onTabChange }: DashboardP
         {activeTab === "board" && (
           <ErrorBoundary>
             <KanbanBoard organizationId={organizationId} />
+          </ErrorBoundary>
+        )}
+        {activeTab === "contacts" && (
+          <ErrorBoundary>
+            <ContactsPage organizationId={organizationId} />
           </ErrorBoundary>
         )}
         {activeTab === "inbox" && (

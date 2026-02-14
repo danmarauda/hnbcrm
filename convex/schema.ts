@@ -132,18 +132,22 @@ const applicationTables = {
     whatsappNumber: v.optional(v.string()),
     telegramUsername: v.optional(v.string()),
     tags: v.array(v.string()),
+    searchText: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
     .index("by_organization", ["organizationId"])
     .index("by_email", ["email"])
-    .index("by_phone", ["phone"]),
+    .index("by_phone", ["phone"])
+    .index("by_organization_and_email", ["organizationId", "email"])
+    .index("by_organization_and_phone", ["organizationId", "phone"])
+    .searchIndex("search_contacts", { searchField: "searchText", filterFields: ["organizationId"] }),
 
   // Leads
   leads: defineTable({
     organizationId: v.id("organizations"),
     title: v.string(),
-    contactId: v.id("contacts"),
+    contactId: v.optional(v.id("contacts")),
     boardId: v.id("boards"),
     stageId: v.id("stages"),
     assignedTo: v.optional(v.id("teamMembers")),
@@ -177,6 +181,9 @@ const applicationTables = {
       requestedAt: v.number(),
       completedAt: v.optional(v.number()),
     })),
+    closedAt: v.optional(v.number()),
+    closedReason: v.optional(v.string()),
+    closedType: v.optional(v.union(v.literal("won"), v.literal("lost"))),
     lastActivityAt: v.number(),
     createdAt: v.number(),
     updatedAt: v.number(),
@@ -186,6 +193,7 @@ const applicationTables = {
     .index("by_board", ["boardId"])
     .index("by_stage", ["stageId"])
     .index("by_assigned_to", ["assignedTo"])
+    .index("by_contact", ["contactId"])
     .index("by_organization_and_stage", ["organizationId", "stageId"])
     .index("by_organization_and_assigned", ["organizationId", "assignedTo"])
     .index("by_handoff_status", ["handoffState.status"])
@@ -315,6 +323,34 @@ const applicationTables = {
     .index("by_actor", ["actorId"])
     .index("by_organization_and_created", ["organizationId", "createdAt"])
     .index("by_severity", ["severity"]),
+
+  // Saved Views
+  savedViews: defineTable({
+    organizationId: v.id("organizations"),
+    createdBy: v.id("teamMembers"),
+    name: v.string(),
+    entityType: v.union(v.literal("leads"), v.literal("contacts")),
+    isShared: v.boolean(),
+    filters: v.object({
+      boardId: v.optional(v.id("boards")),
+      stageIds: v.optional(v.array(v.id("stages"))),
+      assignedTo: v.optional(v.id("teamMembers")),
+      priority: v.optional(v.union(v.literal("low"), v.literal("medium"), v.literal("high"), v.literal("urgent"))),
+      temperature: v.optional(v.union(v.literal("cold"), v.literal("warm"), v.literal("hot"))),
+      tags: v.optional(v.array(v.string())),
+      hasContact: v.optional(v.boolean()),
+      company: v.optional(v.string()),
+      minValue: v.optional(v.number()),
+      maxValue: v.optional(v.number()),
+    }),
+    sortBy: v.optional(v.string()),
+    sortOrder: v.optional(v.union(v.literal("asc"), v.literal("desc"))),
+    columns: v.optional(v.array(v.string())),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_organization", ["organizationId"])
+    .index("by_organization_and_entity", ["organizationId", "entityType"]),
 
   // Webhooks
   webhooks: defineTable({

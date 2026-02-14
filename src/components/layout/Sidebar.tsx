@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
   Kanban,
+  Contact2,
   MessageSquare,
   ArrowRightLeft,
   Users,
@@ -14,6 +15,7 @@ import type { Tab } from "./BottomTabBar";
 const navItems: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: "dashboard", label: "Painel", icon: LayoutDashboard },
   { id: "board", label: "Pipeline", icon: Kanban },
+  { id: "contacts", label: "Contatos", icon: Contact2 },
   { id: "inbox", label: "Caixa de Entrada", icon: MessageSquare },
   { id: "handoffs", label: "Repasses", icon: ArrowRightLeft },
   { id: "team", label: "Equipe", icon: Users },

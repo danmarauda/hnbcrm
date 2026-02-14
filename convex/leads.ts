@@ -38,7 +38,7 @@ export const getLeads = query({
     const leadsWithData = await Promise.all(
       leads.map(async (lead) => {
         const [contact, stage, assignee] = await Promise.all([
-          ctx.db.get(lead.contactId),
+          lead.contactId ? ctx.db.get(lead.contactId) : null,
           ctx.db.get(lead.stageId),
           lead.assignedTo ? ctx.db.get(lead.assignedTo) : null,
         ]);
@@ -68,7 +68,7 @@ export const getLead = query({
 
     // Get related data
     const [contact, stage, board, assignee, source] = await Promise.all([
-      ctx.db.get(lead.contactId),
+      lead.contactId ? ctx.db.get(lead.contactId) : null,
       ctx.db.get(lead.stageId),
       ctx.db.get(lead.boardId),
       lead.assignedTo ? ctx.db.get(lead.assignedTo) : null,
@@ -91,7 +91,7 @@ export const createLead = mutation({
   args: {
     organizationId: v.id("organizations"),
     title: v.string(),
-    contactId: v.id("contacts"),
+    contactId: v.optional(v.id("contacts")),
     boardId: v.id("boards"),
     stageId: v.optional(v.id("stages")),
     assignedTo: v.optional(v.id("teamMembers")),
@@ -181,6 +181,7 @@ export const updateLead = mutation({
   args: {
     leadId: v.id("leads"),
     title: v.optional(v.string()),
+    contactId: v.optional(v.id("contacts")),
     value: v.optional(v.number()),
     priority: v.optional(v.union(v.literal("low"), v.literal("medium"), v.literal("high"), v.literal("urgent"))),
     temperature: v.optional(v.union(v.literal("cold"), v.literal("warm"), v.literal("hot"))),
@@ -202,6 +203,10 @@ export const updateLead = mutation({
     if (args.title !== undefined && args.title !== lead.title) {
       changes.title = args.title;
       before.title = lead.title;
+    }
+    if (args.contactId !== undefined && args.contactId !== lead.contactId) {
+      changes.contactId = args.contactId;
+      before.contactId = lead.contactId;
     }
     if (args.value !== undefined && args.value !== lead.value) {
       changes.value = args.value;
@@ -260,6 +265,59 @@ export const updateLead = mutation({
   },
 });
 
+// Link/unlink contact to lead
+export const linkContact = mutation({
+  args: {
+    leadId: v.id("leads"),
+    contactId: v.optional(v.id("contacts")),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const lead = await ctx.db.get(args.leadId);
+    if (!lead) throw new Error("Lead not found");
+
+    const userMember = await requireAuth(ctx, lead.organizationId);
+
+    const now = Date.now();
+    const oldContactId = lead.contactId;
+
+    await ctx.db.patch(args.leadId, {
+      contactId: args.contactId,
+      lastActivityAt: now,
+      updatedAt: now,
+    });
+
+    // Log audit entry
+    await ctx.db.insert("auditLogs", {
+      organizationId: lead.organizationId,
+      entityType: "lead",
+      entityId: args.leadId,
+      action: "update",
+      actorId: userMember._id,
+      actorType: "human",
+      changes: {
+        before: { contactId: oldContactId },
+        after: { contactId: args.contactId },
+      },
+      severity: "medium",
+      createdAt: now,
+    });
+
+    // Log activity
+    await ctx.db.insert("activities", {
+      organizationId: lead.organizationId,
+      leadId: args.leadId,
+      type: "note",
+      actorId: userMember._id,
+      actorType: userMember.type === "ai" ? "ai" : "human",
+      content: args.contactId ? "Contact linked to lead" : "Contact unlinked from lead",
+      createdAt: now,
+    });
+
+    return null;
+  },
+});
+
 // Delete lead
 export const deleteLead = mutation({
   args: { leadId: v.id("leads") },
@@ -303,6 +361,8 @@ export const moveLeadToStage = mutation({
   args: {
     leadId: v.id("leads"),
     stageId: v.id("stages"),
+    closedReason: v.optional(v.string()),
+    finalValue: v.optional(v.number()),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
@@ -320,11 +380,31 @@ export const moveLeadToStage = mutation({
       ctx.db.get(args.stageId),
     ]);
 
-    await ctx.db.patch(args.leadId, {
+    const patch: Record<string, any> = {
       stageId: args.stageId,
       lastActivityAt: now,
       updatedAt: now,
-    });
+    };
+
+    // Handle closed stages
+    if (newStage?.isClosedWon) {
+      patch.closedAt = now;
+      patch.closedType = "won";
+      if (args.closedReason) patch.closedReason = args.closedReason;
+      if (args.finalValue !== undefined) patch.value = args.finalValue;
+    } else if (newStage?.isClosedLost) {
+      patch.closedAt = now;
+      patch.closedType = "lost";
+      if (args.closedReason) patch.closedReason = args.closedReason;
+      if (args.finalValue !== undefined) patch.value = args.finalValue;
+    } else {
+      // Moving to a non-closed stage clears close fields
+      patch.closedAt = undefined;
+      patch.closedReason = undefined;
+      patch.closedType = undefined;
+    }
+
+    await ctx.db.patch(args.leadId, patch);
 
     // Log audit entry
     await ctx.db.insert("auditLogs", {
@@ -537,7 +617,7 @@ export const internalGetLeads = internalQuery({
     const leadsWithData = await Promise.all(
       leads.map(async (lead) => {
         const [contact, stage, assignee] = await Promise.all([
-          ctx.db.get(lead.contactId),
+          lead.contactId ? ctx.db.get(lead.contactId) : null,
           ctx.db.get(lead.stageId),
           lead.assignedTo ? ctx.db.get(lead.assignedTo) : null,
         ]);
@@ -565,7 +645,7 @@ export const internalGetLead = internalQuery({
 
     // Get related data
     const [contact, stage, board, assignee, source] = await Promise.all([
-      ctx.db.get(lead.contactId),
+      lead.contactId ? ctx.db.get(lead.contactId) : null,
       ctx.db.get(lead.stageId),
       ctx.db.get(lead.boardId),
       lead.assignedTo ? ctx.db.get(lead.assignedTo) : null,
@@ -588,7 +668,7 @@ export const internalCreateLead = internalMutation({
   args: {
     organizationId: v.id("organizations"),
     title: v.string(),
-    contactId: v.id("contacts"),
+    contactId: v.optional(v.id("contacts")),
     boardId: v.id("boards"),
     stageId: v.optional(v.id("stages")),
     assignedTo: v.optional(v.id("teamMembers")),

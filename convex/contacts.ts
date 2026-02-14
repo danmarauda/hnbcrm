@@ -2,6 +2,12 @@ import { v } from "convex/values";
 import { query, mutation, internalQuery, internalMutation } from "./_generated/server";
 import { requireAuth } from "./lib/auth";
 
+function buildSearchText(contact: { firstName?: string; lastName?: string; email?: string; phone?: string; company?: string; title?: string }): string {
+  return [contact.firstName, contact.lastName, contact.email, contact.phone, contact.company, contact.title]
+    .filter(Boolean)
+    .join(" ");
+}
+
 // Get contacts for organization
 export const getContacts = query({
   args: { organizationId: v.id("organizations") },
@@ -36,6 +42,7 @@ export const createContact = mutation({
 
     const now = Date.now();
 
+    const searchText = buildSearchText(args);
     const contactId = await ctx.db.insert("contacts", {
       organizationId: args.organizationId,
       firstName: args.firstName,
@@ -47,6 +54,7 @@ export const createContact = mutation({
       whatsappNumber: args.whatsappNumber,
       telegramUsername: args.telegramUsername,
       tags: args.tags || [],
+      searchText: searchText || undefined,
       createdAt: now,
       updatedAt: now,
     });
@@ -59,7 +67,7 @@ export const createContact = mutation({
       action: "create",
       actorId: userMember._id,
       actorType: "human",
-      metadata: { 
+      metadata: {
         name: `${args.firstName || ""} ${args.lastName || ""}`.trim(),
         email: args.email,
       },
@@ -85,20 +93,22 @@ export const findOrCreateContact = mutation({
   handler: async (ctx, args) => {
     // Try to find existing contact
     let contact = null;
-    
+
     if (args.email) {
       contact = await ctx.db
         .query("contacts")
-        .withIndex("by_email", (q) => q.eq("email", args.email))
-        .filter((q) => q.eq(q.field("organizationId"), args.organizationId))
+        .withIndex("by_organization_and_email", (q) =>
+          q.eq("organizationId", args.organizationId).eq("email", args.email)
+        )
         .first();
     }
-    
+
     if (!contact && args.phone) {
       contact = await ctx.db
         .query("contacts")
-        .withIndex("by_phone", (q) => q.eq("phone", args.phone))
-        .filter((q) => q.eq(q.field("organizationId"), args.organizationId))
+        .withIndex("by_organization_and_phone", (q) =>
+          q.eq("organizationId", args.organizationId).eq("phone", args.phone)
+        )
         .first();
     }
 
@@ -108,6 +118,7 @@ export const findOrCreateContact = mutation({
 
     // Create new contact
     const now = Date.now();
+    const searchText = buildSearchText(args);
 
     const contactId = await ctx.db.insert("contacts", {
       organizationId: args.organizationId,
@@ -117,6 +128,7 @@ export const findOrCreateContact = mutation({
       phone: args.phone,
       company: args.company,
       tags: [],
+      searchText: searchText || undefined,
       createdAt: now,
       updatedAt: now,
     });
@@ -189,8 +201,13 @@ export const updateContact = mutation({
 
     if (Object.keys(changes).length === 0) return null;
 
+    // Rebuild searchText with merged fields
+    const merged = { ...contact, ...changes };
+    const searchText = buildSearchText(merged);
+
     await ctx.db.patch(args.contactId, {
       ...changes,
+      searchText: searchText || undefined,
       updatedAt: now,
     });
 
@@ -224,8 +241,7 @@ export const deleteContact = mutation({
     // Check for linked leads
     const linkedLeads = await ctx.db
       .query("leads")
-      .withIndex("by_organization", (q) => q.eq("organizationId", contact.organizationId))
-      .filter((q) => q.eq(q.field("contactId"), args.contactId))
+      .withIndex("by_contact", (q) => q.eq("contactId", args.contactId))
       .first();
 
     if (linkedLeads) {
@@ -267,6 +283,56 @@ export const getContact = query({
     await requireAuth(ctx, contact.organizationId);
 
     return contact;
+  },
+});
+
+// Search contacts using search index
+export const searchContacts = query({
+  args: {
+    organizationId: v.id("organizations"),
+    searchText: v.string(),
+    limit: v.optional(v.number()),
+  },
+  returns: v.any(),
+  handler: async (ctx, args) => {
+    await requireAuth(ctx, args.organizationId);
+
+    return await ctx.db
+      .query("contacts")
+      .withSearchIndex("search_contacts", (q) =>
+        q.search("searchText", args.searchText).eq("organizationId", args.organizationId)
+      )
+      .take(args.limit ?? 20);
+  },
+});
+
+// Get contact with all linked leads
+export const getContactWithLeads = query({
+  args: { contactId: v.id("contacts") },
+  returns: v.any(),
+  handler: async (ctx, args) => {
+    const contact = await ctx.db.get(args.contactId);
+    if (!contact) return null;
+
+    await requireAuth(ctx, contact.organizationId);
+
+    const leads = await ctx.db
+      .query("leads")
+      .withIndex("by_contact", (q) => q.eq("contactId", args.contactId))
+      .collect();
+
+    // Get stage info for each lead
+    const leadsWithData = await Promise.all(
+      leads.map(async (lead) => {
+        const [stage, assignee] = await Promise.all([
+          ctx.db.get(lead.stageId),
+          lead.assignedTo ? ctx.db.get(lead.assignedTo) : null,
+        ]);
+        return { ...lead, stage, assignee };
+      })
+    );
+
+    return { ...contact, leads: leadsWithData };
   },
 });
 
@@ -313,16 +379,18 @@ export const internalFindOrCreateContact = internalMutation({
     if (args.email) {
       contact = await ctx.db
         .query("contacts")
-        .withIndex("by_email", (q) => q.eq("email", args.email))
-        .filter((q) => q.eq(q.field("organizationId"), args.organizationId))
+        .withIndex("by_organization_and_email", (q) =>
+          q.eq("organizationId", args.organizationId).eq("email", args.email)
+        )
         .first();
     }
 
     if (!contact && args.phone) {
       contact = await ctx.db
         .query("contacts")
-        .withIndex("by_phone", (q) => q.eq("phone", args.phone))
-        .filter((q) => q.eq(q.field("organizationId"), args.organizationId))
+        .withIndex("by_organization_and_phone", (q) =>
+          q.eq("organizationId", args.organizationId).eq("phone", args.phone)
+        )
         .first();
     }
 
@@ -332,6 +400,7 @@ export const internalFindOrCreateContact = internalMutation({
 
     // Create new contact
     const now = Date.now();
+    const searchText = buildSearchText(args);
 
     const contactId = await ctx.db.insert("contacts", {
       organizationId: args.organizationId,
@@ -341,6 +410,7 @@ export const internalFindOrCreateContact = internalMutation({
       phone: args.phone,
       company: args.company,
       tags: [],
+      searchText: searchText || undefined,
       createdAt: now,
       updatedAt: now,
     });
@@ -371,6 +441,7 @@ export const internalCreateContact = internalMutation({
 
     const now = Date.now();
 
+    const searchText = buildSearchText(args);
     const contactId = await ctx.db.insert("contacts", {
       organizationId: args.organizationId,
       firstName: args.firstName,
@@ -382,6 +453,7 @@ export const internalCreateContact = internalMutation({
       whatsappNumber: args.whatsappNumber,
       telegramUsername: args.telegramUsername,
       tags: args.tags || [],
+      searchText: searchText || undefined,
       createdAt: now,
       updatedAt: now,
     });
@@ -472,8 +544,13 @@ export const internalUpdateContact = internalMutation({
 
     if (Object.keys(changes).length === 0) return null;
 
+    // Rebuild searchText with merged fields
+    const merged = { ...contact, ...changes };
+    const searchText = buildSearchText(merged);
+
     await ctx.db.patch(args.contactId, {
       ...changes,
+      searchText: searchText || undefined,
       updatedAt: now,
     });
 
