@@ -2,6 +2,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
+import { SlideOver } from "@/components/ui/SlideOver";
+import { Button } from "@/components/ui/Button";
+import { Spinner } from "@/components/ui/Spinner";
+import { cn } from "@/lib/utils";
 
 interface LeadDetailPanelProps {
   leadId: Id<"leads">;
@@ -14,61 +18,48 @@ type Tab = "conversation" | "details" | "activity";
 export function LeadDetailPanel({ leadId, organizationId, onClose }: LeadDetailPanelProps) {
   const [activeTab, setActiveTab] = useState<Tab>("conversation");
 
+  const tabLabels: Record<Tab, string> = {
+    conversation: "Conversa",
+    details: "Detalhes",
+    activity: "Atividade",
+  };
+
   return (
-    <>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black bg-opacity-30 z-40"
-        onClick={onClose}
-      />
-
-      {/* Panel */}
-      <div className="fixed right-0 top-0 h-full w-[480px] bg-white shadow-xl z-50 flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">Lead Details</h2>
+    <SlideOver open={true} onClose={onClose} title="Detalhes do Lead">
+      {/* Tab Bar */}
+      <div className="flex border-b border-border bg-surface-raised">
+        {(["conversation", "details", "activity"] as Tab[]).map((tab) => (
           <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={cn(
+              "flex-1 px-4 py-3 text-sm font-medium text-center transition-colors",
+              activeTab === tab
+                ? "text-brand-500 border-b-2 border-brand-500"
+                : "text-text-secondary hover:text-text-primary"
+            )}
           >
-            &times;
+            {tabLabels[tab]}
           </button>
-        </div>
-
-        {/* Tab Bar */}
-        <div className="flex border-b border-gray-200">
-          {(["conversation", "details", "activity"] as Tab[]).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`flex-1 px-4 py-3 text-sm font-medium text-center capitalize ${
-                activeTab === tab
-                  ? "text-blue-600 border-b-2 border-blue-600"
-                  : "text-gray-500 hover:text-gray-700"
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-
-        {/* Tab Content */}
-        <div className="flex-1 overflow-y-auto">
-          {activeTab === "conversation" && (
-            <ConversationTab
-              leadId={leadId}
-              organizationId={organizationId}
-            />
-          )}
-          {activeTab === "details" && (
-            <DetailsTab leadId={leadId} />
-          )}
-          {activeTab === "activity" && (
-            <ActivityTab leadId={leadId} />
-          )}
-        </div>
+        ))}
       </div>
-    </>
+
+      {/* Tab Content */}
+      <div className="flex-1 overflow-y-auto">
+        {activeTab === "conversation" && (
+          <ConversationTab
+            leadId={leadId}
+            organizationId={organizationId}
+          />
+        )}
+        {activeTab === "details" && (
+          <DetailsTab leadId={leadId} />
+        )}
+        {activeTab === "activity" && (
+          <ActivityTab leadId={leadId} />
+        )}
+      </div>
+    </SlideOver>
   );
 }
 
@@ -146,19 +137,28 @@ function ConversationTab({
     }
   };
 
+  const getSenderLabel = (senderType: string): string => {
+    const labels: Record<string, string> = {
+      contact: "Contato",
+      ai: "IA",
+      human: "Humano",
+    };
+    return labels[senderType] || senderType;
+  };
+
   return (
     <div className="flex flex-col h-full">
       {/* Messages List */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {!conversations && (
           <div className="flex justify-center py-8">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600" />
+            <Spinner size="md" />
           </div>
         )}
 
         {conversations && conversations.length === 0 && (
-          <div className="text-center py-12 text-gray-500 text-sm">
-            No conversation yet. Send a message to start one.
+          <div className="text-center py-12 text-text-muted text-sm">
+            Nenhuma conversa ainda. Envie uma mensagem para iniciar.
           </div>
         )}
 
@@ -173,41 +173,40 @@ function ConversationTab({
                 className={`flex ${isOutbound ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[75%] rounded-lg px-3 py-2 text-sm ${
+                  className={cn(
+                    "max-w-[75%] rounded-lg px-3 py-2 text-sm",
                     isInternalMsg
-                      ? "bg-yellow-50 border-2 border-dashed border-yellow-300 text-yellow-900"
+                      ? "bg-surface-overlay border-2 border-dashed border-semantic-warning/40 text-text-primary"
                       : isOutbound
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-900"
-                  }`}
+                      ? "bg-brand-600 text-white"
+                      : "bg-surface-sunken text-text-primary"
+                  )}
                 >
                   <div
-                    className={`text-xs font-medium mb-1 ${
+                    className={cn(
+                      "text-xs font-medium mb-1",
                       isInternalMsg
-                        ? "text-yellow-700"
+                        ? "text-semantic-warning"
                         : isOutbound
-                        ? "text-blue-200"
-                        : "text-gray-500"
-                    }`}
+                        ? "text-brand-100"
+                        : "text-text-muted"
+                    )}
                   >
-                    {msg.senderType === "contact"
-                      ? "Contact"
-                      : msg.senderType === "ai"
-                      ? "AI"
-                      : "Human"}
-                    {isInternalMsg && " (internal note)"}
+                    {getSenderLabel(msg.senderType)}
+                    {isInternalMsg && " (nota interna)"}
                   </div>
                   <p className="whitespace-pre-wrap">{msg.content}</p>
                   <div
-                    className={`text-xs mt-1 ${
+                    className={cn(
+                      "text-xs mt-1",
                       isInternalMsg
-                        ? "text-yellow-600"
+                        ? "text-semantic-warning/80"
                         : isOutbound
-                        ? "text-blue-200"
-                        : "text-gray-400"
-                    }`}
+                        ? "text-brand-100"
+                        : "text-text-muted"
+                    )}
                   >
-                    {new Date(msg.createdAt).toLocaleTimeString([], {
+                    {new Date(msg.createdAt).toLocaleTimeString("pt-BR", {
                       hour: "2-digit",
                       minute: "2-digit",
                     })}
@@ -220,16 +219,16 @@ function ConversationTab({
       </div>
 
       {/* Composer */}
-      <div className="border-t border-gray-200 p-4">
+      <div className="border-t border-border p-4 bg-surface-raised">
         <div className="flex items-center gap-2 mb-2">
-          <label className="flex items-center gap-1.5 text-xs text-gray-600 cursor-pointer select-none">
+          <label className="flex items-center gap-1.5 text-xs text-text-secondary cursor-pointer select-none">
             <input
               type="checkbox"
               checked={isInternal}
               onChange={(e) => setIsInternal(e.target.checked)}
-              className="rounded border-gray-300 text-yellow-500 focus:ring-yellow-500"
+              className="rounded border-border-strong text-semantic-warning focus:ring-semantic-warning accent-semantic-warning"
             />
-            Internal note
+            Nota interna
           </label>
         </div>
         <div className="flex gap-2">
@@ -237,17 +236,20 @@ function ConversationTab({
             value={messageText}
             onChange={(e) => setMessageText(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder={isInternal ? "Write an internal note..." : "Type a message..."}
+            placeholder={isInternal ? "Escreva uma nota interna..." : "Digite uma mensagem..."}
             rows={2}
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field text-sm resize-none focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 placeholder:text-text-muted"
+            style={{ fontSize: "16px" }}
           />
-          <button
+          <Button
             onClick={handleSend}
             disabled={!messageText.trim() || sending}
-            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed self-end"
+            variant="primary"
+            size="md"
+            className="self-end"
           >
-            Send
-          </button>
+            {sending ? "Enviando..." : "Enviar"}
+          </Button>
         </div>
       </div>
     </div>
@@ -295,7 +297,7 @@ function DetailsTab({ leadId }: { leadId: Id<"leads"> }) {
   if (!lead) {
     return (
       <div className="flex justify-center py-8">
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600" />
+        <Spinner size="md" />
       </div>
     );
   }
@@ -340,120 +342,127 @@ function DetailsTab({ leadId }: { leadId: Id<"leads"> }) {
     <div className="p-4 space-y-6">
       {/* Contact Info (read-only) */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-          Contact Information
+        <h3 className="text-[13px] font-semibold text-text-secondary uppercase tracking-wide mb-3">
+          Informações do Contato
         </h3>
-        <div className="bg-gray-50 rounded-lg p-4 space-y-2 text-sm">
+        <div className="bg-surface-sunken rounded-card p-4 space-y-2 text-sm">
           <div className="flex justify-between">
-            <span className="text-gray-500">Name</span>
-            <span className="text-gray-900 font-medium">
+            <span className="text-text-muted">Nome</span>
+            <span className="text-text-primary font-medium">
               {lead.contact
                 ? `${lead.contact.firstName || ""} ${lead.contact.lastName || ""}`.trim() || "—"
                 : "—"}
             </span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-500">Email</span>
-            <span className="text-gray-900">{lead.contact?.email || "—"}</span>
+            <span className="text-text-muted">Email</span>
+            <span className="text-text-primary">{lead.contact?.email || "—"}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-500">Phone</span>
-            <span className="text-gray-900">{lead.contact?.phone || "—"}</span>
+            <span className="text-text-muted">Telefone</span>
+            <span className="text-text-primary">{lead.contact?.phone || "—"}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-500">Company</span>
-            <span className="text-gray-900">{lead.contact?.company || "—"}</span>
+            <span className="text-text-muted">Empresa</span>
+            <span className="text-text-primary">{lead.contact?.company || "—"}</span>
           </div>
         </div>
       </div>
 
       {/* Editable Fields */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-          Lead Details
+        <h3 className="text-[13px] font-semibold text-text-secondary uppercase tracking-wide mb-3">
+          Detalhes do Lead
         </h3>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+            <label className="block text-[13px] font-medium text-text-secondary mb-1">Título</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+              style={{ fontSize: "16px" }}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Value</label>
+            <label className="block text-[13px] font-medium text-text-secondary mb-1">Valor</label>
             <input
               type="number"
               value={value}
               onChange={(e) => setValue(Number(e.target.value))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+              style={{ fontSize: "16px" }}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+            <label className="block text-[13px] font-medium text-text-secondary mb-1">Prioridade</label>
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value as typeof priority)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+              style={{ fontSize: "16px" }}
             >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-              <option value="urgent">Urgent</option>
+              <option value="low">Baixa</option>
+              <option value="medium">Média</option>
+              <option value="high">Alta</option>
+              <option value="urgent">Urgente</option>
             </select>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Temperature</label>
+            <label className="block text-[13px] font-medium text-text-secondary mb-1">Temperatura</label>
             <select
               value={temperature}
               onChange={(e) => setTemperature(e.target.value as typeof temperature)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+              style={{ fontSize: "16px" }}
             >
-              <option value="cold">Cold</option>
-              <option value="warm">Warm</option>
-              <option value="hot">Hot</option>
+              <option value="cold">Frio</option>
+              <option value="warm">Morno</option>
+              <option value="hot">Quente</option>
             </select>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Tags <span className="text-gray-400 font-normal">(comma-separated)</span>
+            <label className="block text-[13px] font-medium text-text-secondary mb-1">
+              Tags <span className="text-text-muted font-normal">(separadas por vírgula)</span>
             </label>
             <input
               type="text"
               value={tags}
               onChange={(e) => setTags(e.target.value)}
-              placeholder="e.g. enterprise, urgent, follow-up"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="ex: enterprise, urgente, follow-up"
+              className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 placeholder:text-text-muted"
+              style={{ fontSize: "16px" }}
             />
           </div>
 
-          <button
+          <Button
             onClick={handleSaveDetails}
             disabled={saving}
-            className="w-full px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            variant="primary"
+            size="md"
+            className="w-full"
           >
-            {saving ? "Saving..." : "Save Details"}
-          </button>
+            {saving ? "Salvando..." : "Salvar Detalhes"}
+          </Button>
         </div>
       </div>
 
       {/* BANT Qualification */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-          BANT Qualification
+        <h3 className="text-[13px] font-semibold text-text-secondary uppercase tracking-wide mb-3">
+          Qualificação BANT
         </h3>
         <div className="space-y-3">
           {[
-            { label: "Budget", checked: budget, setter: setBudget },
-            { label: "Authority", checked: authority, setter: setAuthority },
-            { label: "Need", checked: need, setter: setNeed },
-            { label: "Timeline", checked: timeline, setter: setTimeline },
+            { label: "Orçamento", checked: budget, setter: setBudget },
+            { label: "Autoridade", checked: authority, setter: setAuthority },
+            { label: "Necessidade", checked: need, setter: setNeed },
+            { label: "Prazo", checked: timeline, setter: setTimeline },
           ].map(({ label, checked, setter }) => (
             <label
               key={label}
@@ -463,23 +472,25 @@ function DetailsTab({ leadId }: { leadId: Id<"leads"> }) {
                 type="checkbox"
                 checked={checked}
                 onChange={(e) => setter(e.target.checked)}
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="rounded border-border-strong text-brand-500 focus:ring-brand-500 accent-brand-500"
               />
-              <span className="text-sm text-gray-700">{label}</span>
+              <span className="text-sm text-text-primary">{label}</span>
             </label>
           ))}
 
-          <div className="text-xs text-gray-500">
-            Score: {[budget, authority, need, timeline].filter(Boolean).length}/4
+          <div className="text-xs text-text-muted">
+            Pontuação: {[budget, authority, need, timeline].filter(Boolean).length}/4
           </div>
 
-          <button
+          <Button
             onClick={handleSaveBant}
             disabled={savingBant}
-            className="w-full px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            variant="primary"
+            size="md"
+            className="w-full"
           >
-            {savingBant ? "Saving..." : "Save Qualification"}
-          </button>
+            {savingBant ? "Salvando..." : "Salvar Qualificação"}
+          </Button>
         </div>
       </div>
     </div>
@@ -491,15 +502,15 @@ function DetailsTab({ leadId }: { leadId: Id<"leads"> }) {
 /* ------------------------------------------------------------------ */
 
 const activityTypeConfig: Record<string, { color: string; letter: string }> = {
-  created: { color: "bg-green-500", letter: "C" },
+  created: { color: "bg-semantic-success", letter: "C" },
   stage_change: { color: "bg-purple-500", letter: "S" },
   assignment: { color: "bg-indigo-500", letter: "A" },
-  message_sent: { color: "bg-blue-500", letter: "M" },
-  handoff: { color: "bg-orange-500", letter: "H" },
-  qualification_update: { color: "bg-yellow-500", letter: "Q" },
-  note: { color: "bg-gray-500", letter: "N" },
+  message_sent: { color: "bg-brand-500", letter: "M" },
+  handoff: { color: "bg-brand-600", letter: "H" },
+  qualification_update: { color: "bg-semantic-warning", letter: "Q" },
+  note: { color: "bg-surface-overlay", letter: "N" },
   call: { color: "bg-teal-500", letter: "P" },
-  email_sent: { color: "bg-cyan-500", letter: "E" },
+  email_sent: { color: "bg-semantic-info", letter: "E" },
 };
 
 function ActivityTab({ leadId }: { leadId: Id<"leads"> }) {
@@ -510,15 +521,15 @@ function ActivityTab({ leadId }: { leadId: Id<"leads"> }) {
   if (!activities) {
     return (
       <div className="flex justify-center py-8">
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600" />
+        <Spinner size="md" />
       </div>
     );
   }
 
   if (activities.length === 0) {
     return (
-      <div className="text-center py-12 text-gray-500 text-sm">
-        No activity recorded yet.
+      <div className="text-center py-12 text-text-muted text-sm">
+        Nenhuma atividade registrada ainda.
       </div>
     );
   }
@@ -527,12 +538,12 @@ function ActivityTab({ leadId }: { leadId: Id<"leads"> }) {
     <div className="p-4">
       <div className="relative">
         {/* Timeline line */}
-        <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200" />
+        <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-border" />
 
         <div className="space-y-6">
           {activities.map((activity) => {
             const config = activityTypeConfig[activity.type] || {
-              color: "bg-gray-400",
+              color: "bg-text-muted",
               letter: "?",
             };
 
@@ -540,7 +551,10 @@ function ActivityTab({ leadId }: { leadId: Id<"leads"> }) {
               <div key={activity._id} className="relative flex items-start gap-3 pl-1">
                 {/* Icon */}
                 <div
-                  className={`relative z-10 w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold ${config.color}`}
+                  className={cn(
+                    "relative z-10 w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold",
+                    config.color
+                  )}
                 >
                   {config.letter}
                 </div>
@@ -548,11 +562,11 @@ function ActivityTab({ leadId }: { leadId: Id<"leads"> }) {
                 {/* Content */}
                 <div className="flex-1 min-w-0 pt-0.5">
                   <div className="flex items-baseline justify-between gap-2">
-                    <span className="text-sm font-medium text-gray-900">
+                    <span className="text-sm font-medium text-text-primary">
                       {activity.actorName}
                     </span>
-                    <span className="text-xs text-gray-400 whitespace-nowrap">
-                      {new Date(activity.createdAt).toLocaleString([], {
+                    <span className="text-xs text-text-muted whitespace-nowrap">
+                      {new Date(activity.createdAt).toLocaleString("pt-BR", {
                         month: "short",
                         day: "numeric",
                         hour: "2-digit",
@@ -560,7 +574,7 @@ function ActivityTab({ leadId }: { leadId: Id<"leads"> }) {
                       })}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-600 mt-0.5">
+                  <p className="text-sm text-text-secondary mt-0.5">
                     {activity.content || activity.type.replace(/_/g, " ")}
                   </p>
                 </div>

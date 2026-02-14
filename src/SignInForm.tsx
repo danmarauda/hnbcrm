@@ -1,4 +1,3 @@
-"use client";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -11,7 +10,7 @@ export function SignInForm() {
   return (
     <div className="w-full">
       <form
-        className="flex flex-col gap-form-field"
+        className="flex flex-col gap-5"
         onSubmit={(e) => {
           e.preventDefault();
           setSubmitting(true);
@@ -20,12 +19,12 @@ export function SignInForm() {
           void signIn("password", formData).catch((error) => {
             let toastTitle = "";
             if (error.message.includes("Invalid password")) {
-              toastTitle = "Invalid password. Please try again.";
+              toastTitle = "Senha inválida. Tente novamente.";
             } else {
               toastTitle =
                 flow === "signIn"
-                  ? "Could not sign in, did you mean to sign up?"
-                  : "Could not sign up, did you mean to sign in?";
+                  ? "Não foi possível entrar. Você quis se cadastrar?"
+                  : "Não foi possível cadastrar. Você quis entrar?";
             }
             toast.error(toastTitle);
             setSubmitting(false);
@@ -43,34 +42,34 @@ export function SignInForm() {
           className="auth-input-field"
           type="password"
           name="password"
-          placeholder="Password"
+          placeholder="Senha"
           required
         />
         <button className="auth-button" type="submit" disabled={submitting}>
-          {flow === "signIn" ? "Sign in" : "Sign up"}
+          {flow === "signIn" ? "Entrar" : "Cadastrar"}
         </button>
-        <div className="text-center text-sm text-secondary">
-          <span>
+        <div className="text-center text-sm">
+          <span className="text-text-secondary">
             {flow === "signIn"
-              ? "Don't have an account? "
-              : "Already have an account? "}
+              ? "Não tem conta? "
+              : "Já tem conta? "}
           </span>
           <button
             type="button"
-            className="text-primary hover:text-primary-hover hover:underline font-medium cursor-pointer"
+            className="text-brand-500 hover:text-brand-400 hover:underline font-medium cursor-pointer"
             onClick={() => setFlow(flow === "signIn" ? "signUp" : "signIn")}
           >
-            {flow === "signIn" ? "Sign up instead" : "Sign in instead"}
+            {flow === "signIn" ? "Cadastrar" : "Entrar"}
           </button>
         </div>
       </form>
       <div className="flex items-center justify-center my-3">
-        <hr className="my-4 grow border-gray-200" />
-        <span className="mx-4 text-secondary">or</span>
-        <hr className="my-4 grow border-gray-200" />
+        <hr className="my-4 grow border-border" />
+        <span className="mx-4 text-text-muted">ou</span>
+        <hr className="my-4 grow border-border" />
       </div>
       <button className="auth-button" onClick={() => void signIn("anonymous")}>
-        Sign in anonymously
+        Entrar anonimamente
       </button>
     </div>
   );

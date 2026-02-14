@@ -29,13 +29,13 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
       if (this.props.fallback) return this.props.fallback;
       return (
         <div className="flex flex-col items-center justify-center p-8 text-center">
-          <h3 className="text-lg font-semibold text-red-600 mb-2">Something went wrong</h3>
-          <p className="text-gray-600 mb-4">{this.state.error?.message || "An unexpected error occurred"}</p>
+          <h3 className="text-lg font-semibold text-semantic-error mb-2">Algo deu errado</h3>
+          <p className="text-text-secondary mb-4">{this.state.error?.message || "Ocorreu um erro inesperado"}</p>
           <button
             onClick={() => this.setState({ hasError: false, error: null })}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-6 py-2.5 bg-brand-600 text-white rounded-full font-semibold hover:bg-brand-700 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 focus:ring-offset-surface-base"
           >
-            Try Again
+            Tentar novamente
           </button>
         </div>
       );

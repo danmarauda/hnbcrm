@@ -1,7 +1,15 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Badge } from "@/components/ui/Badge";
+import { Avatar } from "@/components/ui/Avatar";
+import { Modal } from "@/components/ui/Modal";
+import { Spinner } from "@/components/ui/Spinner";
+import { cn } from "@/lib/utils";
 
 interface TeamPageProps {
   organizationId: Id<"organizations">;
@@ -35,7 +43,7 @@ export function TeamPage({ organizationId }: TeamPageProps) {
         role: newMember.role,
         type: newMember.type,
       });
-      
+
       setNewMember({ name: "", email: "", role: "agent", type: "human" });
       setShowAddMember(false);
     } catch (error) {
@@ -57,172 +65,153 @@ export function TeamPage({ organizationId }: TeamPageProps) {
   if (!teamMembers) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <Spinner size="lg" />
       </div>
     );
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active": return "bg-green-100 text-green-800";
-      case "busy": return "bg-yellow-100 text-yellow-800";
-      case "inactive": return "bg-gray-100 text-gray-800";
-      default: return "bg-gray-100 text-gray-800";
+  const getRoleBadgeVariant = (role: string) => {
+    switch (role) {
+      case "admin": return "brand";
+      case "manager": return "info";
+      case "agent": return "success";
+      case "ai": return "warning";
+      default: return "default";
     }
   };
 
-  const getRoleColor = (role: string) => {
-    switch (role) {
-      case "admin": return "bg-purple-100 text-purple-800";
-      case "manager": return "bg-blue-100 text-blue-800";
-      case "agent": return "bg-green-100 text-green-800";
-      case "ai": return "bg-orange-100 text-orange-800";
-      default: return "bg-gray-100 text-gray-800";
-    }
+  const getTypeBadgeVariant = (type: string) => {
+    return type === "ai" ? "warning" : "info";
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">Team Members</h2>
-        <button
-          onClick={() => setShowAddMember(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          Add Member
-        </button>
+        <h2 className="text-2xl font-bold text-text-primary">Membros da Equipe</h2>
+        <Button onClick={() => setShowAddMember(true)}>
+          Adicionar Membro
+        </Button>
       </div>
 
       {/* Add Member Modal */}
-      {showAddMember && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">Add Team Member</h3>
-            
-            <form onSubmit={handleAddMember} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Name *
-                </label>
-                <input
-                  type="text"
-                  value={newMember.name}
-                  onChange={(e) => setNewMember({ ...newMember, name: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
+      <Modal
+        open={showAddMember}
+        onClose={() => setShowAddMember(false)}
+        title="Adicionar Membro da Equipe"
+      >
+        <form onSubmit={handleAddMember} className="space-y-4">
+          <Input
+            label="Nome *"
+            type="text"
+            value={newMember.name}
+            onChange={(e) => setNewMember({ ...newMember, name: e.target.value })}
+            required
+          />
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  value={newMember.email}
-                  onChange={(e) => setNewMember({ ...newMember, email: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+          <Input
+            label="Email"
+            type="email"
+            value={newMember.email}
+            onChange={(e) => setNewMember({ ...newMember, email: e.target.value })}
+          />
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Type
-                </label>
-                <select
-                  value={newMember.type}
-                  onChange={(e) => setNewMember({ ...newMember, type: e.target.value as "human" | "ai" })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="human">Human</option>
-                  <option value="ai">AI Agent</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Role
-                </label>
-                <select
-                  value={newMember.role}
-                  onChange={(e) => setNewMember({ ...newMember, role: e.target.value as any })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="agent">Agent</option>
-                  <option value="manager">Manager</option>
-                  <option value="admin">Admin</option>
-                  {newMember.type === "ai" && <option value="ai">AI</option>}
-                </select>
-              </div>
-
-              <div className="flex gap-2 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowAddMember(false)}
-                  className="flex-1 px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                >
-                  Add Member
-                </button>
-              </div>
-            </form>
+          <div>
+            <label className="block text-[13px] font-medium text-text-secondary mb-1.5">
+              Tipo
+            </label>
+            <select
+              value={newMember.type}
+              onChange={(e) => setNewMember({ ...newMember, type: e.target.value as "human" | "ai" })}
+              className="w-full bg-surface-raised border border-border-strong text-text-primary rounded-field px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
+            >
+              <option value="human">Humano</option>
+              <option value="ai">Agente IA</option>
+            </select>
           </div>
-        </div>
-      )}
+
+          <div>
+            <label className="block text-[13px] font-medium text-text-secondary mb-1.5">
+              Função
+            </label>
+            <select
+              value={newMember.role}
+              onChange={(e) => setNewMember({ ...newMember, role: e.target.value as any })}
+              className="w-full bg-surface-raised border border-border-strong text-text-primary rounded-field px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
+            >
+              <option value="agent">Agente</option>
+              <option value="manager">Gerente</option>
+              <option value="admin">Admin</option>
+              {newMember.type === "ai" && <option value="ai">IA</option>}
+            </select>
+          </div>
+
+          <div className="flex gap-2 pt-4">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setShowAddMember(false)}
+              className="flex-1"
+            >
+              Cancelar
+            </Button>
+            <Button type="submit" className="flex-1">
+              Adicionar Membro
+            </Button>
+          </div>
+        </form>
+      </Modal>
 
       {/* Team Members Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {teamMembers.map((member) => (
-          <div key={member._id} className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+          <Card key={member._id}>
             <div className="flex items-center gap-3 mb-4">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white text-lg font-semibold ${
-                member.type === "ai" ? "bg-orange-500" : "bg-blue-500"
-              }`}>
-                {member.name.charAt(0).toUpperCase()}
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900">{member.name}</h3>
+              <Avatar
+                name={member.name}
+                type={member.type}
+                size="lg"
+                status={member.status}
+              />
+              <div className="min-w-0 flex-1">
+                <h3 className="font-semibold text-text-primary truncate">{member.name}</h3>
                 {member.email && (
-                  <p className="text-sm text-gray-600">{member.email}</p>
+                  <p className="text-sm text-text-secondary truncate">{member.email}</p>
                 )}
               </div>
             </div>
 
-            <div className="flex items-center gap-2 mb-3">
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRoleColor(member.role)}`}>
+            <div className="flex items-center gap-2 mb-3 flex-wrap">
+              <Badge variant={getRoleBadgeVariant(member.role)}>
                 {member.role}
-              </span>
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                member.type === "ai" ? "bg-orange-100 text-orange-800" : "bg-blue-100 text-blue-800"
-              }`}>
-                {member.type}
-              </span>
+              </Badge>
+              <Badge variant={getTypeBadgeVariant(member.type)}>
+                {member.type === "ai" ? "IA" : "Humano"}
+              </Badge>
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-[13px] font-medium text-text-secondary mb-1.5">
                 Status
               </label>
               <select
                 value={member.status}
                 onChange={(e) => handleStatusChange(member._id, e.target.value as any)}
-                className={`w-full px-2 py-1 rounded text-sm font-medium ${getStatusColor(member.status)}`}
+                className={cn(
+                  "w-full px-3 py-2 rounded-field text-sm font-medium border transition-colors",
+                  "bg-surface-raised border-border-strong text-text-primary",
+                  "focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
+                )}
               >
-                <option value="active">Active</option>
-                <option value="busy">Busy</option>
-                <option value="inactive">Inactive</option>
+                <option value="active">Ativo</option>
+                <option value="busy">Ocupado</option>
+                <option value="inactive">Inativo</option>
               </select>
             </div>
 
-            <div className="text-xs text-gray-500">
-              Joined {new Date(member.createdAt).toLocaleDateString()}
+            <div className="text-xs text-text-muted">
+              Desde {new Date(member.createdAt).toLocaleDateString("pt-BR")}
             </div>
-          </div>
+          </Card>
         ))}
       </div>
     </div>

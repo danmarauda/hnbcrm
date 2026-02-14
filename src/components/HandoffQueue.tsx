@@ -3,6 +3,11 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { toast } from "sonner";
+import { Card } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
+import { Avatar } from "@/components/ui/Avatar";
+import { Spinner } from "@/components/ui/Spinner";
+import { Button } from "@/components/ui/Button";
 
 interface HandoffQueueProps {
   organizationId: Id<"organizations">;
@@ -22,8 +27,9 @@ export function HandoffQueue({ organizationId }: HandoffQueueProps) {
       await acceptHandoff({
         handoffId: handoffId as Id<"handoffs">,
       });
+      toast.success("Repasse aceito com sucesso");
     } catch (error) {
-      toast.error("Failed to accept handoff");
+      toast.error("Falha ao aceitar repasse");
     }
   };
 
@@ -32,15 +38,16 @@ export function HandoffQueue({ organizationId }: HandoffQueueProps) {
       await rejectHandoff({
         handoffId: handoffId as Id<"handoffs">,
       });
+      toast.success("Repasse rejeitado");
     } catch (error) {
-      toast.error("Failed to reject handoff");
+      toast.error("Falha ao rejeitar repasse");
     }
   };
 
   if (!handoffs) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <Spinner size="lg" />
       </div>
     );
   }
@@ -48,60 +55,72 @@ export function HandoffQueue({ organizationId }: HandoffQueueProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">Handoff Queue</h2>
-        <span className="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-sm font-medium">
-          {handoffs.length} pending
-        </span>
+        <h2 className="text-xl md:text-2xl font-bold text-text-primary">Fila de Repasses</h2>
+        <Badge variant="warning">
+          <span className="tabular-nums">{handoffs.length}</span> {handoffs.length === 1 ? "pendente" : "pendentes"}
+        </Badge>
       </div>
 
       {handoffs.length === 0 ? (
         <div className="text-center py-12">
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No pending handoffs</h3>
-          <p className="text-gray-600">All handoff requests have been processed.</p>
+          <h3 className="text-lg font-medium text-text-primary mb-2">Nenhum repasse pendente</h3>
+          <p className="text-text-secondary">Todos os repasses foram processados.</p>
         </div>
       ) : (
         <div className="grid gap-6">
           {handoffs.map((handoff) => (
-            <div key={handoff._id} className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-1">
+            <Card key={handoff._id}>
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-base md:text-lg font-semibold text-text-primary mb-1 truncate">
                     {handoff.lead?.title}
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-sm text-text-secondary truncate">
                     {handoff.contact?.firstName} {handoff.contact?.lastName}
                     {handoff.contact?.company && ` • ${handoff.contact?.company}`}
                   </p>
                 </div>
-                <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-sm">
-                  Pending
-                </span>
+                <Badge variant="warning" className="shrink-0 self-start sm:self-auto">
+                  Pendente
+                </Badge>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-4 mb-4">
+              <div className="grid sm:grid-cols-2 gap-4 mb-4">
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-2">From</h4>
+                  <h4 className="text-sm font-medium text-text-primary mb-2">De</h4>
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm">
-                      {handoff.fromMember?.name.charAt(0).toUpperCase()}
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-900">{handoff.fromMember?.name}</p>
-                      <p className="text-sm text-gray-600">{handoff.fromMember?.role}</p>
+                    <Avatar
+                      name={handoff.fromMember?.name || "?"}
+                      type={handoff.fromMember?.type === "ai" ? "ai" : "human"}
+                      size="md"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-text-primary truncate">
+                        {handoff.fromMember?.name}
+                      </p>
+                      <p className="text-xs text-text-secondary truncate">
+                        {handoff.fromMember?.role}
+                      </p>
                     </div>
                   </div>
                 </div>
 
                 {handoff.toMember && (
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-2">To</h4>
+                    <h4 className="text-sm font-medium text-text-primary mb-2">Para</h4>
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm">
-                        {handoff.toMember.name.charAt(0).toUpperCase()}
-                      </div>
-                      <div>
-                        <p className="font-medium text-gray-900">{handoff.toMember.name}</p>
-                        <p className="text-sm text-gray-600">{handoff.toMember.role}</p>
+                      <Avatar
+                        name={handoff.toMember.name || "?"}
+                        type={handoff.toMember.type === "ai" ? "ai" : "human"}
+                        size="md"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-text-primary truncate">
+                          {handoff.toMember.name}
+                        </p>
+                        <p className="text-xs text-text-secondary truncate">
+                          {handoff.toMember.role}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -109,49 +128,60 @@ export function HandoffQueue({ organizationId }: HandoffQueueProps) {
               </div>
 
               <div className="mb-4">
-                <h4 className="font-medium text-gray-900 mb-2">Reason</h4>
-                <p className="text-gray-700">{handoff.reason}</p>
+                <h4 className="text-sm font-medium text-text-primary mb-2">Motivo</h4>
+                <p className="text-sm text-text-secondary">{handoff.reason}</p>
               </div>
 
               {handoff.summary && (
                 <div className="mb-4">
-                  <h4 className="font-medium text-gray-900 mb-2">Summary</h4>
-                  <p className="text-gray-700">{handoff.summary}</p>
+                  <h4 className="text-sm font-medium text-text-primary mb-2">Resumo</h4>
+                  <p className="text-sm text-text-secondary">{handoff.summary}</p>
                 </div>
               )}
 
               {handoff.suggestedActions.length > 0 && (
                 <div className="mb-6">
-                  <h4 className="font-medium text-gray-900 mb-2">Suggested Actions</h4>
-                  <ul className="list-disc list-inside space-y-1">
+                  <h4 className="text-sm font-medium text-text-primary mb-2">Ações Sugeridas</h4>
+                  <ul className="space-y-1">
                     {handoff.suggestedActions.map((action, index) => (
-                      <li key={index} className="text-gray-700">{action}</li>
+                      <li key={index} className="text-sm text-text-secondary flex items-start gap-2">
+                        <span className="text-text-muted mt-0.5">•</span>
+                        <span className="flex-1">{action}</span>
+                      </li>
                     ))}
                   </ul>
                 </div>
               )}
 
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-500">
-                  Requested {new Date(handoff.createdAt).toLocaleDateString()}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 border-t border-border">
+                <span className="text-xs text-text-muted tabular-nums">
+                  Solicitado em {new Date(handoff.createdAt).toLocaleDateString("pt-BR", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                  })}
                 </span>
-                
+
                 <div className="flex gap-2">
-                  <button
+                  <Button
                     onClick={() => handleReject(handoff._id)}
-                    className="px-4 py-2 text-red-600 border border-red-300 rounded-lg hover:bg-red-50"
+                    variant="secondary"
+                    size="md"
+                    className="flex-1 sm:flex-none text-semantic-error border-semantic-error/30 hover:bg-semantic-error/10"
                   >
-                    Reject
-                  </button>
-                  <button
+                    Rejeitar
+                  </Button>
+                  <Button
                     onClick={() => handleAccept(handoff._id)}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    variant="primary"
+                    size="md"
+                    className="flex-1 sm:flex-none"
                   >
-                    Accept
-                  </button>
+                    Aceitar
+                  </Button>
                 </div>
               </div>
-            </div>
+            </Card>
           ))}
         </div>
       )}

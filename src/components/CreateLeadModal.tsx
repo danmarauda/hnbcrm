@@ -3,6 +3,9 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { toast } from "sonner";
+import { Modal } from "@/components/ui/Modal";
+import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/utils";
 
 interface CreateLeadModalProps {
   organizationId: Id<"organizations">;
@@ -46,7 +49,7 @@ export function CreateLeadModal({ organizationId, boardId, onClose }: CreateLead
     e.preventDefault();
     if (!title.trim()) return;
     if (!createNewContact && !selectedContactId) {
-      setError("Please select a contact or create a new one.");
+      setError("Selecione um contato ou crie um novo.");
       return;
     }
 
@@ -58,7 +61,7 @@ export function CreateLeadModal({ organizationId, boardId, onClose }: CreateLead
 
       if (createNewContact) {
         if (!firstName.trim() && !lastName.trim() && !email.trim()) {
-          setError("Please provide at least a name or email for the new contact.");
+          setError("Forneça pelo menos um nome ou email.");
           setSubmitting(false);
           return;
         }
@@ -88,200 +91,211 @@ export function CreateLeadModal({ organizationId, boardId, onClose }: CreateLead
 
       onClose();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to create lead");
-      setError(err instanceof Error ? err.message : "Failed to create lead.");
+      toast.error(err instanceof Error ? err.message : "Falha ao criar lead");
+      setError(err instanceof Error ? err.message : "Falha ao criar lead.");
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Create New Lead</h3>
+    <Modal open={true} onClose={onClose} title="Criar Novo Lead">
+      {error && (
+        <div className="mb-4 p-3 bg-semantic-error/10 text-semantic-error text-sm rounded-lg border border-semantic-error/20">
+          {error}
+        </div>
+      )}
 
-        {error && (
-          <div className="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-lg border border-red-200">
-            {error}
-          </div>
-        )}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Title */}
+        <div>
+          <label className="block text-[13px] font-medium text-text-secondary mb-1">
+            Título <span className="text-semantic-error">*</span>
+          </label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="ex: Negócio SaaS Enterprise"
+            className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 placeholder:text-text-muted"
+            style={{ fontSize: "16px" }}
+            required
+          />
+        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Title */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Title <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Enterprise SaaS Deal"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-
-          {/* Contact Selection */}
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="block text-sm font-medium text-gray-700">Contact</label>
-              <button
-                type="button"
-                onClick={() => {
-                  setCreateNewContact(!createNewContact);
-                  setSelectedContactId("");
-                }}
-                className="text-xs text-blue-600 hover:text-blue-800 font-medium"
-              >
-                {createNewContact ? "Select Existing" : "Create New"}
-              </button>
-            </div>
-
-            {!createNewContact ? (
-              <select
-                value={selectedContactId}
-                onChange={(e) => setSelectedContactId(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Select a contact...</option>
-                {contacts?.map((contact) => (
-                  <option key={contact._id} value={contact._id}>
-                    {[contact.firstName, contact.lastName].filter(Boolean).join(" ") || contact.email || contact.phone || "Unnamed"}
-                    {contact.company ? ` (${contact.company})` : ""}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <div className="space-y-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">First Name</label>
-                    <input
-                      type="text"
-                      value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">Last Name</label>
-                    <input
-                      type="text"
-                      value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">Email</label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">Phone</label>
-                  <input
-                    type="text"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-600 mb-1">Company</label>
-                  <input
-                    type="text"
-                    value={company}
-                    onChange={(e) => setCompany(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Value */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Value</label>
-            <input
-              type="number"
-              value={value}
-              onChange={(e) => setValue(Number(e.target.value))}
-              min={0}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          {/* Priority */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
-            <select
-              value={priority}
-              onChange={(e) => setPriority(e.target.value as typeof priority)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        {/* Contact Selection */}
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <label className="block text-[13px] font-medium text-text-secondary">Contato</label>
+            <button
+              type="button"
+              onClick={() => {
+                setCreateNewContact(!createNewContact);
+                setSelectedContactId("");
+              }}
+              className="text-xs text-brand-500 hover:text-brand-400 font-medium transition-colors"
             >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-              <option value="urgent">Urgent</option>
-            </select>
+              {createNewContact ? "Selecionar Existente" : "Criar Novo"}
+            </button>
           </div>
 
-          {/* Temperature */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Temperature</label>
+          {!createNewContact ? (
             <select
-              value={temperature}
-              onChange={(e) => setTemperature(e.target.value as typeof temperature)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={selectedContactId}
+              onChange={(e) => setSelectedContactId(e.target.value)}
+              className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+              style={{ fontSize: "16px" }}
             >
-              <option value="cold">Cold</option>
-              <option value="warm">Warm</option>
-              <option value="hot">Hot</option>
-            </select>
-          </div>
-
-          {/* Assigned To */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Assigned To</label>
-            <select
-              value={assignedTo}
-              onChange={(e) => setAssignedTo(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Unassigned</option>
-              {teamMembers?.map((member) => (
-                <option key={member._id} value={member._id}>
-                  {member.name} ({member.role})
+              <option value="">Selecione um contato...</option>
+              {contacts?.map((contact) => (
+                <option key={contact._id} value={contact._id}>
+                  {[contact.firstName, contact.lastName].filter(Boolean).join(" ") || contact.email || contact.phone || "Sem nome"}
+                  {contact.company ? ` (${contact.company})` : ""}
                 </option>
               ))}
             </select>
-          </div>
+          ) : (
+            <div className="space-y-3 p-3 bg-surface-sunken rounded-card border border-border">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-medium text-text-secondary mb-1">Nome</label>
+                  <input
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                    style={{ fontSize: "16px" }}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-text-secondary mb-1">Sobrenome</label>
+                  <input
+                    type="text"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                    style={{ fontSize: "16px" }}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-text-secondary mb-1">Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                  style={{ fontSize: "16px" }}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-text-secondary mb-1">Telefone</label>
+                <input
+                  type="text"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                  style={{ fontSize: "16px" }}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-text-secondary mb-1">Empresa</label>
+                <input
+                  type="text"
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                  className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+                  style={{ fontSize: "16px" }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
 
-          {/* Actions */}
-          <div className="flex gap-2 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={submitting}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-            >
-              {submitting ? "Creating..." : "Create Lead"}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+        {/* Value */}
+        <div>
+          <label className="block text-[13px] font-medium text-text-secondary mb-1">Valor</label>
+          <input
+            type="number"
+            value={value}
+            onChange={(e) => setValue(Number(e.target.value))}
+            min={0}
+            className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+            style={{ fontSize: "16px" }}
+          />
+        </div>
+
+        {/* Priority */}
+        <div>
+          <label className="block text-[13px] font-medium text-text-secondary mb-1">Prioridade</label>
+          <select
+            value={priority}
+            onChange={(e) => setPriority(e.target.value as typeof priority)}
+            className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+            style={{ fontSize: "16px" }}
+          >
+            <option value="low">Baixa</option>
+            <option value="medium">Média</option>
+            <option value="high">Alta</option>
+            <option value="urgent">Urgente</option>
+          </select>
+        </div>
+
+        {/* Temperature */}
+        <div>
+          <label className="block text-[13px] font-medium text-text-secondary mb-1">Temperatura</label>
+          <select
+            value={temperature}
+            onChange={(e) => setTemperature(e.target.value as typeof temperature)}
+            className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+            style={{ fontSize: "16px" }}
+          >
+            <option value="cold">Frio</option>
+            <option value="warm">Morno</option>
+            <option value="hot">Quente</option>
+          </select>
+        </div>
+
+        {/* Assigned To */}
+        <div>
+          <label className="block text-[13px] font-medium text-text-secondary mb-1">Atribuído a</label>
+          <select
+            value={assignedTo}
+            onChange={(e) => setAssignedTo(e.target.value)}
+            className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
+            style={{ fontSize: "16px" }}
+          >
+            <option value="">Não atribuído</option>
+            {teamMembers?.map((member) => (
+              <option key={member._id} value={member._id}>
+                {member.name} ({member.role})
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-2 pt-4">
+          <Button
+            type="button"
+            onClick={onClose}
+            variant="secondary"
+            size="md"
+            className="flex-1"
+          >
+            Cancelar
+          </Button>
+          <Button
+            type="submit"
+            disabled={submitting}
+            variant="primary"
+            size="md"
+            className="flex-1"
+          >
+            {submitting ? "Criando..." : "Criar Lead"}
+          </Button>
+        </div>
+      </form>
+    </Modal>
   );
 }

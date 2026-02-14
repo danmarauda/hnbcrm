@@ -1,8 +1,15 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { toast } from "sonner";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Badge } from "@/components/ui/Badge";
+import { Modal } from "@/components/ui/Modal";
+import { Spinner } from "@/components/ui/Spinner";
+import { cn } from "@/lib/utils";
 
 interface SettingsProps {
   organizationId: Id<"organizations">;
@@ -14,28 +21,29 @@ export function Settings({ organizationId }: SettingsProps) {
   const [activeSection, setActiveSection] = useState<SettingsSection>("general");
 
   const sections = [
-    { id: "general", name: "General" },
-    { id: "apikeys", name: "API Keys" },
-    { id: "fields", name: "Custom Fields" },
-    { id: "sources", name: "Lead Sources" },
+    { id: "general", name: "Geral" },
+    { id: "apikeys", name: "Chaves API" },
+    { id: "fields", name: "Campos Personalizados" },
+    { id: "sources", name: "Fontes de Leads" },
     { id: "webhooks", name: "Webhooks" },
   ];
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900">Settings</h2>
+      <h2 className="text-2xl font-bold text-text-primary">Configurações</h2>
 
       {/* Section tabs */}
-      <div className="flex gap-2 border-b pb-2">
+      <div className="flex gap-2 flex-wrap">
         {sections.map((section) => (
           <button
             key={section.id}
             onClick={() => setActiveSection(section.id as SettingsSection)}
-            className={`px-4 py-2 rounded-t-lg text-sm font-medium ${
+            className={cn(
+              "px-4 py-2 rounded-full text-sm font-medium transition-colors",
               activeSection === section.id
-                ? "bg-blue-600 text-white"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-            }`}
+                ? "bg-brand-600 text-white"
+                : "bg-surface-overlay text-text-secondary hover:bg-surface-raised"
+            )}
           >
             {section.name}
           </button>
@@ -62,13 +70,13 @@ function OrgProfileSection({ organizationId }: { organizationId: Id<"organizatio
   const [currency, setCurrency] = useState("");
   const [saving, setSaving] = useState(false);
 
-  React.useEffect(() => {
+  useState(() => {
     if (org) {
       setName(org.name || "");
       setTimezone(org.settings?.timezone || "UTC");
       setCurrency(org.settings?.currency || "USD");
     }
-  }, [org]);
+  });
 
   const handleSave = async () => {
     setSaving(true);
@@ -82,65 +90,68 @@ function OrgProfileSection({ organizationId }: { organizationId: Id<"organizatio
           aiConfig: org?.settings?.aiConfig,
         },
       });
+      toast.success("Organização atualizada com sucesso");
     } catch (error) {
-      toast.error("Failed to update organization");
+      toast.error("Falha ao atualizar organização");
     }
     setSaving(false);
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Organization Profile</h3>
+    <Card>
+      <h3 className="text-lg font-semibold text-text-primary mb-4">Perfil da Organização</h3>
       <div className="space-y-4 max-w-md">
+        <Input
+          label="Nome da Organização"
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Organization Name</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Timezone</label>
+          <label className="block text-[13px] font-medium text-text-secondary mb-1.5">
+            Fuso Horário
+          </label>
           <select
             value={timezone}
             onChange={(e) => setTimezone(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full bg-surface-raised border border-border-strong text-text-primary rounded-field px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
           >
             <option value="UTC">UTC</option>
             <option value="America/New_York">Eastern Time</option>
             <option value="America/Chicago">Central Time</option>
             <option value="America/Denver">Mountain Time</option>
             <option value="America/Los_Angeles">Pacific Time</option>
+            <option value="America/Sao_Paulo">São Paulo</option>
             <option value="Europe/London">London</option>
             <option value="Europe/Berlin">Berlin</option>
             <option value="Asia/Tokyo">Tokyo</option>
           </select>
         </div>
+
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Currency</label>
+          <label className="block text-[13px] font-medium text-text-secondary mb-1.5">
+            Moeda
+          </label>
           <select
             value={currency}
             onChange={(e) => setCurrency(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full bg-surface-raised border border-border-strong text-text-primary rounded-field px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
           >
             <option value="USD">USD ($)</option>
-            <option value="EUR">EUR</option>
-            <option value="GBP">GBP</option>
+            <option value="BRL">BRL (R$)</option>
+            <option value="EUR">EUR (€)</option>
+            <option value="GBP">GBP (£)</option>
             <option value="CAD">CAD</option>
             <option value="AUD">AUD</option>
           </select>
         </div>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-        >
-          {saving ? "Saving..." : "Save Changes"}
-        </button>
+
+        <Button onClick={handleSave} disabled={saving}>
+          {saving ? "Salvando..." : "Salvar"}
+        </Button>
       </div>
-    </div>
+    </Card>
   );
 }
 
@@ -166,7 +177,7 @@ function ApiKeysSection({ organizationId }: { organizationId: Id<"organizations"
     try {
       const aiAgent = teamMembers?.find(m => m.type === "ai");
       if (!aiAgent) {
-        toast.error("No AI agent found. Please create an AI team member first.");
+        toast.error("Nenhum agente IA encontrado. Crie um membro IA primeiro.");
         return;
       }
 
@@ -176,85 +187,80 @@ function ApiKeysSection({ organizationId }: { organizationId: Id<"organizations"
         name: newApiKeyName,
       });
 
-      alert(`API Key created: ${result.apiKey}\n\nPlease save this key securely. You won't be able to see it again.`);
+      alert(`Chave API criada: ${result.apiKey}\n\nSalve esta chave em local seguro. Você não poderá vê-la novamente.`);
       setNewApiKeyName("");
       setShowCreateApiKey(false);
     } catch (error) {
-      toast.error("Failed to create API key");
+      toast.error("Falha ao criar chave API");
     }
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6">
+    <Card>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">API Keys</h3>
-        <button
-          onClick={() => setShowCreateApiKey(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          Create API Key
-        </button>
+        <h3 className="text-lg font-semibold text-text-primary">Chaves API</h3>
+        <Button onClick={() => setShowCreateApiKey(true)}>
+          Criar Chave
+        </Button>
       </div>
+
+      {!apiKeys && (
+        <div className="flex justify-center py-8">
+          <Spinner />
+        </div>
+      )}
 
       {apiKeys && apiKeys.length > 0 ? (
         <div className="space-y-3">
           {apiKeys.map((key) => (
-            <div key={key._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div key={key._id} className="flex items-center justify-between p-3 bg-surface-sunken rounded-lg">
               <div>
-                <h4 className="font-medium text-gray-900">{key.name}</h4>
-                <p className="text-sm text-gray-600">
-                  Created {new Date(key.createdAt).toLocaleDateString()}
-                  {key.lastUsed && ` - Last used ${new Date(key.lastUsed).toLocaleDateString()}`}
+                <h4 className="font-medium text-text-primary">{key.name}</h4>
+                <p className="text-sm text-text-secondary">
+                  Criada em {new Date(key.createdAt).toLocaleDateString("pt-BR")}
+                  {key.lastUsed && ` • Último uso ${new Date(key.lastUsed).toLocaleDateString("pt-BR")}`}
                 </p>
               </div>
-              <span className={`px-2 py-1 rounded-full text-xs ${
-                key.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"
-              }`}>
-                {key.isActive ? "Active" : "Inactive"}
-              </span>
+              <Badge variant={key.isActive ? "success" : "default"}>
+                {key.isActive ? "Ativa" : "Inativa"}
+              </Badge>
             </div>
           ))}
         </div>
-      ) : (
-        <p className="text-gray-600">No API keys created yet.</p>
-      )}
+      ) : apiKeys ? (
+        <p className="text-text-secondary">Nenhuma chave API criada.</p>
+      ) : null}
 
-      {showCreateApiKey && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">Create API Key</h3>
-            <form onSubmit={handleCreateApiKey} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Key Name</label>
-                <input
-                  type="text"
-                  value={newApiKeyName}
-                  onChange={(e) => setNewApiKeyName(e.target.value)}
-                  placeholder="e.g., Production API Key"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
-              <div className="flex gap-2 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowCreateApiKey(false)}
-                  className="flex-1 px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-                >
-                  Create Key
-                </button>
-              </div>
-            </form>
+      <Modal
+        open={showCreateApiKey}
+        onClose={() => setShowCreateApiKey(false)}
+        title="Criar Chave API"
+      >
+        <form onSubmit={handleCreateApiKey} className="space-y-4">
+          <Input
+            label="Nome da Chave"
+            type="text"
+            value={newApiKeyName}
+            onChange={(e) => setNewApiKeyName(e.target.value)}
+            placeholder="ex: Chave de Produção"
+            required
+          />
+          <div className="flex gap-2 pt-4">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setShowCreateApiKey(false)}
+              className="flex-1"
+            >
+              Cancelar
+            </Button>
+            <Button type="submit" className="flex-1">
+              Criar Chave
+            </Button>
           </div>
-        </div>
-      )}
-    </div>
+        </form>
+      </Modal>
+    </Card>
   );
 }
 
@@ -315,7 +321,7 @@ function CustomFieldsSection({ organizationId }: { organizationId: Id<"organizat
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this custom field definition?")) return;
+    if (!confirm("Excluir este campo personalizado?")) return;
     try {
       await deleteField({ fieldDefinitionId: id as Id<"fieldDefinitions"> });
     } catch (error) {
@@ -324,83 +330,97 @@ function CustomFieldsSection({ organizationId }: { organizationId: Id<"organizat
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6">
+    <Card>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">Custom Fields</h3>
-        <button
+        <h3 className="text-lg font-semibold text-text-primary">Campos Personalizados</h3>
+        <Button
           onClick={() => { setShowForm(true); setEditingId(null); setForm({ name: "", key: "", type: "text", options: "", isRequired: false }); }}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
-          Add Field
-        </button>
+          Adicionar Campo
+        </Button>
       </div>
+
+      {!fieldDefs && (
+        <div className="flex justify-center py-8">
+          <Spinner />
+        </div>
+      )}
 
       {fieldDefs && fieldDefs.length > 0 ? (
         <div className="space-y-2">
           {fieldDefs.map((field) => (
-            <div key={field._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-              <div>
-                <span className="font-medium text-gray-900">{field.name}</span>
-                <span className="ml-2 text-sm text-gray-500">({field.key})</span>
-                <span className="ml-2 px-2 py-0.5 rounded text-xs bg-blue-100 text-blue-800">{field.type}</span>
-                {field.isRequired && <span className="ml-2 px-2 py-0.5 rounded text-xs bg-red-100 text-red-800">Required</span>}
+            <div key={field._id} className="flex items-center justify-between p-3 bg-surface-sunken rounded-lg">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-medium text-text-primary">{field.name}</span>
+                <span className="text-sm text-text-muted">({field.key})</span>
+                <Badge variant="info">{field.type}</Badge>
+                {field.isRequired && <Badge variant="error">Obrigatório</Badge>}
               </div>
               <div className="flex gap-2">
-                <button onClick={() => handleEdit(field)} className="text-sm text-blue-600 hover:underline">Edit</button>
-                <button onClick={() => handleDelete(field._id)} className="text-sm text-red-600 hover:underline">Delete</button>
+                <button onClick={() => handleEdit(field)} className="text-sm text-brand-500 hover:text-brand-400">Editar</button>
+                <button onClick={() => handleDelete(field._id)} className="text-sm text-semantic-error hover:text-semantic-error/80">Excluir</button>
               </div>
             </div>
           ))}
         </div>
-      ) : (
-        <p className="text-gray-600">No custom fields defined yet.</p>
-      )}
+      ) : fieldDefs ? (
+        <p className="text-text-secondary">Nenhum campo personalizado definido.</p>
+      ) : null}
 
-      {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">{editingId ? "Edit" : "Add"} Custom Field</h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required />
-              </div>
-              {!editingId && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Key</label>
-                  <input type="text" value={form.key} onChange={(e) => setForm({ ...form, key: e.target.value })} placeholder="unique_key" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required />
-                </div>
-              )}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
-                <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="text">Text</option>
-                  <option value="number">Number</option>
-                  <option value="boolean">Boolean</option>
-                  <option value="date">Date</option>
-                  <option value="select">Select</option>
-                  <option value="multiselect">Multi-select</option>
-                </select>
-              </div>
-              {(form.type === "select" || form.type === "multiselect") && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Options (comma-separated)</label>
-                  <input type="text" value={form.options} onChange={(e) => setForm({ ...form, options: e.target.value })} placeholder="Option 1, Option 2, Option 3" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                </div>
-              )}
-              <label className="flex items-center gap-2">
-                <input type="checkbox" checked={form.isRequired} onChange={(e) => setForm({ ...form, isRequired: e.target.checked })} />
-                <span className="text-sm text-gray-700">Required</span>
-              </label>
-              <div className="flex gap-2 pt-4">
-                <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }} className="flex-1 px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
-                <button type="submit" className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Save</button>
-              </div>
-            </form>
+      <Modal
+        open={showForm}
+        onClose={() => { setShowForm(false); setEditingId(null); }}
+        title={editingId ? "Editar Campo Personalizado" : "Adicionar Campo Personalizado"}
+      >
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input
+            label="Nome"
+            type="text"
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            required
+          />
+          {!editingId && (
+            <Input
+              label="Chave"
+              type="text"
+              value={form.key}
+              onChange={(e) => setForm({ ...form, key: e.target.value })}
+              placeholder="unique_key"
+              required
+            />
+          )}
+          <div>
+            <label className="block text-[13px] font-medium text-text-secondary mb-1.5">Tipo</label>
+            <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="w-full bg-surface-raised border border-border-strong text-text-primary rounded-field px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20">
+              <option value="text">Text</option>
+              <option value="number">Number</option>
+              <option value="boolean">Boolean</option>
+              <option value="date">Date</option>
+              <option value="select">Select</option>
+              <option value="multiselect">Multi-select</option>
+            </select>
           </div>
-        </div>
-      )}
-    </div>
+          {(form.type === "select" || form.type === "multiselect") && (
+            <Input
+              label="Opções (separadas por vírgula)"
+              type="text"
+              value={form.options}
+              onChange={(e) => setForm({ ...form, options: e.target.value })}
+              placeholder="Opção 1, Opção 2, Opção 3"
+            />
+          )}
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" checked={form.isRequired} onChange={(e) => setForm({ ...form, isRequired: e.target.checked })} className="rounded border-border-strong bg-surface-raised text-brand-600 focus:ring-brand-500" />
+            <span className="text-sm text-text-secondary">Obrigatório</span>
+          </label>
+          <div className="flex gap-2 pt-4">
+            <Button type="button" variant="secondary" onClick={() => { setShowForm(false); setEditingId(null); }} className="flex-1">Cancelar</Button>
+            <Button type="submit" className="flex-1">Salvar</Button>
+          </div>
+        </form>
+      </Modal>
+    </Card>
   );
 }
 
@@ -448,7 +468,7 @@ function LeadSourcesSection({ organizationId }: { organizationId: Id<"organizati
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this lead source?")) return;
+    if (!confirm("Excluir esta fonte de leads?")) return;
     try {
       await deleteSource({ leadSourceId: id as Id<"leadSources"> });
     } catch (error) {
@@ -457,69 +477,76 @@ function LeadSourcesSection({ organizationId }: { organizationId: Id<"organizati
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6">
+    <Card>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">Lead Sources</h3>
-        <button
+        <h3 className="text-lg font-semibold text-text-primary">Fontes de Leads</h3>
+        <Button
           onClick={() => { setShowForm(true); setEditingId(null); setForm({ name: "", type: "website" }); }}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
-          Add Source
-        </button>
+          Adicionar Fonte
+        </Button>
       </div>
+
+      {!sources && (
+        <div className="flex justify-center py-8">
+          <Spinner />
+        </div>
+      )}
 
       {sources && sources.length > 0 ? (
         <div className="space-y-2">
           {sources.map((source) => (
-            <div key={source._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-              <div className="flex items-center gap-2">
-                <span className="font-medium text-gray-900">{source.name}</span>
-                <span className="px-2 py-0.5 rounded text-xs bg-purple-100 text-purple-800">{source.type}</span>
-                <span className={`px-2 py-0.5 rounded text-xs ${source.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}>
-                  {source.isActive ? "Active" : "Inactive"}
-                </span>
+            <div key={source._id} className="flex items-center justify-between p-3 bg-surface-sunken rounded-lg">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-medium text-text-primary">{source.name}</span>
+                <Badge variant="brand">{source.type}</Badge>
+                <Badge variant={source.isActive ? "success" : "default"}>
+                  {source.isActive ? "Ativa" : "Inativa"}
+                </Badge>
               </div>
               <div className="flex gap-2">
-                <button onClick={() => handleEdit(source)} className="text-sm text-blue-600 hover:underline">Edit</button>
-                <button onClick={() => handleDelete(source._id)} className="text-sm text-red-600 hover:underline">Delete</button>
+                <button onClick={() => handleEdit(source)} className="text-sm text-brand-500 hover:text-brand-400">Editar</button>
+                <button onClick={() => handleDelete(source._id)} className="text-sm text-semantic-error hover:text-semantic-error/80">Excluir</button>
               </div>
             </div>
           ))}
         </div>
-      ) : (
-        <p className="text-gray-600">No lead sources configured.</p>
-      )}
+      ) : sources ? (
+        <p className="text-text-secondary">Nenhuma fonte de leads configurada.</p>
+      ) : null}
 
-      {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">{editingId ? "Edit" : "Add"} Lead Source</h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
-                <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                  <option value="website">Website</option>
-                  <option value="social">Social</option>
-                  <option value="email">Email</option>
-                  <option value="phone">Phone</option>
-                  <option value="referral">Referral</option>
-                  <option value="api">API</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-              <div className="flex gap-2 pt-4">
-                <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }} className="flex-1 px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
-                <button type="submit" className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Save</button>
-              </div>
-            </form>
+      <Modal
+        open={showForm}
+        onClose={() => { setShowForm(false); setEditingId(null); }}
+        title={editingId ? "Editar Fonte de Leads" : "Adicionar Fonte de Leads"}
+      >
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input
+            label="Nome"
+            type="text"
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            required
+          />
+          <div>
+            <label className="block text-[13px] font-medium text-text-secondary mb-1.5">Tipo</label>
+            <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="w-full bg-surface-raised border border-border-strong text-text-primary rounded-field px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20">
+              <option value="website">Website</option>
+              <option value="social">Social</option>
+              <option value="email">Email</option>
+              <option value="phone">Phone</option>
+              <option value="referral">Referral</option>
+              <option value="api">API</option>
+              <option value="other">Other</option>
+            </select>
           </div>
-        </div>
-      )}
-    </div>
+          <div className="flex gap-2 pt-4">
+            <Button type="button" variant="secondary" onClick={() => { setShowForm(false); setEditingId(null); }} className="flex-1">Cancelar</Button>
+            <Button type="submit" className="flex-1">Salvar</Button>
+          </div>
+        </form>
+      </Modal>
+    </Card>
   );
 }
 
@@ -571,7 +598,7 @@ function WebhooksSection({ organizationId }: { organizationId: Id<"organizations
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this webhook?")) return;
+    if (!confirm("Excluir este webhook?")) return;
     try {
       await deleteWebhook({ webhookId: id as Id<"webhooks"> });
     } catch (error) {
@@ -580,75 +607,95 @@ function WebhooksSection({ organizationId }: { organizationId: Id<"organizations
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6">
+    <Card>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">Webhooks</h3>
-        <button
+        <h3 className="text-lg font-semibold text-text-primary">Webhooks</h3>
+        <Button
           onClick={() => { setShowForm(true); setEditingId(null); setForm({ name: "", url: "", events: "", secret: "" }); }}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
         >
-          Add Webhook
-        </button>
+          Adicionar Webhook
+        </Button>
       </div>
+
+      {!webhooks && (
+        <div className="flex justify-center py-8">
+          <Spinner />
+        </div>
+      )}
 
       {webhooks && webhooks.length > 0 ? (
         <div className="space-y-2">
           {webhooks.map((webhook) => (
-            <div key={webhook._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-              <div>
-                <span className="font-medium text-gray-900">{webhook.name}</span>
-                <p className="text-sm text-gray-600">{webhook.url}</p>
-                <div className="flex gap-1 mt-1">
-                  {webhook.events.map((event, i) => (
-                    <span key={i} className="px-2 py-0.5 rounded text-xs bg-gray-200 text-gray-700">{event}</span>
-                  ))}
+            <div key={webhook._id} className="p-3 bg-surface-sunken rounded-lg">
+              <div className="flex items-start justify-between mb-2">
+                <div className="flex-1 min-w-0">
+                  <span className="font-medium text-text-primary">{webhook.name}</span>
+                  <p className="text-sm text-text-secondary truncate">{webhook.url}</p>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0 ml-3">
+                  <Badge variant={webhook.isActive ? "success" : "default"}>
+                    {webhook.isActive ? "Ativo" : "Inativo"}
+                  </Badge>
+                  <button onClick={() => handleEdit(webhook)} className="text-sm text-brand-500 hover:text-brand-400">Editar</button>
+                  <button onClick={() => handleDelete(webhook._id)} className="text-sm text-semantic-error hover:text-semantic-error/80">Excluir</button>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <span className={`px-2 py-1 rounded-full text-xs ${webhook.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}>
-                  {webhook.isActive ? "Active" : "Inactive"}
-                </span>
-                <button onClick={() => handleEdit(webhook)} className="text-sm text-blue-600 hover:underline">Edit</button>
-                <button onClick={() => handleDelete(webhook._id)} className="text-sm text-red-600 hover:underline">Delete</button>
+              <div className="flex gap-1 flex-wrap">
+                {webhook.events.map((event, i) => (
+                  <Badge key={i} variant="default">{event}</Badge>
+                ))}
               </div>
             </div>
           ))}
         </div>
-      ) : (
-        <p className="text-gray-600">No webhooks configured.</p>
-      )}
+      ) : webhooks ? (
+        <p className="text-text-secondary">Nenhum webhook configurado.</p>
+      ) : null}
 
-      {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">{editingId ? "Edit" : "Add"} Webhook</h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-                <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">URL</label>
-                <input type="url" value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} placeholder="https://example.com/webhook" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Events (comma-separated)</label>
-                <input type="text" value={form.events} onChange={(e) => setForm({ ...form, events: e.target.value })} placeholder="lead.created, lead.stage_changed, message.sent" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required />
-              </div>
-              {!editingId && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Secret (auto-generated if empty)</label>
-                  <input type="text" value={form.secret} onChange={(e) => setForm({ ...form, secret: e.target.value })} placeholder="Auto-generated" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                </div>
-              )}
-              <div className="flex gap-2 pt-4">
-                <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }} className="flex-1 px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
-                <button type="submit" className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Save</button>
-              </div>
-            </form>
+      <Modal
+        open={showForm}
+        onClose={() => { setShowForm(false); setEditingId(null); }}
+        title={editingId ? "Editar Webhook" : "Adicionar Webhook"}
+      >
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input
+            label="Nome"
+            type="text"
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            required
+          />
+          <Input
+            label="URL"
+            type="url"
+            value={form.url}
+            onChange={(e) => setForm({ ...form, url: e.target.value })}
+            placeholder="https://exemplo.com/webhook"
+            required
+          />
+          <Input
+            label="Eventos (separados por vírgula)"
+            type="text"
+            value={form.events}
+            onChange={(e) => setForm({ ...form, events: e.target.value })}
+            placeholder="lead.created, lead.stage_changed, message.sent"
+            required
+          />
+          {!editingId && (
+            <Input
+              label="Segredo (gerado automaticamente se vazio)"
+              type="text"
+              value={form.secret}
+              onChange={(e) => setForm({ ...form, secret: e.target.value })}
+              placeholder="Auto-gerado"
+            />
+          )}
+          <div className="flex gap-2 pt-4">
+            <Button type="button" variant="secondary" onClick={() => { setShowForm(false); setEditingId(null); }} className="flex-1">Cancelar</Button>
+            <Button type="submit" className="flex-1">Salvar</Button>
           </div>
-        </div>
-      )}
-    </div>
+        </form>
+      </Modal>
+    </Card>
   );
 }

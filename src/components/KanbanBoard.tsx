@@ -4,6 +4,12 @@ import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { LeadDetailPanel } from "./LeadDetailPanel";
 import { CreateLeadModal } from "./CreateLeadModal";
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
+import { Avatar } from "@/components/ui/Avatar";
+import { Spinner } from "@/components/ui/Spinner";
+import { cn } from "@/lib/utils";
+import { Plus } from "lucide-react";
 
 interface KanbanBoardProps {
   organizationId: Id<"organizations">;
@@ -41,7 +47,7 @@ export function KanbanBoard({ organizationId }: KanbanBoardProps) {
   if (!boards) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <Spinner size="lg" />
       </div>
     );
   }
@@ -49,8 +55,8 @@ export function KanbanBoard({ organizationId }: KanbanBoardProps) {
   if (boards.length === 0) {
     return (
       <div className="text-center py-12">
-        <h3 className="text-lg font-medium text-gray-900 mb-2">No boards found</h3>
-        <p className="text-gray-600">Create your first sales pipeline to get started.</p>
+        <h3 className="text-lg font-medium text-text-primary mb-2">Nenhum quadro encontrado</h3>
+        <p className="text-text-secondary">Crie seu primeiro pipeline de vendas para começar.</p>
       </div>
     );
   }
@@ -79,52 +85,91 @@ export function KanbanBoard({ organizationId }: KanbanBoardProps) {
     }
   };
 
+  // Priority variant mapping
+  const getPriorityVariant = (priority: string): "error" | "warning" | "default" => {
+    if (priority === "urgent") return "error";
+    if (priority === "high") return "warning";
+    return "default";
+  };
+
+  // Temperature variant mapping
+  const getTemperatureVariant = (temperature: string): "error" | "warning" | "info" => {
+    if (temperature === "hot") return "error";
+    if (temperature === "warm") return "warning";
+    return "info";
+  };
+
+  // Priority label mapping
+  const getPriorityLabel = (priority: string): string => {
+    const labels: Record<string, string> = {
+      urgent: "Urgente",
+      high: "Alta",
+      medium: "Média",
+      low: "Baixa",
+    };
+    return labels[priority] || priority;
+  };
+
+  // Temperature label mapping
+  const getTemperatureLabel = (temperature: string): string => {
+    const labels: Record<string, string> = {
+      hot: "Quente",
+      warm: "Morno",
+      cold: "Frio",
+    };
+    return labels[temperature] || temperature;
+  };
+
   return (
     <div className="h-full flex flex-col">
       {/* Board Selector + Create Lead */}
       <div className="mb-6">
-        <div className="flex items-center gap-4">
-          <div className="flex gap-2 overflow-x-auto flex-1">
+        <div className="flex items-center gap-4 flex-wrap">
+          <div className="flex gap-2 overflow-x-auto flex-1 min-w-0">
             {boards.map((board) => (
               <button
                 key={board._id}
                 onClick={() => setSelectedBoardId(board._id)}
-                className={`px-4 py-2 rounded-lg font-medium whitespace-nowrap ${
+                className={cn(
+                  "px-4 py-2 rounded-full font-semibold whitespace-nowrap transition-all duration-150",
                   selectedBoardId === board._id
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                    ? "bg-brand-600 text-white"
+                    : "bg-surface-overlay text-text-secondary hover:bg-surface-raised"
+                )}
               >
                 {board.name}
               </button>
             ))}
           </div>
-          <button
+          <Button
             onClick={() => setShowCreateModal(true)}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 whitespace-nowrap"
+            variant="primary"
+            size="md"
+            className="whitespace-nowrap"
           >
-            + Create Lead
-          </button>
+            <Plus size={20} />
+            Criar Lead
+          </Button>
         </div>
       </div>
 
       {/* Kanban Board */}
       {stages && (
         <div className="flex-1 overflow-x-auto">
-          <div className="flex gap-6 h-full min-w-max pb-6">
+          <div className="flex gap-6 h-full min-w-max pb-6 scroll-smooth snap-x snap-mandatory">
             {stages.map((stage) => {
               const stageLeads = leads?.filter(lead => lead.stageId === stage._id) || [];
 
               return (
                 <div
                   key={stage._id}
-                  className="flex-shrink-0 w-80 bg-gray-50 rounded-lg p-4 flex flex-col"
+                  className="flex-shrink-0 w-80 bg-surface-sunken rounded-card p-4 flex flex-col snap-start"
                   onDragOver={handleDragOver}
                   onDrop={(e) => handleDrop(e, stage._id)}
                 >
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-semibold text-gray-900">{stage.name}</h3>
-                    <span className="bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-sm">
+                    <h3 className="font-semibold text-text-primary">{stage.name}</h3>
+                    <span className="bg-surface-overlay text-text-secondary px-2.5 py-0.5 rounded-full text-xs font-medium tabular-nums">
                       {stageLeads.length}
                     </span>
                   </div>
@@ -136,55 +181,39 @@ export function KanbanBoard({ organizationId }: KanbanBoardProps) {
                         draggable
                         onDragStart={(e) => handleDragStart(e, lead._id)}
                         onClick={() => setSelectedLeadId(lead._id)}
-                        className="bg-white p-4 rounded-lg shadow-sm border cursor-pointer hover:shadow-md transition-shadow"
+                        className="bg-surface-raised p-4 rounded-card border border-border cursor-pointer hover:border-border-strong hover:shadow-card-hover transition-all"
                       >
-                        <h4 className="font-medium text-gray-900 mb-2">{lead.title}</h4>
+                        <h4 className="font-medium text-text-primary mb-2">{lead.title}</h4>
 
                         {lead.contact && (
-                          <p className="text-sm text-gray-600 mb-2">
+                          <p className="text-sm text-text-secondary mb-2">
                             {lead.contact.firstName} {lead.contact.lastName}
                             {lead.contact.company && ` • ${lead.contact.company}`}
                           </p>
                         )}
 
-                        <div className="flex items-center justify-between">
-                          <span className="text-lg font-semibold text-green-600">
-                            ${lead.value.toLocaleString()}
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-lg font-semibold text-brand-400 tabular-nums">
+                            R$ {lead.value.toLocaleString("pt-BR")}
                           </span>
 
                           {lead.assignee && (
-                            <div className="flex items-center gap-1">
-                              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-xs ${
-                                lead.assignee.type === "ai" ? "bg-orange-500" : "bg-blue-500"
-                              }`}>
-                                {lead.assignee.name.charAt(0).toUpperCase()}
-                              </div>
-                              <span className={`px-1 py-0.5 rounded text-[10px] font-medium ${
-                                lead.assignee.type === "ai" ? "bg-orange-100 text-orange-700" : "bg-blue-100 text-blue-700"
-                              }`}>
-                                {lead.assignee.type === "ai" ? "AI" : "H"}
-                              </span>
-                            </div>
+                            <Avatar
+                              name={lead.assignee.name}
+                              type={lead.assignee.type}
+                              size="sm"
+                            />
                           )}
                         </div>
 
-                        <div className="flex items-center gap-2 mt-2">
-                          <span className={`px-2 py-1 rounded-full text-xs ${
-                            lead.priority === "urgent" ? "bg-red-100 text-red-800" :
-                            lead.priority === "high" ? "bg-orange-100 text-orange-800" :
-                            lead.priority === "medium" ? "bg-yellow-100 text-yellow-800" :
-                            "bg-gray-100 text-gray-800"
-                          }`}>
-                            {lead.priority}
-                          </span>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <Badge variant={getPriorityVariant(lead.priority)}>
+                            {getPriorityLabel(lead.priority)}
+                          </Badge>
 
-                          <span className={`px-2 py-1 rounded-full text-xs ${
-                            lead.temperature === "hot" ? "bg-red-100 text-red-800" :
-                            lead.temperature === "warm" ? "bg-orange-100 text-orange-800" :
-                            "bg-blue-100 text-blue-800"
-                          }`}>
-                            {lead.temperature}
-                          </span>
+                          <Badge variant={getTemperatureVariant(lead.temperature)}>
+                            {getTemperatureLabel(lead.temperature)}
+                          </Badge>
                         </div>
                       </div>
                     ))}

@@ -3,6 +3,12 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { toast } from "sonner";
+import { Send, ArrowLeft } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/Badge";
+import { Avatar } from "@/components/ui/Avatar";
+import { Spinner } from "@/components/ui/Spinner";
+import { Button } from "@/components/ui/Button";
 
 interface InboxProps {
   organizationId: Id<"organizations">;
@@ -12,12 +18,14 @@ export function Inbox({ organizationId }: InboxProps) {
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [isInternal, setIsInternal] = useState(false);
+  const [showMessages, setShowMessages] = useState(false);
 
   const conversations = useQuery(api.conversations.getConversations, {
     organizationId,
   });
 
-  const messages = useQuery(api.conversations.getMessages,
+  const messages = useQuery(
+    api.conversations.getMessages,
     selectedConversation ? { conversationId: selectedConversation as Id<"conversations"> } : "skip"
   );
 
@@ -36,14 +44,24 @@ export function Inbox({ organizationId }: InboxProps) {
       });
       setNewMessage("");
     } catch (error) {
-      toast.error("Failed to send message");
+      toast.error("Falha ao enviar mensagem");
     }
+  };
+
+  const handleSelectConversation = (conversationId: string) => {
+    setSelectedConversation(conversationId);
+    setShowMessages(true);
+  };
+
+  const handleBackToList = () => {
+    setShowMessages(false);
+    setSelectedConversation(null);
   };
 
   if (!conversations) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <Spinner size="lg" />
       </div>
     );
   }
@@ -51,103 +69,120 @@ export function Inbox({ organizationId }: InboxProps) {
   const validConversations = conversations.filter((c): c is NonNullable<typeof c> => c !== null);
 
   // Message bubble styling based on sender type
-  const getMessageStyle = (message: { isInternal: boolean; direction: string; senderType: string }) => {
+  const getMessageStyle = (message: {
+    isInternal: boolean;
+    direction: string;
+    senderType: string;
+  }) => {
     if (message.isInternal) {
       return {
         align: "justify-end" as const,
-        bg: "bg-yellow-50 border-2 border-dashed border-yellow-300 text-gray-900",
-        label: "Internal Note",
-        labelColor: "text-yellow-700",
+        bg: "bg-surface-overlay border border-dashed border-semantic-warning/30 text-text-primary",
+        rounded: "rounded-lg rounded-br-none",
+        label: "Nota Interna",
+        labelColor: "text-semantic-warning",
       };
     }
     if (message.direction === "inbound" || message.senderType === "contact") {
       return {
         align: "justify-start" as const,
-        bg: "bg-gray-200 text-gray-900",
-        label: "Contact",
-        labelColor: "text-gray-500",
+        bg: "bg-surface-raised text-text-primary",
+        rounded: "rounded-lg rounded-bl-none",
+        label: "Contato",
+        labelColor: "text-text-secondary",
       };
     }
     if (message.senderType === "ai") {
       return {
         align: "justify-end" as const,
-        bg: "bg-purple-600 text-white",
-        label: "AI Agent",
+        bg: "bg-purple-600/80 text-white",
+        rounded: "rounded-lg rounded-br-none",
+        label: "Agente IA",
         labelColor: "text-purple-300",
       };
     }
     // Human team member
     return {
       align: "justify-end" as const,
-      bg: "bg-blue-600 text-white",
-      label: "Team",
-      labelColor: "text-blue-200",
+      bg: "bg-brand-600 text-white",
+      rounded: "rounded-lg rounded-br-none",
+      label: "Equipe",
+      labelColor: "text-brand-200",
     };
   };
 
+  const getChannelBadgeVariant = (channel: string) => {
+    switch (channel) {
+      case "whatsapp":
+        return "success";
+      case "telegram":
+        return "info";
+      case "email":
+        return "brand";
+      default:
+        return "default";
+    }
+  };
+
   return (
-    <div className="h-full flex">
+    <div className="h-full flex flex-col md:flex-row">
       {/* Conversations List */}
-      <div className="w-1/3 border-r bg-gray-50">
-        <div className="p-4 border-b">
-          <h2 className="text-lg font-semibold text-gray-900">Conversations</h2>
+      <div
+        className={cn(
+          "w-full md:w-80 lg:w-96 bg-surface-raised md:border-r md:border-border flex flex-col",
+          showMessages && "hidden md:flex"
+        )}
+      >
+        <div className="p-4 border-b border-border">
+          <h2 className="text-lg font-semibold text-text-primary">Conversas</h2>
         </div>
 
-        <div className="overflow-y-auto h-full">
+        <div className="overflow-y-auto flex-1">
           {validConversations.length === 0 ? (
-            <div className="p-4 text-center text-gray-500">
-              No conversations yet
-            </div>
+            <div className="p-4 text-center text-text-muted">Nenhuma conversa ainda</div>
           ) : (
             validConversations.map((conversation) => (
               <div
                 key={conversation._id}
-                onClick={() => setSelectedConversation(conversation._id)}
-                className={`p-4 border-b cursor-pointer hover:bg-gray-100 ${
-                  selectedConversation === conversation._id ? "bg-blue-50 border-blue-200" : ""
-                }`}
+                onClick={() => handleSelectConversation(conversation._id)}
+                className={cn(
+                  "p-4 border-b border-border cursor-pointer transition-colors",
+                  "hover:bg-surface-overlay active:bg-surface-overlay",
+                  selectedConversation === conversation._id &&
+                    "bg-brand-500/10 border-l-2 border-l-brand-500"
+                )}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="font-medium text-gray-900">
+                  <h3 className="font-medium text-text-primary truncate">
                     {conversation.contact?.firstName} {conversation.contact?.lastName}
                   </h3>
-                  <span className={`px-2 py-1 rounded-full text-xs ${
-                    conversation.channel === "whatsapp" ? "bg-green-100 text-green-800" :
-                    conversation.channel === "telegram" ? "bg-blue-100 text-blue-800" :
-                    conversation.channel === "email" ? "bg-purple-100 text-purple-800" :
-                    "bg-gray-100 text-gray-800"
-                  }`}>
+                  <Badge variant={getChannelBadgeVariant(conversation.channel)}>
                     {conversation.channel}
-                  </span>
+                  </Badge>
                 </div>
 
                 {conversation.lead && (
-                  <p className="text-sm text-gray-600 mb-1">{conversation.lead.title}</p>
+                  <p className="text-sm text-text-secondary mb-1 truncate">{conversation.lead.title}</p>
                 )}
 
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-500">
-                    {conversation.messageCount} messages
+                  <span className="text-xs text-text-muted tabular-nums">
+                    {conversation.messageCount} {conversation.messageCount === 1 ? "mensagem" : "mensagens"}
                   </span>
-                  {conversation.assignee && (
-                    <div className="flex items-center gap-1">
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] ${
-                        conversation.assignee.type === "ai" ? "bg-orange-500" : "bg-blue-500"
-                      }`}>
-                        {conversation.assignee.name?.charAt(0).toUpperCase()}
-                      </div>
-                      <span className={`text-[10px] font-medium ${
-                        conversation.assignee.type === "ai" ? "text-orange-600" : "text-blue-600"
-                      }`}>
-                        {conversation.assignee.type === "ai" ? "AI" : ""}
+                  <div className="flex items-center gap-2">
+                    {conversation.assignee && (
+                      <Avatar
+                        name={conversation.assignee.name || "?"}
+                        type={conversation.assignee.type === "ai" ? "ai" : "human"}
+                        size="sm"
+                      />
+                    )}
+                    {conversation.lastMessageAt && (
+                      <span className="text-xs text-text-muted tabular-nums">
+                        {new Date(conversation.lastMessageAt).toLocaleDateString("pt-BR")}
                       </span>
-                    </div>
-                  )}
-                  {conversation.lastMessageAt && (
-                    <span className="text-xs text-gray-500">
-                      {new Date(conversation.lastMessageAt).toLocaleDateString()}
-                    </span>
-                  )}
+                    )}
+                  </div>
                 </div>
               </div>
             ))
@@ -156,28 +191,47 @@ export function Inbox({ organizationId }: InboxProps) {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 flex flex-col">
+      <div
+        className={cn(
+          "flex-1 flex flex-col bg-surface-base",
+          !showMessages && "hidden md:flex"
+        )}
+      >
         {selectedConversation ? (
           <>
+            {/* Mobile header with back button */}
+            <div className="md:hidden p-4 border-b border-border bg-surface-raised flex items-center gap-3">
+              <button
+                onClick={handleBackToList}
+                className="p-2 -ml-2 text-text-primary hover:bg-surface-overlay rounded-full transition-colors"
+                aria-label="Voltar"
+              >
+                <ArrowLeft size={20} />
+              </button>
+              <h2 className="text-base font-semibold text-text-primary">
+                {validConversations.find((c) => c._id === selectedConversation)?.contact?.firstName}{" "}
+                {validConversations.find((c) => c._id === selectedConversation)?.contact?.lastName}
+              </h2>
+            </div>
+
             {/* Messages List */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {messages?.map((message) => {
                 const style = getMessageStyle(message);
                 return (
-                  <div
-                    key={message._id}
-                    className={`flex ${style.align}`}
-                  >
-                    <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${style.bg}`}>
+                  <div key={message._id} className={`flex ${style.align}`}>
+                    <div className={cn("max-w-xs lg:max-w-md px-4 py-2", style.bg, style.rounded)}>
                       {/* Sender type label */}
-                      <div className={`text-[10px] font-medium mb-0.5 ${style.labelColor}`}>
+                      <div className={cn("text-xs font-medium mb-0.5", style.labelColor)}>
                         {message.sender?.name || style.label}
-                        {message.senderType && ` (${message.senderType})`}
                       </div>
                       <p className="text-sm">{message.content}</p>
                       <div className="flex items-center justify-end mt-1">
-                        <span className={`text-xs ${style.labelColor} opacity-75`}>
-                          {new Date(message.createdAt).toLocaleTimeString()}
+                        <span className="text-xs opacity-75">
+                          {new Date(message.createdAt).toLocaleTimeString("pt-BR", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
                         </span>
                       </div>
                     </div>
@@ -187,21 +241,19 @@ export function Inbox({ organizationId }: InboxProps) {
             </div>
 
             {/* Message Input */}
-            <form onSubmit={handleSendMessage} className="p-4 border-t">
+            <form onSubmit={handleSendMessage} className="p-4 border-t border-border bg-surface-raised">
               <div className="flex items-center gap-2 mb-2">
-                <label className="flex items-center gap-1.5 text-sm text-gray-600 cursor-pointer">
+                <label className="flex items-center gap-1.5 text-sm text-text-secondary cursor-pointer">
                   <input
                     type="checkbox"
                     checked={isInternal}
                     onChange={(e) => setIsInternal(e.target.checked)}
-                    className="rounded"
+                    className="rounded accent-brand-500"
                   />
-                  Internal note
+                  Nota interna
                 </label>
                 {isInternal && (
-                  <span className="text-xs text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded">
-                    Only visible to team members
-                  </span>
+                  <Badge variant="warning">Visível apenas para membros da equipe</Badge>
                 )}
               </div>
               <div className="flex gap-2">
@@ -209,26 +261,35 @@ export function Inbox({ organizationId }: InboxProps) {
                   type="text"
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
-                  placeholder={isInternal ? "Write an internal note..." : "Type a message..."}
-                  className={`flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    isInternal ? "border-yellow-300 bg-yellow-50" : "border-gray-300"
-                  }`}
+                  placeholder={isInternal ? "Escreva uma nota interna..." : "Digite uma mensagem..."}
+                  className={cn(
+                    "flex-1 px-3 py-2 bg-surface-sunken border text-text-primary rounded-field text-base",
+                    "placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-surface-raised transition-all",
+                    isInternal
+                      ? "border-semantic-warning/30 focus:border-semantic-warning focus:ring-semantic-warning/20"
+                      : "border-border-strong focus:border-brand-500 focus:ring-brand-500/20"
+                  )}
                 />
-                <button
+                <Button
                   type="submit"
                   disabled={!newMessage.trim()}
-                  className={`px-4 py-2 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed ${
-                    isInternal ? "bg-yellow-600 hover:bg-yellow-700" : "bg-blue-600 hover:bg-blue-700"
-                  }`}
+                  variant={isInternal ? "secondary" : "primary"}
+                  size="md"
+                  className={cn(
+                    "shrink-0",
+                    isInternal && "bg-semantic-warning hover:bg-amber-600 text-white"
+                  )}
+                  aria-label={isInternal ? "Adicionar Nota" : "Enviar"}
                 >
-                  {isInternal ? "Add Note" : "Send"}
-                </button>
+                  <Send size={16} />
+                  <span className="hidden sm:inline">{isInternal ? "Adicionar Nota" : "Enviar"}</span>
+                </Button>
               </div>
             </form>
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-gray-500">
-            Select a conversation to view messages
+          <div className="flex-1 flex items-center justify-center text-text-muted">
+            Selecione uma conversa para ver as mensagens
           </div>
         )}
       </div>

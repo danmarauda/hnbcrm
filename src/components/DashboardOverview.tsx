@@ -2,6 +2,11 @@ import React from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
+import { cn } from "@/lib/utils";
+import { Card } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
+import { Spinner } from "@/components/ui/Spinner";
+import { Avatar } from "@/components/ui/Avatar";
 
 interface DashboardOverviewProps {
   organizationId: Id<"organizations">;
@@ -15,7 +20,7 @@ export function DashboardOverview({ organizationId }: DashboardOverviewProps) {
   if (!stats) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <Spinner size="lg" />
       </div>
     );
   }
@@ -23,36 +28,60 @@ export function DashboardOverview({ organizationId }: DashboardOverviewProps) {
   const totalPipelineValue = stats.pipelineStats.reduce((sum, s) => sum + s.totalValue, 0);
   const totalLeads = stats.pipelineStats.reduce((sum, s) => sum + s.leadCount, 0);
 
+  // Activity type translations
+  const activityTypeLabels: Record<string, string> = {
+    created: "criado",
+    stage_change: "mudança de etapa",
+    assignment: "atribuição",
+    message_sent: "mensagem enviada",
+    handoff: "repasse",
+    qualification_update: "qualificação",
+    note: "nota",
+  };
+
+  // Activity type badge variants
+  const activityTypeBadges: Record<string, "success" | "brand" | "info" | "warning" | "default"> = {
+    created: "success",
+    stage_change: "brand",
+    assignment: "info",
+    message_sent: "info",
+    handoff: "warning",
+    qualification_update: "warning",
+    note: "default",
+  };
+
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-900">Dashboard</h2>
+      <h2 className="text-xl md:text-2xl font-bold text-text-primary">Painel</h2>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <p className="text-sm text-gray-600">Total Pipeline Value</p>
-          <p className="text-2xl font-bold text-green-600">${totalPipelineValue.toLocaleString()}</p>
-        </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <p className="text-sm text-gray-600">Active Leads</p>
-          <p className="text-2xl font-bold text-blue-600">{totalLeads}</p>
-        </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <p className="text-sm text-gray-600">Pending Handoffs</p>
-          <p className="text-2xl font-bold text-orange-600">{stats.pendingHandoffs}</p>
-        </div>
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <p className="text-sm text-gray-600">Lead Sources</p>
-          <p className="text-2xl font-bold text-purple-600">{stats.leadsBySource.length}</p>
-        </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card>
+          <p className="text-sm text-text-secondary mb-1">Valor Total do Pipeline</p>
+          <p className="text-2xl font-bold text-semantic-success tabular-nums">
+            ${totalPipelineValue.toLocaleString()}
+          </p>
+        </Card>
+        <Card>
+          <p className="text-sm text-text-secondary mb-1">Leads Ativos</p>
+          <p className="text-2xl font-bold text-brand-500 tabular-nums">{totalLeads}</p>
+        </Card>
+        <Card>
+          <p className="text-sm text-text-secondary mb-1">Repasses Pendentes</p>
+          <p className="text-2xl font-bold text-semantic-warning tabular-nums">{stats.pendingHandoffs}</p>
+        </Card>
+        <Card>
+          <p className="text-sm text-text-secondary mb-1">Fontes de Leads</p>
+          <p className="text-2xl font-bold text-brand-500 tabular-nums">{stats.leadsBySource.length}</p>
+        </Card>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Pipeline by Stage */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Pipeline by Stage</h3>
+        <Card>
+          <h3 className="text-lg font-semibold text-text-primary mb-4">Pipeline por Etapa</h3>
           {stats.pipelineStats.length === 0 ? (
-            <p className="text-gray-500">No leads in pipeline yet.</p>
+            <p className="text-text-muted">Nenhum lead no pipeline ainda.</p>
           ) : (
             <div className="space-y-3">
               {stats.pipelineStats.map((stage) => {
@@ -62,12 +91,12 @@ export function DashboardOverview({ organizationId }: DashboardOverviewProps) {
                 return (
                   <div key={stage.stageId}>
                     <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm font-medium text-gray-700">{stage.stageName}</span>
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm font-medium text-text-primary">{stage.stageName}</span>
+                      <span className="text-sm text-text-secondary tabular-nums">
                         {stage.leadCount} leads - ${stage.totalValue.toLocaleString()}
                       </span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                    <div className="w-full bg-surface-sunken rounded-full h-2.5">
                       <div
                         className="h-2.5 rounded-full"
                         style={{
@@ -81,84 +110,78 @@ export function DashboardOverview({ organizationId }: DashboardOverviewProps) {
               })}
             </div>
           )}
-        </div>
+        </Card>
 
         {/* Leads by Source */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Leads by Source</h3>
+        <Card>
+          <h3 className="text-lg font-semibold text-text-primary mb-4">Leads por Fonte</h3>
           {stats.leadsBySource.length === 0 ? (
-            <p className="text-gray-500">No lead source data yet.</p>
+            <p className="text-text-muted">Nenhum dado de fonte ainda.</p>
           ) : (
             <div className="space-y-2">
               {stats.leadsBySource.map((source, index) => (
-                <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                  <span className="text-sm font-medium text-gray-700">{source.sourceName}</span>
-                  <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                <div key={index} className="flex items-center justify-between p-2 bg-surface-sunken rounded">
+                  <span className="text-sm font-medium text-text-primary">{source.sourceName}</span>
+                  <Badge variant="brand" className="tabular-nums">
                     {source.count}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+
+        {/* Team Performance */}
+        <Card>
+          <h3 className="text-lg font-semibold text-text-primary mb-4">Desempenho da Equipe</h3>
+          {stats.teamPerformance.length === 0 ? (
+            <p className="text-text-muted">Nenhum dado de equipe ainda.</p>
+          ) : (
+            <div className="space-y-2">
+              {stats.teamPerformance.map((member, index) => (
+                <div key={index} className="flex items-center justify-between p-2 bg-surface-sunken rounded">
+                  <div className="flex items-center gap-2">
+                    <Avatar
+                      name={member.memberName}
+                      type={member.memberType as "human" | "ai"}
+                      size="sm"
+                    />
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-text-primary">{member.memberName}</span>
+                      <Badge variant={member.memberType === "ai" ? "warning" : "info"}>
+                        {member.memberType === "ai" ? "IA" : "Humano"}
+                      </Badge>
+                    </div>
+                  </div>
+                  <span className="text-sm font-semibold text-text-primary tabular-nums">
+                    {member.leadCount} leads
                   </span>
                 </div>
               ))}
             </div>
           )}
-        </div>
-
-        {/* Team Performance */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Team Performance</h3>
-          {stats.teamPerformance.length === 0 ? (
-            <p className="text-gray-500">No team data yet.</p>
-          ) : (
-            <div className="space-y-2">
-              {stats.teamPerformance.map((member, index) => (
-                <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm ${
-                      member.memberType === "ai" ? "bg-orange-500" : "bg-blue-500"
-                    }`}>
-                      {member.memberName.charAt(0).toUpperCase()}
-                    </div>
-                    <div>
-                      <span className="text-sm font-medium text-gray-700">{member.memberName}</span>
-                      <span className={`ml-2 px-1.5 py-0.5 rounded text-xs ${
-                        member.memberType === "ai" ? "bg-orange-100 text-orange-800" : "bg-blue-100 text-blue-800"
-                      }`}>
-                        {member.memberType}
-                      </span>
-                    </div>
-                  </div>
-                  <span className="text-sm font-semibold text-gray-900">{member.leadCount} leads</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        </Card>
 
         {/* Recent Activity */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
+        <Card>
+          <h3 className="text-lg font-semibold text-text-primary mb-4">Atividade Recente</h3>
           {stats.recentActivities.length === 0 ? (
-            <p className="text-gray-500">No recent activity.</p>
+            <p className="text-text-muted">Nenhuma atividade recente.</p>
           ) : (
             <div className="space-y-3">
               {stats.recentActivities.map((activity) => {
-                const typeColors: Record<string, string> = {
-                  created: "bg-green-100 text-green-800",
-                  stage_change: "bg-purple-100 text-purple-800",
-                  assignment: "bg-indigo-100 text-indigo-800",
-                  message_sent: "bg-blue-100 text-blue-800",
-                  handoff: "bg-orange-100 text-orange-800",
-                  qualification_update: "bg-yellow-100 text-yellow-800",
-                  note: "bg-gray-100 text-gray-800",
-                };
+                const badgeVariant = activityTypeBadges[activity.type] || "default";
+                const typeLabel = activityTypeLabels[activity.type] || activity.type.replace("_", " ");
+
                 return (
                   <div key={activity._id} className="flex items-start gap-3 text-sm">
-                    <span className={`px-2 py-0.5 rounded text-xs shrink-0 ${typeColors[activity.type] || "bg-gray-100 text-gray-800"}`}>
-                      {activity.type.replace("_", " ")}
-                    </span>
+                    <Badge variant={badgeVariant} className="shrink-0">
+                      {typeLabel}
+                    </Badge>
                     <div className="flex-1 min-w-0">
-                      <p className="text-gray-900 truncate">{activity.content || activity.type}</p>
-                      <p className="text-gray-500 text-xs">
-                        {activity.actorName} - {new Date(activity.createdAt).toLocaleString()}
+                      <p className="text-text-primary truncate">{activity.content || typeLabel}</p>
+                      <p className="text-text-muted text-xs">
+                        {activity.actorName} - {new Date(activity.createdAt).toLocaleString("pt-BR")}
                       </p>
                     </div>
                   </div>
@@ -166,7 +189,7 @@ export function DashboardOverview({ organizationId }: DashboardOverviewProps) {
               })}
             </div>
           )}
-        </div>
+        </Card>
       </div>
     </div>
   );

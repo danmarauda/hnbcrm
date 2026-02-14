@@ -1,6 +1,66 @@
 # Changelog
 
-All notable changes to ClawCRM will be documented in this file.
+All notable changes to HNBCRM (formerly ClawCRM) will be documented in this file.
+
+## [0.4.0] - 2026-02-14
+
+### HNBCRM Rebrand & Frontend Overhaul
+
+Complete UI transformation from light-theme prototype to dark-theme-first, mobile-first, orange-branded CRM with Portuguese (BR) interface.
+
+#### Brand & Identity
+- Rebranded from ClawCRM to **HNBCRM** (Humans & Bots CRM)
+- Orange handshake logo with 3 variants (orange/white/black on transparent)
+- Updated `index.html`: `lang="pt-BR"`, `class="dark"`, favicon, title "HNBCRM"
+- Created `STYLE_GUIDE.md` — comprehensive design system documentation (PT-BR)
+
+#### Design System Foundation
+- Rewrote `tailwind.config.js`: `darkMode: 'class'`, brand orange palette (50–900), surface/border/text CSS variable tokens, custom shadows, animations, keyframes
+- Rewrote `src/index.css`: CSS custom properties (dark default + `.light` override), auth underline inputs, pill buttons, skeleton shimmer, custom scrollbar, safe-area utility, reduced-motion support
+- Created `src/lib/utils.ts` with `cn()` utility (clsx + tailwind-merge)
+- Added `lucide-react` for tree-shakeable SVG icons (replacing all emoji icons)
+
+#### UI Component Library (`src/components/ui/`)
+- `Button.tsx` — Pill button with 5 variants (primary, secondary, ghost, dark, danger) and 3 sizes
+- `Input.tsx` — Bordered form input with label, error state, icon support
+- `Badge.tsx` — Semantic status badge (default, brand, success, error, warning, info)
+- `Card.tsx` — Dark surface card with 3 variants (default, sunken, interactive)
+- `Modal.tsx` — Bottom sheet (mobile) / centered dialog (desktop) with Esc/click-outside
+- `SlideOver.tsx` — Full-screen (mobile) / 480px side panel (desktop)
+- `Spinner.tsx` — Brand-colored loading spinner with sr-only PT-BR text
+- `Skeleton.tsx` — Shimmer loading placeholder (text, circle, card variants)
+- `Avatar.tsx` — Initials avatar with AI bot badge and online/busy/offline status dot
+
+#### Layout & Navigation (`src/components/layout/`)
+- `AppShell.tsx` — Orchestrates responsive layout (sidebar vs bottom tab bar)
+- `Sidebar.tsx` — Desktop fixed left nav, collapsed icons at md, expanded with labels at lg
+- `BottomTabBar.tsx` — Mobile fixed bottom tabs (5 main + "Mais" menu for Audit/Settings)
+
+#### App Shell Refactor
+- `App.tsx` — Integrated `AppShell`, moved nav out, dark auth screen with orange logo
+- `Dashboard.tsx` — Removed inline tab navigation (now handled by AppShell), simplified to content-only renderer
+
+#### Component Restyling (all 13 components)
+- Applied dark theme (surface tokens, border tokens, text tokens) to every component
+- Translated all user-facing text to Portuguese (BR)
+- Replaced all emoji icons with `lucide-react` icons
+- Integrated reusable UI components (Button, Badge, Card, Modal, SlideOver, Avatar, Spinner)
+- Made responsive: Inbox list/detail toggle on mobile, Kanban snap-scroll, stacked filters
+- `SignInForm.tsx` — Underline inputs, pill button, PT-BR auth flow
+- `KanbanBoard.tsx` — Dark columns, Badge/Avatar, mobile snap-scroll
+- `LeadDetailPanel.tsx` — Uses SlideOver, dark message bubbles, PT-BR forms
+- `CreateLeadModal.tsx` — Uses Modal component, dark form styling
+- `Inbox.tsx` — Responsive list/detail with mobile toggle, dark message bubbles
+- `HandoffQueue.tsx` — Card + Avatar, accept/reject with brand buttons
+- `TeamPage.tsx` — Avatar with AI indicator, Modal for add member
+- `AuditLogs.tsx` — Dark table with Badge for actions/severity, responsive filters
+- `Settings.tsx` — All 5 sub-sections restyled with Modal, pill section tabs
+- `OrganizationSelector.tsx` — Dark dropdown, sidebar-compatible
+- `ErrorBoundary.tsx` — Dark error state, PT-BR text
+
+#### Developer Tooling
+- Created `.claude/agents/frontend-specialist.md` — Sonnet-powered agent for all frontend UI tasks
+- Updated `src/CLAUDE.md` — new component tree, dark theme patterns, PT-BR notes
 
 ## [0.3.0] - 2026-02-14
 

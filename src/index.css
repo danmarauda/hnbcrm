@@ -2,18 +2,43 @@
 @tailwind components;
 @tailwind utilities;
 
+/* === Dark Mode (Default) === */
 :root {
-  --color-light: #ffffff;
-  --color-dark: #171717;
+  --surface-base:    #0F0F11;
+  --surface-raised:  #18181B;
+  --surface-overlay: #1F1F23;
+  --surface-sunken:  #09090B;
+
+  --border-default: #27272A;
+  --border-subtle:  #1E1E22;
+  --border-strong:  #3F3F46;
+
+  --text-primary:   #FAFAFA;
+  --text-secondary: #A1A1AA;
+  --text-muted:     #71717A;
 }
 
-.accent-text {
-  @apply text-slate-600;
+/* === Light Mode Override === */
+.light {
+  --surface-base:    #FAFAFA;
+  --surface-raised:  #FFFFFF;
+  --surface-overlay: #FFFFFF;
+  --surface-sunken:  #F4F4F5;
+
+  --border-default: #E4E4E7;
+  --border-subtle:  #F4F4F5;
+  --border-strong:  #D4D4D8;
+
+  --text-primary:   #18181B;
+  --text-secondary: #52525B;
+  --text-muted:     #A1A1AA;
 }
 
+/* === Base styles === */
 body {
   font-family:
     "Inter Variable",
+    Inter,
     ui-sans-serif,
     system-ui,
     -apple-system,
@@ -28,16 +53,69 @@ body {
     "Segoe UI Emoji",
     "Segoe UI Symbol",
     "Noto Color Emoji";
-  color: var(--color-dark);
-  background: var(--color-light);
+  color: var(--text-primary);
+  background: var(--surface-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* only use this to update the style of the auth input fields. use a different class for all other input fields */
+/* === Auth screen inputs (underline style) === */
 .auth-input-field {
-  @apply w-full px-4 py-3 rounded-container bg-white border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-shadow shadow-sm hover:shadow;
+  @apply w-full bg-transparent border-0 border-b border-border-strong text-text-primary
+         py-3 text-base outline-none transition-colors
+         placeholder:text-text-muted
+         focus:border-brand-500;
 }
 
-/* only use this to update the style of the auth buttons. use the button class for all other buttons */
+/* === Auth screen buttons === */
 .auth-button {
-  @apply w-full px-4 py-3 rounded bg-primary text-white font-semibold hover:bg-primary-hover transition-colors shadow-sm hover:shadow disabled:opacity-50 disabled:cursor-not-allowed;
+  @apply w-full px-6 py-3 rounded-full bg-brand-600 text-white font-semibold
+         hover:bg-brand-700 transition-colors
+         disabled:opacity-50 disabled:cursor-not-allowed
+         focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 focus:ring-offset-surface-base;
+}
+
+/* === Skeleton shimmer === */
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--surface-overlay) 0%,
+    rgba(255, 255, 255, 0.04) 50%,
+    var(--surface-overlay) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* === Custom scrollbar (dark mode) === */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-strong);
+}
+
+/* === Safe area utility === */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* === Reduced motion === */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

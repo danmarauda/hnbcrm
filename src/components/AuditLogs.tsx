@@ -1,8 +1,12 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { toast } from "sonner";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
+import { Spinner } from "@/components/ui/Spinner";
 
 interface AuditLogsProps {
   organizationId: Id<"organizations">;
@@ -20,25 +24,31 @@ export function AuditLogs({ organizationId }: AuditLogsProps) {
     entityType: selectedEntityType !== "all" ? selectedEntityType : undefined,
   });
 
-  const severityColors: Record<string, string> = {
-    low: "bg-gray-100 text-gray-800",
-    medium: "bg-yellow-100 text-yellow-800",
-    high: "bg-orange-100 text-orange-800",
-    critical: "bg-red-100 text-red-800",
+  const getActionBadgeVariant = (action: string) => {
+    switch (action) {
+      case "create": return "success";
+      case "update": return "info";
+      case "delete": return "error";
+      case "move": return "brand";
+      case "assign": return "info";
+      case "handoff": return "warning";
+      default: return "default";
+    }
   };
 
-  const actionColors: Record<string, string> = {
-    create: "bg-green-100 text-green-800",
-    update: "bg-blue-100 text-blue-800",
-    delete: "bg-red-100 text-red-800",
-    move: "bg-purple-100 text-purple-800",
-    assign: "bg-indigo-100 text-indigo-800",
-    handoff: "bg-orange-100 text-orange-800",
+  const getSeverityBadgeVariant = (severity: string) => {
+    switch (severity) {
+      case "low": return "default";
+      case "medium": return "warning";
+      case "high": return "error";
+      case "critical": return "error";
+      default: return "default";
+    }
   };
 
   const handleExportCsv = () => {
     if (!auditLogs || auditLogs.logs.length === 0) {
-      toast.error("No data to export.");
+      toast.error("Nenhum dado para exportar.");
       return;
     }
     const headers = ["Timestamp", "Action", "Entity Type", "Entity ID", "Severity", "Actor", "Actor Type", "Description"];
@@ -68,63 +78,60 @@ export function AuditLogs({ organizationId }: AuditLogsProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">Audit Logs</h2>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h2 className="text-2xl font-bold text-text-primary">Logs de Auditoria</h2>
 
-        <div className="flex gap-4">
+        <div className="flex flex-col sm:flex-row gap-3">
           <select
             value={selectedSeverity}
             onChange={(e) => setSelectedSeverity(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="bg-surface-raised border border-border-strong text-text-primary rounded-field px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
           >
-            <option value="all">All Severities</option>
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-            <option value="critical">Critical</option>
+            <option value="all">Todas as Severidades</option>
+            <option value="low">Baixa</option>
+            <option value="medium">Média</option>
+            <option value="high">Alta</option>
+            <option value="critical">Crítica</option>
           </select>
 
           <select
             value={selectedEntityType}
             onChange={(e) => setSelectedEntityType(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="bg-surface-raised border border-border-strong text-text-primary rounded-field px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
           >
-            <option value="all">All Types</option>
+            <option value="all">Todos os Tipos</option>
             <option value="lead">Leads</option>
-            <option value="contact">Contacts</option>
-            <option value="organization">Organizations</option>
-            <option value="teamMember">Team Members</option>
-            <option value="handoff">Handoffs</option>
-            <option value="message">Messages</option>
+            <option value="contact">Contatos</option>
+            <option value="organization">Organizações</option>
+            <option value="teamMember">Membros</option>
+            <option value="handoff">Repasses</option>
+            <option value="message">Mensagens</option>
           </select>
 
-          <button
-            onClick={handleExportCsv}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium"
-          >
-            Export CSV
-          </button>
+          <Button variant="secondary" onClick={handleExportCsv}>
+            Exportar CSV
+          </Button>
         </div>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-lg">
+      <Card>
         {!auditLogs && (
           <div className="flex justify-center items-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <Spinner size="lg" />
           </div>
         )}
 
         {auditLogs && auditLogs.logs.length === 0 && (
           <div className="text-center py-12">
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No audit logs found</h3>
-            <p className="text-gray-600">
-              Audit logs will appear here as activities occur in your organization.
+            <h3 className="text-lg font-medium text-text-primary mb-2">Nenhum log encontrado</h3>
+            <p className="text-text-secondary">
+              Os logs de auditoria aparecerão aqui conforme as atividades ocorrem.
             </p>
           </div>
         )}
 
         {auditLogs && auditLogs.logs.length > 0 && (
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-border">
             {auditLogs.logs.map((log) => {
               // Build a changes summary string
               let changesSummary = "";
@@ -165,47 +172,39 @@ export function AuditLogs({ organizationId }: AuditLogsProps) {
               return (
                 <div
                   key={log._id}
-                  className="flex items-center justify-between p-4 hover:bg-gray-50"
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 hover:bg-surface-overlay transition-colors gap-3"
                 >
-                  <div className="flex items-center gap-4 min-w-0">
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          actionColors[log.action] || "bg-gray-100 text-gray-800"
-                        }`}
-                      >
+                  <div className="flex items-start gap-4 min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
+                      <Badge variant={getActionBadgeVariant(log.action)}>
                         {log.action}
-                      </span>
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          severityColors[log.severity] || "bg-gray-100 text-gray-800"
-                        }`}
-                      >
+                      </Badge>
+                      <Badge variant={getSeverityBadgeVariant(log.severity)}>
                         {log.severity}
-                      </span>
-                      <span className="px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700">
+                      </Badge>
+                      <Badge variant="default">
                         {log.entityType}
-                      </span>
+                      </Badge>
                     </div>
 
-                    <div className="min-w-0">
-                      <p className="font-medium text-gray-900 truncate">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-text-primary truncate">
                         {description}
                       </p>
                       {changesSummary && (
-                        <p className="text-xs text-gray-500 truncate mt-0.5">
+                        <p className="text-xs text-text-muted truncate mt-0.5">
                           {changesSummary}
                         </p>
                       )}
-                      <p className="text-sm text-gray-600">
-                        by {log.actorName}{" "}
-                        <span className="text-gray-400">({log.actorType})</span>
+                      <p className="text-sm text-text-secondary mt-0.5">
+                        por {log.actorName}{" "}
+                        <span className="text-text-muted">({log.actorType})</span>
                       </p>
                     </div>
                   </div>
 
-                  <span className="text-sm text-gray-500 whitespace-nowrap ml-4">
-                    {new Date(log.createdAt).toLocaleString()}
+                  <span className="text-sm text-text-muted whitespace-nowrap">
+                    {new Date(log.createdAt).toLocaleString("pt-BR")}
                   </span>
                 </div>
               );
@@ -215,13 +214,13 @@ export function AuditLogs({ organizationId }: AuditLogsProps) {
 
         {/* Pagination hint */}
         {auditLogs && auditLogs.hasMore && (
-          <div className="text-center py-3 border-t border-gray-100">
-            <p className="text-sm text-gray-500">
-              Showing {auditLogs.logs.length} of {auditLogs.total} entries
+          <div className="text-center py-3 border-t border-border">
+            <p className="text-sm text-text-muted">
+              Exibindo {auditLogs.logs.length} de {auditLogs.total} registros
             </p>
           </div>
         )}
-      </div>
+      </Card>
     </div>
   );
 }
