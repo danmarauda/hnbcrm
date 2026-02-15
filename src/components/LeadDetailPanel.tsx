@@ -16,6 +16,7 @@ import {
   UserPlus,
   Link as LinkIcon,
   ExternalLink,
+  Info,
 } from "lucide-react";
 
 interface LeadDetailPanelProps {
@@ -268,6 +269,97 @@ function ConversationTab({
 }
 
 /* ------------------------------------------------------------------ */
+/*  BANT Info Tooltip                                                  */
+/* ------------------------------------------------------------------ */
+
+function BantInfoTooltip() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className="p-0.5 rounded-full text-text-muted hover:text-brand-400 hover:bg-brand-500/10 transition-colors"
+        aria-label="O que é BANT?"
+      >
+        <Info size={14} />
+      </button>
+
+      {open && (
+        <>
+          {/* Mobile: fixed overlay */}
+          <div className="fixed inset-0 z-40 bg-black/40 sm:hidden" onClick={() => setOpen(false)} />
+
+          {/* Mobile: bottom sheet style */}
+          <div className="fixed inset-x-0 bottom-0 z-50 sm:hidden animate-in slide-in-from-bottom">
+            <div className="bg-surface-overlay border-t border-border rounded-t-2xl p-5 pb-8 safe-bottom">
+              <div className="w-10 h-1 bg-border rounded-full mx-auto mb-4" />
+              <BantInfoContent />
+              <button
+                onClick={() => setOpen(false)}
+                className="mt-4 w-full py-2.5 bg-surface-raised text-text-secondary rounded-full text-sm font-medium hover:bg-surface-sunken transition-colors"
+              >
+                Entendi
+              </button>
+            </div>
+          </div>
+
+          {/* Desktop: popover (opens upward) */}
+          <div className="hidden sm:block absolute left-0 bottom-full mb-2 w-72 bg-surface-overlay border border-border rounded-card shadow-elevated z-50 p-4">
+            <div className="absolute -bottom-1.5 left-3 w-3 h-3 bg-surface-overlay border-r border-b border-border rotate-45" />
+            <BantInfoContent />
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function BantInfoContent() {
+  const items = [
+    { letter: "B", label: "Budget", desc: "O prospect tem verba para comprar?" },
+    { letter: "A", label: "Authority", desc: "Está falando com quem decide?" },
+    { letter: "N", label: "Need", desc: "Existe uma dor real que seu produto resolve?" },
+    { letter: "T", label: "Timeline", desc: "Há urgência ou prazo definido?" },
+  ];
+
+  return (
+    <div>
+      <h4 className="text-sm font-semibold text-text-primary mb-1">O que é BANT?</h4>
+      <p className="text-xs text-text-secondary mb-3 leading-relaxed">
+        Framework de qualificação de leads usado em vendas B2B. Quanto mais critérios atendidos, maior a chance de fechamento.
+      </p>
+      <div className="space-y-2.5">
+        {items.map(({ letter, label, desc }) => (
+          <div key={letter} className="flex items-start gap-2.5">
+            <span className="flex-shrink-0 w-6 h-6 rounded-md bg-brand-600 text-white text-xs font-bold flex items-center justify-center">
+              {letter}
+            </span>
+            <div className="flex-1 min-w-0">
+              <span className="text-xs font-semibold text-text-primary">{label}</span>
+              <p className="text-xs text-text-muted leading-tight">{desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /*  Details Tab                                                        */
 /* ------------------------------------------------------------------ */
 
@@ -307,6 +399,7 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
   const [authority, setAuthority] = useState(false);
   const [need, setNeed] = useState(false);
   const [timeline, setTimeline] = useState(false);
+  const bantScore = [budget, authority, need, timeline].filter(Boolean).length;
 
   const [saving, setSaving] = useState(false);
   const [savingBant, setSavingBant] = useState(false);
@@ -797,32 +890,64 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
 
       {/* BANT Qualification */}
       <div>
-        <h3 className="text-[13px] font-semibold text-text-secondary uppercase tracking-wide mb-3">
-          Qualificação BANT
-        </h3>
+        <div className="flex items-center gap-2 mb-3">
+          <h3 className="text-[13px] font-semibold text-text-secondary uppercase tracking-wide">
+            Qualificação BANT
+          </h3>
+          <BantInfoTooltip />
+        </div>
         <div className="space-y-3">
-          {[
-            { label: "Orçamento", checked: budget, setter: setBudget },
-            { label: "Autoridade", checked: authority, setter: setAuthority },
-            { label: "Necessidade", checked: need, setter: setNeed },
-            { label: "Prazo", checked: timeline, setter: setTimeline },
-          ].map(({ label, checked, setter }) => (
+          {([
+            { key: "budget" as const, label: "Orçamento", desc: "O prospect tem verba disponível?", checked: budget, setter: setBudget },
+            { key: "authority" as const, label: "Autoridade", desc: "Está falando com o decisor?", checked: authority, setter: setAuthority },
+            { key: "need" as const, label: "Necessidade", desc: "Existe uma dor real a resolver?", checked: need, setter: setNeed },
+            { key: "timeline" as const, label: "Prazo", desc: "Há urgência ou prazo definido?", checked: timeline, setter: setTimeline },
+          ] as const).map(({ key, label, desc, checked, setter }) => (
             <label
-              key={label}
-              className="flex items-center gap-2 cursor-pointer select-none"
+              key={key}
+              className="flex items-start gap-2.5 cursor-pointer select-none group"
             >
               <input
                 type="checkbox"
                 checked={checked}
                 onChange={(e) => setter(e.target.checked)}
-                className="rounded border-border-strong text-brand-500 focus:ring-brand-500 accent-brand-500"
+                className="mt-0.5 rounded border-border-strong text-brand-500 focus:ring-brand-500 accent-brand-500"
               />
-              <span className="text-sm text-text-primary">{label}</span>
+              <div className="flex-1 min-w-0">
+                <span className="text-sm text-text-primary font-medium">{label}</span>
+                <p className="text-xs text-text-muted leading-tight">{desc}</p>
+              </div>
             </label>
           ))}
 
-          <div className="text-xs text-text-muted">
-            Pontuação: {[budget, authority, need, timeline].filter(Boolean).length}/4
+          {/* Score bar */}
+          <div className="pt-1">
+            <div className="flex items-center justify-between mb-1.5">
+              <span className="text-xs text-text-muted">Pontuação</span>
+              <span className={cn(
+                "text-xs font-semibold tabular-nums",
+                bantScore === 4 ? "text-semantic-success" :
+                bantScore >= 2 ? "text-semantic-warning" :
+                "text-text-muted"
+              )}>
+                {bantScore}/4
+              </span>
+            </div>
+            <div className="flex gap-1">
+              {[0, 1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className={cn(
+                    "h-1.5 flex-1 rounded-full transition-colors",
+                    i < bantScore
+                      ? bantScore === 4 ? "bg-semantic-success"
+                        : bantScore >= 2 ? "bg-semantic-warning"
+                        : "bg-semantic-error"
+                      : "bg-surface-raised"
+                  )}
+                />
+              ))}
+            </div>
           </div>
 
           <Button

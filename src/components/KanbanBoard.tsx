@@ -207,7 +207,7 @@ function DroppableColumn({
   isOver: boolean;
   onLeadClick: (leadId: Id<"leads">) => void;
   onQuickAdd: () => void;
-  onStageMenu: () => void;
+  onStageMenu: (e: React.MouseEvent) => void;
 }) {
   const { setNodeRef } = useDroppable({
     id: stage._id,
@@ -221,9 +221,17 @@ function DroppableColumn({
         isOver && "ring-2 ring-brand-500/50"
       )}
     >
+      {/* Color accent bar at top */}
+      <div className="h-[3px] rounded-t-card -mx-4 -mt-4 mb-3" style={{ backgroundColor: stage.color }} />
+
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="font-semibold text-text-primary">{stage.name}</h3>
+          <div className="flex items-center gap-2">
+            <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: stage.color }} />
+            <h3 className="font-semibold text-text-primary">{stage.name}</h3>
+            {stage.isClosedWon && <Badge variant="success">Ganho</Badge>}
+            {stage.isClosedLost && <Badge variant="error">Perdido</Badge>}
+          </div>
           <div className="flex items-center gap-2">
             <button
               onClick={onStageMenu}
@@ -332,6 +340,154 @@ function QuickAddForm({
   );
 }
 
+// Stage Edit Popover Component
+function StageEditPopover({
+  stage,
+  anchor,
+  onClose,
+  onUpdate,
+  onDelete,
+}: {
+  stage: Stage;
+  anchor: { top: number; left: number };
+  onClose: () => void;
+  onUpdate: (stageId: Id<"stages">, updates: Record<string, unknown>) => void;
+  onDelete: (stageId: Id<"stages">) => void;
+}) {
+  const [name, setName] = useState(stage.name);
+  const [selectedColor, setSelectedColor] = useState(stage.color);
+
+  const PRESET_COLORS = [
+    "#71717A", // zinc
+    "#EF4444", // red
+    "#F97316", // orange
+    "#EAB308", // yellow
+    "#22C55E", // green
+    "#14B8A6", // teal
+    "#3B82F6", // blue
+    "#8B5CF6", // violet
+    "#EC4899", // pink
+    "#6366F1", // indigo
+    "#06B6D4", // cyan
+    "#A855F7", // purple
+  ];
+
+  // Clamp to viewport so popover never overflows off-screen
+  const popoverWidth = 288; // w-72
+  const popoverHeight = 420; // approximate
+  const top = Math.min(anchor.top, window.innerHeight - popoverHeight - 8);
+  const left = Math.min(anchor.left, window.innerWidth - popoverWidth - 8);
+
+  const handleSaveName = () => {
+    if (name.trim() && name.trim() !== stage.name) {
+      onUpdate(stage._id, { name: name.trim() });
+    }
+  };
+
+  const handleColorSelect = (color: string) => {
+    setSelectedColor(color);
+    onUpdate(stage._id, { color });
+  };
+
+  return (
+    <>
+      <div className="fixed inset-0 z-40" onClick={onClose} />
+      <div
+        className="fixed w-72 bg-surface-overlay border border-border rounded-card shadow-elevated z-50 p-4 space-y-4"
+        style={{ top, left }}
+      >
+        {/* Name field */}
+        <div>
+          <label className="block text-xs font-medium text-text-secondary mb-1.5">Nome</label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") handleSaveName(); }}
+            onBlur={handleSaveName}
+            className="w-full px-3 py-1.5 bg-surface-raised border border-border-strong text-text-primary rounded-field focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
+            style={{ fontSize: "16px" }}
+          />
+        </div>
+
+        {/* Color picker */}
+        <div>
+          <label className="block text-xs font-medium text-text-secondary mb-1.5">Cor</label>
+          <div className="grid grid-cols-6 gap-2">
+            {PRESET_COLORS.map((color) => (
+              <button
+                key={color}
+                onClick={() => handleColorSelect(color)}
+                className={cn(
+                  "w-8 h-8 rounded-lg transition-all",
+                  selectedColor === color
+                    ? "ring-2 ring-brand-500 ring-offset-2 ring-offset-surface-overlay scale-110"
+                    : "hover:scale-110"
+                )}
+                style={{ backgroundColor: color }}
+                aria-label={`Cor ${color}`}
+              />
+            ))}
+          </div>
+          {/* Custom color input */}
+          <div className="flex items-center gap-2 mt-2">
+            <input
+              type="color"
+              value={selectedColor}
+              onChange={(e) => handleColorSelect(e.target.value)}
+              className="w-8 h-8 rounded cursor-pointer border border-border-strong"
+              title="Cor personalizada"
+            />
+            <span className="text-xs text-text-muted">Personalizada</span>
+          </div>
+        </div>
+
+        {/* Won/Lost toggles */}
+        <div className="space-y-2">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={stage.isClosedWon || false}
+              onChange={(e) => {
+                onUpdate(stage._id, { isClosedWon: e.target.checked, isClosedLost: false });
+              }}
+              className="w-4 h-4 text-brand-600 bg-surface-raised border-border-strong rounded focus:ring-2 focus:ring-brand-500"
+            />
+            <span className="text-xs text-text-secondary">Fechado - Ganho</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={stage.isClosedLost || false}
+              onChange={(e) => {
+                onUpdate(stage._id, { isClosedLost: e.target.checked, isClosedWon: false });
+              }}
+              className="w-4 h-4 text-brand-600 bg-surface-raised border-border-strong rounded focus:ring-2 focus:ring-brand-500"
+            />
+            <span className="text-xs text-text-secondary">Fechado - Perdido</span>
+          </label>
+        </div>
+
+        {/* Divider + Delete */}
+        <div className="pt-2 border-t border-border">
+          <button
+            onClick={() => {
+              if (confirm(`Excluir a etapa "${stage.name}"?`)) {
+                onDelete(stage._id);
+                onClose();
+              }
+            }}
+            className="w-full px-3 py-2 text-left text-sm text-semantic-error hover:bg-semantic-error/10 rounded-field transition-colors flex items-center gap-2"
+          >
+            <Trash2 size={14} />
+            Excluir Etapa
+          </button>
+        </div>
+      </div>
+    </>
+  );
+}
+
 // Add Stage Column Component
 function AddStageColumn({
   boardId,
@@ -426,6 +582,7 @@ export function KanbanBoard({ organizationId }: KanbanBoardProps) {
   const [quickAddStageId, setQuickAddStageId] = useState<Id<"stages"> | null>(null);
   const [draggedLeadId, setDraggedLeadId] = useState<Id<"leads"> | null>(null);
   const [stageMenuId, setStageMenuId] = useState<Id<"stages"> | null>(null);
+  const [stageMenuAnchor, setStageMenuAnchor] = useState<{ top: number; left: number } | null>(null);
   const [showCloseReasonModal, setShowCloseReasonModal] = useState(false);
   const [pendingClose, setPendingClose] = useState<{
     leadId: Id<"leads">;
@@ -815,117 +972,37 @@ export function KanbanBoard({ organizationId }: KanbanBoardProps) {
                       isOver={isOver}
                       onLeadClick={(leadId) => setSelectedLeadId(leadId)}
                       onQuickAdd={() => setQuickAddStageId(stage._id)}
-                      onStageMenu={() => setStageMenuId(stage._id)}
+                      onStageMenu={(e: React.MouseEvent) => {
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        setStageMenuAnchor({ top: rect.bottom + 4, left: rect.left - 240 });
+                        setStageMenuId(stage._id);
+                      }}
                     />
 
                     {/* Stage Menu */}
-                    {stageMenuId === stage._id && (
-                      <>
-                        <div
-                          className="fixed inset-0 z-10"
-                          onClick={() => setStageMenuId(null)}
-                        />
-                        <div className="absolute right-4 top-12 w-48 bg-surface-overlay border border-border rounded-card shadow-elevated z-20 py-1">
-                          <button
-                            onClick={() => {
-                              const newName = prompt("Novo nome da etapa:", stage.name);
-                              if (newName && newName.trim() !== stage.name) {
-                                toast.promise(
-                                  updateStage({ stageId: stage._id, name: newName.trim() }),
-                                  {
-                                    loading: "Renomeando...",
-                                    success: "Etapa renomeada!",
-                                    error: "Falha ao renomear",
-                                  }
-                                );
-                              }
-                              setStageMenuId(null);
-                            }}
-                            className="w-full px-4 py-2 text-left text-sm text-text-primary hover:bg-surface-raised transition-colors flex items-center gap-2"
-                          >
-                            <Edit2 size={14} />
-                            Renomear
-                          </button>
-                          <button
-                            onClick={() => {
-                              const newColor = prompt("Nova cor (hex):", stage.color);
-                              if (newColor && newColor.trim() !== stage.color) {
-                                toast.promise(
-                                  updateStage({ stageId: stage._id, color: newColor.trim() }),
-                                  {
-                                    loading: "Atualizando cor...",
-                                    success: "Cor atualizada!",
-                                    error: "Falha ao atualizar cor",
-                                  }
-                                );
-                              }
-                              setStageMenuId(null);
-                            }}
-                            className="w-full px-4 py-2 text-left text-sm text-text-primary hover:bg-surface-raised transition-colors flex items-center gap-2"
-                          >
-                            <Palette size={14} />
-                            Alterar Cor
-                          </button>
-                          <div className="h-px bg-border my-1" />
-                          <button
-                            onClick={() => {
-                              toast.promise(
-                                updateStage({
-                                  stageId: stage._id,
-                                  isClosedWon: !stage.isClosedWon,
-                                  isClosedLost: false,
-                                }),
-                                {
-                                  loading: "Atualizando...",
-                                  success: stage.isClosedWon ? "Desmarcado como ganho" : "Marcado como ganho",
-                                  error: "Falha ao atualizar",
-                                }
-                              );
-                              setStageMenuId(null);
-                            }}
-                            className="w-full px-4 py-2 text-left text-sm text-text-primary hover:bg-surface-raised transition-colors"
-                          >
-                            {stage.isClosedWon ? "✓" : ""} Marcar como Ganho
-                          </button>
-                          <button
-                            onClick={() => {
-                              toast.promise(
-                                updateStage({
-                                  stageId: stage._id,
-                                  isClosedLost: !stage.isClosedLost,
-                                  isClosedWon: false,
-                                }),
-                                {
-                                  loading: "Atualizando...",
-                                  success: stage.isClosedLost ? "Desmarcado como perdido" : "Marcado como perdido",
-                                  error: "Falha ao atualizar",
-                                }
-                              );
-                              setStageMenuId(null);
-                            }}
-                            className="w-full px-4 py-2 text-left text-sm text-text-primary hover:bg-surface-raised transition-colors"
-                          >
-                            {stage.isClosedLost ? "✓" : ""} Marcar como Perdido
-                          </button>
-                          <div className="h-px bg-border my-1" />
-                          <button
-                            onClick={() => {
-                              if (confirm(`Tem certeza que deseja excluir a etapa "${stage.name}"?`)) {
-                                toast.promise(deleteStage({ stageId: stage._id }), {
-                                  loading: "Excluindo...",
-                                  success: "Etapa excluída!",
-                                  error: (e) => e.message || "Falha ao excluir",
-                                });
-                              }
-                              setStageMenuId(null);
-                            }}
-                            className="w-full px-4 py-2 text-left text-sm text-semantic-error hover:bg-semantic-error/10 transition-colors flex items-center gap-2"
-                          >
-                            <Trash2 size={14} />
-                            Excluir Etapa
-                          </button>
-                        </div>
-                      </>
+                    {stageMenuId === stage._id && stageMenuAnchor && (
+                      <StageEditPopover
+                        stage={stage}
+                        anchor={stageMenuAnchor}
+                        onClose={() => { setStageMenuId(null); setStageMenuAnchor(null); }}
+                        onUpdate={(stageId, updates) => {
+                          toast.promise(
+                            updateStage({ stageId, ...updates }),
+                            {
+                              loading: "Atualizando...",
+                              success: "Etapa atualizada!",
+                              error: "Falha ao atualizar",
+                            }
+                          );
+                        }}
+                        onDelete={(stageId) => {
+                          toast.promise(deleteStage({ stageId }), {
+                            loading: "Excluindo...",
+                            success: "Etapa excluída!",
+                            error: (e) => e.message || "Falha ao excluir",
+                          });
+                        }}
+                      />
                     )}
                   </div>
                 );
