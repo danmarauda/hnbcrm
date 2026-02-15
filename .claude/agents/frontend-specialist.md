@@ -60,7 +60,7 @@ You build mobile-first, accessible, performant React components with TypeScript 
 
 ### Component Patterns
 - Buttons: pill shape (`rounded-full`), primary = `bg-brand-600 text-white font-semibold`
-- Inputs: `bg-surface-raised border-border-strong text-text-primary focus:border-brand-500 focus:ring-brand-500/20 rounded-lg`
+- Inputs: `text-base md:text-sm bg-surface-raised border-border-strong text-text-primary focus:border-brand-500 focus:ring-brand-500/20 rounded-lg`
 - Cards: `rounded-card` (12px), `bg-surface-raised border border-border`
 - Modals: `bg-surface-overlay border border-border rounded-xl`
 - Badges: `rounded-full px-2.5 py-0.5 text-xs font-medium` with semantic color bg/text
