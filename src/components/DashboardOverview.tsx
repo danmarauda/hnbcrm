@@ -1,13 +1,15 @@
 import { useState } from "react";
+import { useOutletContext, useNavigate } from "react-router";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import { Id } from "../../convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
 import { Skeleton } from "@/components/ui/Skeleton";
 import type { Tab } from "@/components/layout/BottomTabBar";
+import { TAB_ROUTES } from "@/lib/routes";
+import type { AppOutletContext } from "@/components/layout/AuthLayout";
 import { OnboardingChecklist } from "@/components/onboarding/OnboardingChecklist";
 import {
   Handshake,
@@ -32,12 +34,10 @@ import {
   FileUp,
 } from "lucide-react";
 
-interface DashboardOverviewProps {
-  organizationId: Id<"organizations">;
-  onTabChange: (tab: Tab) => void;
-}
-
-export function DashboardOverview({ organizationId, onTabChange }: DashboardOverviewProps) {
+export function DashboardOverview() {
+  const { organizationId } = useOutletContext<AppOutletContext>();
+  const navigate = useNavigate();
+  const onTabChange = (tab: Tab) => navigate(TAB_ROUTES[tab]);
   const stats = useQuery(api.dashboard.getDashboardStats, { organizationId });
   const currentMember = useQuery(api.teamMembers.getCurrentTeamMember, { organizationId });
 
@@ -65,7 +65,7 @@ export function DashboardOverview({ organizationId, onTabChange }: DashboardOver
       </div>
 
       {/* Onboarding Checklist */}
-      <OnboardingChecklist organizationId={organizationId} onTabChange={onTabChange} />
+      <OnboardingChecklist organizationId={organizationId} />
 
       {/* 2. Quick Stats Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import { useQuery, useMutation } from "convex/react";
 import { Check, X, ChevronDown, ChevronUp, ArrowRight } from "lucide-react";
 import { api } from "../../../convex/_generated/api";
@@ -6,10 +7,10 @@ import { Id } from "../../../convex/_generated/dataModel";
 import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
 import type { Tab } from "@/components/layout/BottomTabBar";
+import { TAB_ROUTES } from "@/lib/routes";
 
 interface OnboardingChecklistProps {
   organizationId: Id<"organizations">;
-  onTabChange: (tab: Tab) => void;
 }
 
 const ITEM_NAV: Record<string, { tab: Tab; label: string }> = {
@@ -23,8 +24,8 @@ const ITEM_NAV: Record<string, { tab: Tab; label: string }> = {
 
 export function OnboardingChecklist({
   organizationId,
-  onTabChange,
 }: OnboardingChecklistProps) {
+  const navigate = useNavigate();
   const [expanded, setExpanded] = useState(true);
 
   const checklist = useQuery(api.onboarding.getOnboardingChecklist, {
@@ -98,7 +99,7 @@ export function OnboardingChecklist({
             <button
               key={item.id}
               onClick={() => {
-                if (!isCompleted && nav) onTabChange(nav.tab);
+                if (!isCompleted && nav) navigate(TAB_ROUTES[nav.tab]);
               }}
               disabled={isCompleted}
               className={cn(

@@ -2,6 +2,50 @@
 
 All notable changes to HNBCRM (formerly ClawCRM) will be documented in this file.
 
+## [0.6.0] - 2026-02-15
+
+### URL Routing & Sales Landing Page
+
+Adds react-router v7 for URL-based navigation and a public sales landing page for unauthenticated visitors.
+
+#### URL Routing (`src/main.tsx`, `src/lib/routes.ts`)
+- **react-router v7** in SPA/library mode with `createBrowserRouter` + `RouterProvider`
+- Public routes: `/` (LandingPage), `/entrar` (AuthPage)
+- App routes: `/app/painel`, `/app/pipeline`, `/app/contatos`, `/app/entrada`, `/app/repasses`, `/app/equipe`, `/app/auditoria`, `/app/configuracoes`
+- **`TAB_ROUTES` / `PATH_TO_TAB`** shared route mapping constants in `src/lib/routes.ts`
+
+#### AuthLayout (`src/components/layout/AuthLayout.tsx`)
+- New route layout consolidating auth → org selection → onboarding wizard → team member gates
+- Unauthenticated users redirected to `/entrar`; authenticated users on `/entrar` redirected to `/app`
+- Passes `organizationId` to child routes via `useOutletContext<AppOutletContext>()`
+- Wraps page content with `ErrorBoundary`
+
+#### Sales Landing Page (`src/components/LandingPage.tsx`)
+- **Hero** with radial orange glow, staggered fade-in animations, floating CTA pill (IntersectionObserver)
+- **Social Proof Bar** — 3 capability highlights
+- **Features Section** — 12 built feature cards in responsive grid
+- **Coming Soon** — 8 upcoming features with "Em Breve" badges
+- **How It Works** — 3 step cards
+- **Pricing** — 3 tiers (Starter free, Pro highlighted, Enterprise) — all free during beta
+- **CTA Section** + **Footer**
+- Fully responsive (375px → 768px → 1024px), accessible landmarks, PT-BR text
+
+#### Auth Page (`src/components/AuthPage.tsx`)
+- Standalone auth screen at `/entrar` with back-to-landing link
+- Auth redirect guard: already-authenticated users sent to `/app`
+
+#### Navigation Refactor (`src/components/layout/`)
+- **Sidebar** and **BottomTabBar** now derive active tab from `useLocation()` and navigate via `useNavigate()` — removed `activeTab`/`onTabChange` props
+- **AppShell** simplified — no longer passes tab state props
+- **OnboardingChecklist** uses `useNavigate` + `TAB_ROUTES` instead of `onTabChange` prop
+
+#### Page Components
+- All 8 page components (DashboardOverview, KanbanBoard, ContactsPage, Inbox, HandoffQueue, TeamPage, AuditLogs, Settings) now use `useOutletContext<AppOutletContext>()` for `organizationId` instead of receiving it as a prop
+- `DashboardOverview` derives `onTabChange` via `useNavigate` + `TAB_ROUTES`
+
+#### Cleanup
+- `App.tsx` and `Dashboard.tsx` are now dead code (superseded by router + AuthLayout + Outlet)
+
 ## [0.5.3] - 2026-02-15
 
 ### @Mentions in Internal Notes & Onboarding System

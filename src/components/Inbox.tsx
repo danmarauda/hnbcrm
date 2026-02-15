@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import { useOutletContext } from "react-router";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
+import type { AppOutletContext } from "@/components/layout/AuthLayout";
 import { toast } from "sonner";
 import { Send, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -14,11 +16,8 @@ import { MentionRenderer } from "@/components/ui/MentionRenderer";
 import { extractMentionIds } from "@/lib/mentions";
 import { SpotlightTooltip } from "@/components/onboarding/SpotlightTooltip";
 
-interface InboxProps {
-  organizationId: Id<"organizations">;
-}
-
-export function Inbox({ organizationId }: InboxProps) {
+export function Inbox() {
+  const { organizationId } = useOutletContext<AppOutletContext>();
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [isInternal, setIsInternal] = useState(false);

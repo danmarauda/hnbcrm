@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from "react";
+import { useOutletContext } from "react-router";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
+import type { AppOutletContext } from "@/components/layout/AuthLayout";
 import { Contact2, Search, Plus, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -12,10 +14,6 @@ import { CreateContactModal } from "./CreateContactModal";
 import { SocialIcons } from "@/components/SocialIcons";
 import { cn } from "@/lib/utils";
 import { SpotlightTooltip } from "@/components/onboarding/SpotlightTooltip";
-
-interface ContactsPageProps {
-  organizationId: Id<"organizations">;
-}
 
 type ColumnKey = "contact" | "company" | "email" | "phone" | "tags" | "city" | "state" | "country" | "industry" | "social" | "companySize" | "acquisitionChannel" | string;
 
@@ -42,7 +40,8 @@ const AVAILABLE_COLUMNS: ColumnDefinition[] = [
 
 const DEFAULT_COLUMNS: ColumnKey[] = ["contact", "company", "email", "tags"];
 
-export function ContactsPage({ organizationId }: ContactsPageProps) {
+export function ContactsPage() {
+  const { organizationId } = useOutletContext<AppOutletContext>();
   const [searchText, setSearchText] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedContactId, setSelectedContactId] = useState<Id<"contacts"> | null>(null);

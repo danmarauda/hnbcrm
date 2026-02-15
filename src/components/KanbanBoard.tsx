@@ -1,7 +1,9 @@
 import React, { useState, useMemo } from "react";
+import { useOutletContext } from "react-router";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
+import type { AppOutletContext } from "@/components/layout/AuthLayout";
 import { LeadDetailPanel } from "./LeadDetailPanel";
 import { CreateLeadModal } from "./CreateLeadModal";
 import { ManageStagesModal } from "./ManageStagesModal";
@@ -28,10 +30,6 @@ import {
   useDroppable,
 } from "@dnd-kit/core";
 import { toast } from "sonner";
-
-interface KanbanBoardProps {
-  organizationId: Id<"organizations">;
-}
 
 interface Lead {
   _id: Id<"leads">;
@@ -572,7 +570,8 @@ function AddStageColumn({
   );
 }
 
-export function KanbanBoard({ organizationId }: KanbanBoardProps) {
+export function KanbanBoard() {
+  const { organizationId } = useOutletContext<AppOutletContext>();
   const [selectedBoardId, setSelectedBoardId] = useState<Id<"boards"> | null>(null);
   const [selectedLeadId, setSelectedLeadId] = useState<Id<"leads"> | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);

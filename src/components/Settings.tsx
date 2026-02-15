@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { useOutletContext } from "react-router";
 import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
+import type { AppOutletContext } from "@/components/layout/AuthLayout";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -11,13 +13,10 @@ import { Modal } from "@/components/ui/Modal";
 import { Spinner } from "@/components/ui/Spinner";
 import { cn } from "@/lib/utils";
 
-interface SettingsProps {
-  organizationId: Id<"organizations">;
-}
-
 type SettingsSection = "general" | "apikeys" | "fields" | "sources" | "webhooks";
 
-export function Settings({ organizationId }: SettingsProps) {
+export function Settings() {
+  const { organizationId } = useOutletContext<AppOutletContext>();
   const [activeSection, setActiveSection] = useState<SettingsSection>("general");
 
   const sections = [

@@ -1,6 +1,6 @@
 # HNBCRM — Humans & Bots CRM
 
-Multi-tenant CRM where human team members and AI bots collaborate to manage leads, conversations, and handoffs. Built with [Convex](https://convex.dev) + React + TailwindCSS.
+Multi-tenant CRM where human team members and AI bots collaborate to manage leads, conversations, and handoffs. Built with [Convex](https://convex.dev) + React + TailwindCSS + react-router v7.
 
 Connected to Convex deployment [`tacit-chicken-195`](https://dashboard.convex.dev/d/tacit-chicken-195).
 

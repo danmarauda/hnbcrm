@@ -1,18 +1,17 @@
 import { useState } from "react";
+import { useOutletContext } from "react-router";
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
+import type { AppOutletContext } from "@/components/layout/AuthLayout";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Spinner } from "@/components/ui/Spinner";
 
-interface AuditLogsProps {
-  organizationId: Id<"organizations">;
-}
-
-export function AuditLogs({ organizationId }: AuditLogsProps) {
+export function AuditLogs() {
+  const { organizationId } = useOutletContext<AppOutletContext>();
   const [selectedSeverity, setSelectedSeverity] = useState<string>("all");
   const [selectedEntityType, setSelectedEntityType] = useState<string>("all");
 

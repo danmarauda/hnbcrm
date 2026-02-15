@@ -27,7 +27,7 @@ Multi-tenant CRM with human-AI team collaboration. Convex backend, React + Tailw
 
 **HTTP API:** `convex/router.ts` has RESTful endpoints at `/api/v1/` authenticated via `X-API-Key` header. Routes wired in `convex/http.ts`.
 
-**Frontend:** Single-page app, no router. Dark theme default, mobile-first, PT-BR UI. `src/main.tsx` → `ConvexAuthProvider` → `App.tsx` → `AppShell` (sidebar desktop / bottom tab bar mobile) → `Dashboard.tsx` → tab content. Reusable UI components in `src/components/ui/`, layout in `src/components/layout/`. State is Convex reactive queries + local `useState`. Path alias `@/` → `src/`.
+**Frontend:** SPA with react-router v7. Dark theme default, mobile-first, PT-BR UI. `src/main.tsx` → `ConvexAuthProvider` → `RouterProvider`. Public routes: `/` (LandingPage), `/entrar` (AuthPage). App routes: `/app/*` wrapped by `AuthLayout` → `AppShell` → `<Outlet />`. Page components get `organizationId` via `useOutletContext`. Reusable UI in `src/components/ui/`, layout in `src/components/layout/`. State is Convex reactive queries + local `useState`. Path alias `@/` → `src/`.
 
 ## Convex Rules (mandatory)
 

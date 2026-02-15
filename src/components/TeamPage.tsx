@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { useOutletContext } from "react-router";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
+import type { AppOutletContext } from "@/components/layout/AuthLayout";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -12,11 +14,8 @@ import { Spinner } from "@/components/ui/Spinner";
 import { cn } from "@/lib/utils";
 import { SpotlightTooltip } from "@/components/onboarding/SpotlightTooltip";
 
-interface TeamPageProps {
-  organizationId: Id<"organizations">;
-}
-
-export function TeamPage({ organizationId }: TeamPageProps) {
+export function TeamPage() {
+  const { organizationId } = useOutletContext<AppOutletContext>();
   const [showAddMember, setShowAddMember] = useState(false);
   const [newMember, setNewMember] = useState({
     name: "",

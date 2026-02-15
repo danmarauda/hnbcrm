@@ -1,7 +1,9 @@
 import React from "react";
+import { useOutletContext } from "react-router";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
+import type { AppOutletContext } from "@/components/layout/AuthLayout";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -10,11 +12,8 @@ import { Spinner } from "@/components/ui/Spinner";
 import { Button } from "@/components/ui/Button";
 import { SpotlightTooltip } from "@/components/onboarding/SpotlightTooltip";
 
-interface HandoffQueueProps {
-  organizationId: Id<"organizations">;
-}
-
-export function HandoffQueue({ organizationId }: HandoffQueueProps) {
+export function HandoffQueue() {
+  const { organizationId } = useOutletContext<AppOutletContext>();
   const handoffs = useQuery(api.handoffs.getHandoffs, {
     organizationId,
     status: "pending",

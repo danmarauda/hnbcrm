@@ -4,13 +4,14 @@
 
 ```
 src/
-├── main.tsx                    # Entry: ConvexAuthProvider wrapper
-├── App.tsx                     # Auth gates, AppShell integration, org selector
+├── main.tsx                    # Entry: ConvexAuthProvider + RouterProvider (react-router v7)
+├── App.tsx                     # (legacy, unused — superseded by router + AuthLayout)
 ├── SignInForm.tsx              # Password + Anonymous sign-in (PT-BR)
 ├── SignOutButton.tsx           # Sign-out button
 ├── index.css                  # CSS custom properties (dark/light), auth classes, shimmer
 ├── lib/
-│   └── utils.ts               # cn() utility (clsx + tailwind-merge)
+│   ├── utils.ts               # cn() utility (clsx + tailwind-merge)
+│   └── routes.ts              # TAB_ROUTES / PATH_TO_TAB route mapping constants
 └── components/
     ├── ui/                    # Reusable UI primitives
     │   ├── Button.tsx         # Pill button (primary, secondary, ghost, dark, danger)
@@ -23,19 +24,23 @@ src/
     │   ├── Skeleton.tsx       # Shimmer loading placeholder
     │   └── Avatar.tsx         # Initials avatar with AI badge + status dot
     ├── layout/                # App shell and navigation
+    │   ├── AuthLayout.tsx     # Auth-gated layout for /app/* (auth → org → onboarding → AppShell + Outlet)
     │   ├── AppShell.tsx       # Orchestrates Sidebar (md+) vs BottomTabBar (mobile)
-    │   ├── Sidebar.tsx        # Desktop left nav — collapsed (md), expanded (lg)
-    │   └── BottomTabBar.tsx   # Mobile bottom tabs (exports Tab type)
-    ├── Dashboard.tsx           # Tab content renderer (receives activeTab from AppShell)
-    ├── DashboardOverview.tsx   # Metrics overview
-    ├── KanbanBoard.tsx         # Pipeline board with drag-and-drop
+    │   ├── Sidebar.tsx        # Desktop left nav — URL-based active state (useLocation)
+    │   └── BottomTabBar.tsx   # Mobile bottom tabs — URL-based (exports Tab type)
+    ├── LandingPage.tsx         # Public sales landing page at /
+    ├── AuthPage.tsx            # Auth screen at /entrar with back link
+    ├── Dashboard.tsx           # (legacy, unused — superseded by Outlet routing)
+    ├── DashboardOverview.tsx   # Metrics overview (route: /app/painel)
+    ├── KanbanBoard.tsx         # Pipeline board with drag-and-drop (route: /app/pipeline)
     ├── LeadDetailPanel.tsx     # SlideOver for lead details
     ├── CreateLeadModal.tsx     # Modal for creating new leads
-    ├── Inbox.tsx               # Conversation inbox (responsive list/detail)
-    ├── HandoffQueue.tsx        # AI-to-human handoff management
-    ├── TeamPage.tsx            # Team member management
-    ├── Settings.tsx            # Organization settings (5 sub-sections)
-    ├── AuditLogs.tsx           # Audit log viewer with filters
+    ├── Inbox.tsx               # Conversation inbox (route: /app/entrada)
+    ├── HandoffQueue.tsx        # AI-to-human handoff management (route: /app/repasses)
+    ├── TeamPage.tsx            # Team member management (route: /app/equipe)
+    ├── Settings.tsx            # Organization settings (route: /app/configuracoes)
+    ├── AuditLogs.tsx           # Audit log viewer (route: /app/auditoria)
+    ├── ContactsPage.tsx        # Contacts management (route: /app/contatos)
     ├── ErrorBoundary.tsx       # Error boundary wrapper
     └── OrganizationSelector.tsx # Org switcher dropdown
 ```
@@ -61,11 +66,11 @@ toast.promise(createLead({ ... }), { loading: "Criando...", success: "Criado!", 
 if (data === undefined) return <Spinner size="lg" />;
 ```
 
-**Auth gates:** Use `<Authenticated>` and `<Unauthenticated>` from `convex/react` to conditionally render.
+**Auth gates:** `AuthLayout` (`src/components/layout/AuthLayout.tsx`) wraps all `/app/*` routes. Uses `useConvexAuth()` to check auth status — unauthenticated users are redirected to `/entrar`. The layout also gates on org selection, onboarding wizard, and team member loading before rendering `<Outlet />`.
 
-**Organization scoping:** The selected `organizationId` is passed as a prop from `App.tsx` → `Dashboard.tsx` → child components. Every query includes it.
+**Organization scoping:** `AuthLayout` passes `organizationId` via `<Outlet context={{ organizationId }}>`. Page components access it with `useOutletContext<AppOutletContext>()` (type exported from `AuthLayout.tsx`). Every query includes it.
 
-**Navigation:** `App.tsx` manages `activeTab` state and passes it through `AppShell` → `Dashboard`. The `AppShell` renders `Sidebar` (md+) or `BottomTabBar` (mobile). The `Tab` type is exported from `BottomTabBar.tsx`.
+**Navigation:** URL-based via react-router v7. `src/lib/routes.ts` defines `TAB_ROUTES` (Tab → path) and `PATH_TO_TAB` (path → Tab). `Sidebar` and `BottomTabBar` derive active state from `useLocation()` and navigate via `useNavigate()`. The `Tab` type is exported from `BottomTabBar.tsx`.
 
 ## Styling
 
@@ -87,8 +92,9 @@ All user-facing text is in **Portuguese (BR)**. Navigation: Painel, Pipeline, Ca
 
 ## Key Dependencies
 
-- `convex/react` — `useQuery`, `useMutation`, `Authenticated`, `Unauthenticated`
+- `convex/react` — `useQuery`, `useMutation`, `useConvexAuth`, `Authenticated`, `Unauthenticated`
 - `@convex-dev/auth/react` — `ConvexAuthProvider`, `useAuthActions`
-- `sonner` — `toast` for notifications, `<Toaster theme="dark" />` in App.tsx
+- `react-router` — `createBrowserRouter`, `RouterProvider`, `useOutletContext`, `useNavigate`, `useLocation`, `Link`, `Navigate`, `Outlet`
+- `sonner` — `toast` for notifications, `<Toaster theme="dark" />` in main.tsx
 - `lucide-react` — SVG icons
 - `clsx` + `tailwind-merge` — via `cn()` utility

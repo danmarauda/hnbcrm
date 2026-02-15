@@ -1,3 +1,4 @@
+import { useLocation, useNavigate } from "react-router";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
@@ -11,6 +12,7 @@ import {
   LogOut,
 } from "lucide-react";
 import type { Tab } from "./BottomTabBar";
+import { TAB_ROUTES, PATH_TO_TAB } from "@/lib/routes";
 
 const navItems: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: "dashboard", label: "Painel", icon: LayoutDashboard },
@@ -24,13 +26,15 @@ const navItems: { id: Tab; label: string; icon: React.ElementType }[] = [
 ];
 
 interface SidebarProps {
-  activeTab: Tab;
-  onTabChange: (tab: Tab) => void;
   onSignOut: () => void;
   orgSelector?: React.ReactNode;
 }
 
-export function Sidebar({ activeTab, onTabChange, onSignOut, orgSelector }: SidebarProps) {
+export function Sidebar({ onSignOut, orgSelector }: SidebarProps) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const activeTab = PATH_TO_TAB[location.pathname];
+
   return (
     <aside className="hidden md:flex fixed left-0 top-0 bottom-0 z-20 flex-col bg-surface-raised border-r border-border w-16 lg:w-56 transition-all duration-200">
       {/* Logo */}
@@ -53,7 +57,7 @@ export function Sidebar({ activeTab, onTabChange, onSignOut, orgSelector }: Side
           return (
             <button
               key={item.id}
-              onClick={() => onTabChange(item.id)}
+              onClick={() => navigate(TAB_ROUTES[item.id])}
               className={cn(
                 "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
                 "min-h-[44px]",
