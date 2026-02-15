@@ -1,7 +1,7 @@
 # HNBCRM — Project Status & Roadmap
 
 **Last Updated:** 2026-02-15
-**Current Version:** v0.7.1
+**Current Version:** v0.9.0
 **Based on:** PRD v2.0 (2025-02-11)
 
 ---
@@ -328,18 +328,26 @@ HNBCRM (Humans & Bots CRM) is a **realtime-first, AI-native, multi-tenant CRM** 
 |---------------|-------|--------|
 | Lead CRUD + operations | 7 | Done |
 | Handoff management | 5 | Done |
-| Contact CRUD | 5 | Done |
+| Contact CRUD + search | 6 | Done |
 | Conversations & messages | 3 | Done |
+| Activities | 2 | Done |
+| Dashboard | 1 | Done |
+| Lead sources | 1 | Done |
 | Boards | 1 | Done |
 | Team members | 1 | Done |
 | Field definitions | 1 | Done |
-| **Total** | **23** | **Done** |
+| **Total** | **28** | **Done** |
 
 **Key endpoints:**
 - `POST /api/v1/inbound/lead` — Universal lead capture
 - `GET /api/v1/boards` — List boards with stages
 - `GET /api/v1/team-members` — List team members
 - `GET /api/v1/field-definitions` — List field definitions
+- `GET /api/v1/activities` — Lead activity timeline
+- `POST /api/v1/activities` — Create activity
+- `GET /api/v1/dashboard` — Dashboard analytics
+- `GET /api/v1/contacts/search` — Contact full-text search
+- `GET /api/v1/lead-sources` — Lead sources
 
 **Not implemented from PRD:** Individual board detail (GET /boards/:id), stage CRUD endpoints, individual team member detail (GET /team/:id), webhook management endpoints via API, lead qualification endpoint, advanced query parameter filtering.
 
@@ -406,10 +414,17 @@ HNBCRM (Humans & Bots CRM) is a **realtime-first, AI-native, multi-tenant CRM** 
 | HnbCrmClient (API wrapper) | Done | TypeScript client wrapping all REST endpoints |
 | Lead tools (search, create, update, move, assign) | Done | |
 | Contact tools (search, create, update) | Done | |
+| Contact search, enrich, gaps tools | Done | |
 | Conversation tools (list, get messages, send) | Done | |
 | Handoff tools (list pending, accept, reject) | Done | |
+| Handoff reject tool | Done | |
+| Activity tools (get timeline, create) | Done | |
+| Dashboard analytics tool | Done | |
 | Pipeline tools (list boards with stages) | Done | |
-| Resources (boards, team-members, field-definitions) | Done | Auto-refresh |
+| Resources (boards, team, fields, lead-sources) | Done | 4 resources, auto-refresh |
+| Structured error handling (isError) | Done | All 26 tools wrapped |
+| Tool annotations (read/write/destructive hints) | Done | Per MCP spec |
+| MCP SDK 1.26.0 | Done | Upgraded from 1.12.1 |
 | Auth via env vars | Done | `HNBCRM_API_URL` + `HNBCRM_API_KEY` |
 
 **Files:** `mcp-server/src/`
@@ -701,6 +716,8 @@ Avatar, Badge, Button, Card, CollapsibleSection, EmptyState, Input, MentionRende
 | `src/tools/conversations.ts` | Conversation tools |
 | `src/tools/handoffs.ts` | Handoff tools |
 | `src/tools/pipeline.ts` | Pipeline tools |
+| `src/tools/activities.ts` | Activity tools |
+| `src/utils.ts` | Error/success response helpers |
 
 ---
 

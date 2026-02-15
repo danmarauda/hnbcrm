@@ -2,6 +2,46 @@
 
 All notable changes to HNBCRM (formerly ClawCRM) will be documented in this file.
 
+## [0.9.0] - 2026-02-15
+
+### MCP Server Improvements & New API Endpoints
+
+Major upgrade to the MCP server: 7 new tools (19→26), 1 new resource (3→4), 5 new REST API endpoints (23→28), SDK upgrade, structured error handling, and expanded field coverage.
+
+#### MCP SDK & Infrastructure
+- **SDK upgrade** — `@modelcontextprotocol/sdk` `^1.12.1` → `^1.26.0`
+- **Structured error handling** — All 26 tools wrapped in try/catch with `isError: true` responses instead of raw exceptions
+- **`errorResult()` / `successResult()` helpers** — New `mcp-server/src/utils.ts` for consistent MCP response formatting
+- **Tool annotations** — All tools annotated with `readOnlyHint`, `destructiveHint`, `idempotentHint` per MCP spec
+
+#### New MCP Tools (7 added)
+- **`crm_enrich_contact`** — Write enrichment data to a contact with source/confidence tracking
+- **`crm_get_contact_gaps`** — Get which contact fields are missing (guides AI research)
+- **`crm_search_contacts`** — Full-text search on contacts by name, email, or company
+- **`crm_reject_handoff`** — Reject a pending handoff with optional feedback
+- **`crm_get_activities`** — Get activity timeline for a lead
+- **`crm_create_activity`** — Log notes, calls, or emails on a lead
+- **`crm_get_dashboard`** — Pipeline analytics overview (stage distribution, team performance, pending handoffs)
+
+#### New MCP Resource
+- **`hnbcrm://lead-sources`** — Lead source reference data for setting correct source on new leads
+
+#### Expanded Contact Field Coverage
+- `crm_create_contact` and `crm_update_contact` now expose 17 additional fields: `tags`, `whatsappNumber`, `telegramUsername`, `bio`, `linkedinUrl`, `instagramUrl`, `facebookUrl`, `twitterUrl`, `city`, `state`, `country`, `industry`, `companySize`, `cnpj`, `companyWebsite`, `acquisitionChannel`, `customFields`
+
+#### New REST API Endpoints (5 added)
+- `GET /api/v1/activities?leadId={id}&limit={n}` — Activity timeline for a lead
+- `POST /api/v1/activities` — Create activity (note, call, email_sent) on a lead
+- `GET /api/v1/dashboard` — Full dashboard analytics (pipeline stats, sources, team, handoffs)
+- `GET /api/v1/contacts/search?q={text}&limit={n}` — Full-text contact search
+- `GET /api/v1/lead-sources` — List configured lead sources
+
+#### Backend Internal Functions (4 added)
+- `convex/activities.ts` — `internalGetActivities`, `internalCreateActivity`
+- `convex/dashboard.ts` — `internalGetDashboardStats`
+- `convex/contacts.ts` — `internalSearchContacts`
+- `convex/leadSources.ts` — `internalGetLeadSources`
+
 ## [0.8.0] - 2026-02-15
 
 ### Backend Performance & Query Optimization

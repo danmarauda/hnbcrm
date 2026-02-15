@@ -120,7 +120,7 @@ Add to your VS Code settings or workspace `.vscode/mcp.json`:
 | `crm_move_lead` | Move a lead to a different pipeline stage |
 | `crm_assign_lead` | Assign a lead to a team member or unassign |
 
-### Contacts (4 tools)
+### Contacts (7 tools)
 
 | Tool | Description |
 |------|-------------|
@@ -128,6 +128,9 @@ Add to your VS Code settings or workspace `.vscode/mcp.json`:
 | `crm_get_contact` | Get full contact details including enrichment data |
 | `crm_create_contact` | Create a new contact |
 | `crm_update_contact` | Update contact information |
+| `crm_enrich_contact` | Write enrichment data (fields + source + confidence) to a contact |
+| `crm_get_contact_gaps` | Get which fields are missing on a contact |
+| `crm_search_contacts` | Search contacts by name, email, or company |
 
 ### Conversations (3 tools)
 
@@ -137,20 +140,29 @@ Add to your VS Code settings or workspace `.vscode/mcp.json`:
 | `crm_get_messages` | Get all messages in a conversation thread |
 | `crm_send_message` | Send a message or internal note in a conversation |
 
-### Handoffs (3 tools)
+### Handoffs (4 tools)
 
 | Tool | Description |
 |------|-------------|
 | `crm_request_handoff` | Request AI-to-human handoff for a lead |
 | `crm_list_handoffs` | List handoff requests by status |
 | `crm_accept_handoff` | Accept a pending handoff |
+| `crm_reject_handoff` | Reject a pending handoff with optional feedback |
 
-### Pipeline (2 tools)
+### Pipeline & Analytics (3 tools)
 
 | Tool | Description |
 |------|-------------|
 | `crm_list_boards` | List pipeline boards and their stages |
 | `crm_list_team` | List team members (humans and AI agents) |
+| `crm_get_dashboard` | Get pipeline analytics (stages, sources, team, handoffs) |
+
+### Activities (2 tools)
+
+| Tool | Description |
+|------|-------------|
+| `crm_get_activities` | Get activity timeline for a lead |
+| `crm_create_activity` | Log a note, call, or email on a lead |
 
 ## Resources
 
@@ -159,6 +171,7 @@ Add to your VS Code settings or workspace `.vscode/mcp.json`:
 | `hnbcrm://boards` | Pipeline boards and stages (JSON) |
 | `hnbcrm://team` | Team members in the organization (JSON) |
 | `hnbcrm://fields` | Custom field definitions (JSON) |
+| `hnbcrm://lead-sources` | Lead sources configured in the organization (JSON) |
 
 ## Development
 
