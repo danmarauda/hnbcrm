@@ -9,50 +9,73 @@ export const getDashboardStats = query({
   handler: async (ctx, args) => {
     await requireAuth(ctx, args.organizationId);
 
-    // Get all leads for the organization
-    const leads = await ctx.db
-      .query("leads")
-      .withIndex("by_organization", (q) => q.eq("organizationId", args.organizationId))
-      .collect();
+    const org = await ctx.db.get(args.organizationId);
 
-    // Get all boards and then all stages for the organization
+    // Get boards for the organization
     const boards = await ctx.db
       .query("boards")
       .withIndex("by_organization", (q) => q.eq("organizationId", args.organizationId))
       .collect();
 
-    const allStages = await Promise.all(
-      boards.map((board) =>
-        ctx.db
+    // Pipeline stats: grouped by board, leads queried per-board with cap
+    const pipelineStats = await Promise.all(
+      boards.sort((a, b) => a.order - b.order).map(async (board) => {
+        const boardStages = await ctx.db
           .query("stages")
           .withIndex("by_board", (q) => q.eq("boardId", board._id))
-          .collect()
-      )
+          .collect();
+        const sortedStages = [...boardStages].sort((a, b) => a.order - b.order);
+
+        const boardLeads = await ctx.db
+          .query("leads")
+          .withIndex("by_organization_and_board", (q) =>
+            q.eq("organizationId", args.organizationId).eq("boardId", board._id)
+          )
+          .take(500);
+
+        let boardTotalLeads = 0;
+        let boardTotalValue = 0;
+
+        const stages = sortedStages.map((stage) => {
+          let leadCount = 0;
+          let totalValue = 0;
+          for (const lead of boardLeads) {
+            if (lead.stageId === stage._id) {
+              leadCount += 1;
+              totalValue += lead.value;
+            }
+          }
+          boardTotalLeads += leadCount;
+          boardTotalValue += totalValue;
+          return {
+            stageId: stage._id,
+            stageName: stage.name,
+            stageColor: stage.color,
+            stageOrder: stage.order,
+            leadCount,
+            totalValue,
+            isClosedWon: stage.isClosedWon,
+            isClosedLost: stage.isClosedLost,
+          };
+        });
+
+        return {
+          boardId: board._id,
+          boardName: board.name,
+          boardColor: board.color,
+          boardOrder: board.order,
+          totalLeads: boardTotalLeads,
+          totalValue: boardTotalValue,
+          stages,
+        };
+      })
     );
-    const flatStages = allStages.flat();
 
-    // Pipeline stats: count and value per stage
-    const pipelineStatsMap = new Map<string, { stageId: string; stageName: string; stageColor: string; leadCount: number; totalValue: number }>();
-
-    for (const stage of flatStages) {
-      pipelineStatsMap.set(stage._id, {
-        stageId: stage._id,
-        stageName: stage.name,
-        stageColor: stage.color,
-        leadCount: 0,
-        totalValue: 0,
-      });
-    }
-
-    for (const lead of leads) {
-      const stat = pipelineStatsMap.get(lead.stageId);
-      if (stat) {
-        stat.leadCount += 1;
-        stat.totalValue += lead.value;
-      }
-    }
-
-    const pipelineStats = Array.from(pipelineStatsMap.values());
+    // Capped leads fetch for source + team stats
+    const leads = await ctx.db
+      .query("leads")
+      .withIndex("by_organization", (q) => q.eq("organizationId", args.organizationId))
+      .take(2000);
 
     // Leads by source
     const leadSources = await ctx.db
@@ -102,13 +125,13 @@ export const getDashboardStats = query({
 
     const teamPerformance = Array.from(memberLeadCountMap.values());
 
-    // Pending handoffs
+    // Pending handoffs (capped)
     const handoffs = await ctx.db
       .query("handoffs")
       .withIndex("by_organization_and_status", (q) =>
         q.eq("organizationId", args.organizationId).eq("status", "pending")
       )
-      .collect();
+      .take(100);
 
     const pendingHandoffs = handoffs.length;
 
@@ -130,6 +153,8 @@ export const getDashboardStats = query({
     );
 
     return {
+      organizationName: org?.name ?? "",
+      teamMemberCount: teamMembers.length,
       pipelineStats,
       leadsBySource,
       teamPerformance,
@@ -139,7 +164,7 @@ export const getDashboardStats = query({
   },
 });
 
-// Pipeline stats: leads count and value per stage
+// Pipeline stats: leads count and value per stage, grouped by board
 export const getPipelineStats = query({
   args: { organizationId: v.id("organizations") },
   returns: v.any(),
@@ -151,40 +176,58 @@ export const getPipelineStats = query({
       .withIndex("by_organization", (q) => q.eq("organizationId", args.organizationId))
       .collect();
 
-    const allStages = await Promise.all(
-      boards.map((board) =>
-        ctx.db
+    return Promise.all(
+      boards.sort((a, b) => a.order - b.order).map(async (board) => {
+        const boardStages = await ctx.db
           .query("stages")
           .withIndex("by_board", (q) => q.eq("boardId", board._id))
-          .collect()
-      )
+          .collect();
+        const sortedStages = [...boardStages].sort((a, b) => a.order - b.order);
+
+        const boardLeads = await ctx.db
+          .query("leads")
+          .withIndex("by_organization_and_board", (q) =>
+            q.eq("organizationId", args.organizationId).eq("boardId", board._id)
+          )
+          .take(500);
+
+        let boardTotalLeads = 0;
+        let boardTotalValue = 0;
+
+        const stages = sortedStages.map((stage) => {
+          let leadCount = 0;
+          let totalValue = 0;
+          for (const lead of boardLeads) {
+            if (lead.stageId === stage._id) {
+              leadCount += 1;
+              totalValue += lead.value;
+            }
+          }
+          boardTotalLeads += leadCount;
+          boardTotalValue += totalValue;
+          return {
+            stageId: stage._id,
+            stageName: stage.name,
+            stageColor: stage.color,
+            stageOrder: stage.order,
+            leadCount,
+            totalValue,
+            isClosedWon: stage.isClosedWon,
+            isClosedLost: stage.isClosedLost,
+          };
+        });
+
+        return {
+          boardId: board._id,
+          boardName: board.name,
+          boardColor: board.color,
+          boardOrder: board.order,
+          totalLeads: boardTotalLeads,
+          totalValue: boardTotalValue,
+          stages,
+        };
+      })
     );
-    const flatStages = allStages.flat();
-
-    const leads = await ctx.db
-      .query("leads")
-      .withIndex("by_organization", (q) => q.eq("organizationId", args.organizationId))
-      .collect();
-
-    const pipelineStatsMap = new Map<string, { stageId: string; stageName: string; stageColor: string; leadCount: number; totalValue: number }>();
-    for (const stage of flatStages) {
-      pipelineStatsMap.set(stage._id, {
-        stageId: stage._id,
-        stageName: stage.name,
-        stageColor: stage.color,
-        leadCount: 0,
-        totalValue: 0,
-      });
-    }
-    for (const lead of leads) {
-      const stat = pipelineStatsMap.get(lead.stageId);
-      if (stat) {
-        stat.leadCount += 1;
-        stat.totalValue += lead.value;
-      }
-    }
-
-    return Array.from(pipelineStatsMap.values());
   },
 });
 

@@ -2,6 +2,29 @@
 
 All notable changes to HNBCRM (formerly ClawCRM) will be documented in this file.
 
+## [0.5.1] - 2026-02-14
+
+### Dashboard Home Page & Pipeline Widget Redesign
+
+#### Dashboard Home Page
+- **Hero section** — Personalized greeting with org name and HNBCRM tagline
+- **Quick Stats row** — 4 metric cards: pipeline value, active leads, pending handoffs, team members
+- **Quick Actions** — Horizontal-scroll (mobile) / 4-col grid (desktop) nav cards to Pipeline, Inbox, Handoffs, Team
+- **Feature Overview grid** — 10 interactive cards showcasing existing platform features with live data badges
+- **Coming Soon section** — 8 "Em Breve" cards for planned features (MCP Server, Automations, AI Co-pilot, etc.)
+- **Recent Activity feed** — Latest 10 activities with type badges and PT-BR timestamps
+
+#### Pipeline Widget — Board-Grouped with Tabs
+- **Pill-tab board selector** — Stages now grouped by pipeline; tab row with colored dot per board (hidden when only 1 board)
+- **Board summary header** — Shows board name, lead count, and total value per pipeline
+- **Won/Lost badges** — Stages marked as closedWon/closedLost show "Ganho"/"Perdido" badge
+- **Rate limiting** — Leads queried per-board via `by_organization_and_board` index with `.take(500)` cap; remaining org-wide queries capped at `.take(2000)`; handoffs capped at `.take(100)`
+
+#### Backend (`convex/dashboard.ts`)
+- `getDashboardStats` restructured: `pipelineStats` now returns board-grouped array instead of flat stage list
+- `getPipelineStats` updated with same board-grouped structure
+- Added `organizationName` and `teamMemberCount` to dashboard stats return
+
 ## [0.5.0] - 2026-02-14
 
 ### Contacts, Saved Views, Pipeline Management & Kanban UX Overhaul

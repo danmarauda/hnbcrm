@@ -37,7 +37,7 @@ export function Dashboard({ organizationId, activeTab, onTabChange }: DashboardP
       <div className="h-full p-4 md:p-6 overflow-y-auto">
         {activeTab === "dashboard" && (
           <ErrorBoundary>
-            <DashboardOverview organizationId={organizationId} />
+            <DashboardOverview organizationId={organizationId} onTabChange={onTabChange} />
           </ErrorBoundary>
         )}
         {activeTab === "board" && (
