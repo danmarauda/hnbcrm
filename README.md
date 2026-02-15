@@ -1,32 +1,116 @@
-# HNBCRM — Humans & Bots CRM
+<p align="center">
+  <img src="public/orange_icon_logo_transparent-bg-528x488.png" alt="HNBCRM" width="120" />
+</p>
 
-Multi-tenant CRM where human team members and AI bots collaborate to manage leads, conversations, and handoffs. Built with [Convex](https://convex.dev) + React + TailwindCSS + react-router v7.
+<h1 align="center">HNBCRM</h1>
 
-Connected to Convex deployment [`tacit-chicken-195`](https://dashboard.convex.dev/d/tacit-chicken-195).
+<p align="center">
+  <strong>The CRM where humans and AI agents work together.</strong>
+</p>
+
+<p align="center">
+  <img alt="Version" src="https://img.shields.io/badge/version-0.7.0-brand" />
+  <img alt="License" src="https://img.shields.io/badge/license-MIT-green" />
+  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.7-blue" />
+  <img alt="React" src="https://img.shields.io/badge/React-19-61DAFB" />
+</p>
+
+---
+
+HNBCRM (Humans & Bots CRM) is a multi-tenant CRM built for teams that combine human agents and AI bots. Leads, conversations, and handoffs flow seamlessly between people and machines through a shared pipeline, unified inbox, and real-time collaboration tools.
+
+<!-- TODO: Add screenshot or demo GIF here -->
+
+## Features
+
+- **AI-Human Collaboration** — Human team members and AI bots are equal participants with shared context
+- **Visual Pipeline** — Kanban boards with drag-and-drop, customizable stages, and deal aging indicators
+- **Unified Inbox** — WhatsApp, Telegram, email conversations in one place with internal notes
+- **Smart Handoffs** — Transfer leads between humans and AI with full conversation history
+- **Contact Enrichment** — 20+ fields with social profiles, company data, and custom fields
+- **REST API** — Full CRUD at `/api/v1/` with API key authentication and HMAC webhooks
+- **MCP Server** — AI agents connect via Model Context Protocol for tool-based CRM access
+- **Multi-tenant** — Organization-level isolation with role-based access (Admin, Manager, Agent, AI)
+- **Real-time** — Powered by Convex for instant updates across all connected clients
+- **@Mentions** — Tag team members in internal notes with autocomplete
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | [React 19](https://react.dev) + [TypeScript](https://typescriptlang.org) + [Vite](https://vite.dev) |
+| Styling | [TailwindCSS](https://tailwindcss.com) (dark theme, mobile-first) |
+| Routing | [react-router v7](https://reactrouter.com) |
+| Backend | [Convex](https://convex.dev) (real-time queries, mutations, actions, HTTP endpoints) |
+| Auth | [@convex-dev/auth](https://auth.convex.dev) (Email/Password + Anonymous) |
+| Drag & Drop | [@dnd-kit](https://dndkit.com) |
+| Icons | [Lucide React](https://lucide.dev) |
 
 ## Quick Start
 
+**Prerequisites:** Node.js 18+
+
 ```bash
+git clone https://github.com/hnbcrm/hnbcrm.git
+cd hnbcrm
 npm install
-npm run dev          # Frontend (Vite) + Backend (Convex) in parallel
+npm run dev
 ```
+
+Open [http://localhost:5173](http://localhost:5173). The app starts with an anonymous sign-in option for quick exploration.
+
+To populate the database with sample data, run the `seedMockData` mutation from the [Convex dashboard](https://dashboard.convex.dev) or trigger it programmatically.
+
+## Development
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start frontend (Vite) + backend (Convex) in parallel |
+| `npm run dev:frontend` | Start only the Vite dev server |
+| `npm run dev:backend` | Start only the Convex dev server |
+| `npm run build` | Production build (Vite) |
+| `npm run lint` | Full check: TypeScript + Convex deploy + Vite build |
 
 ## Project Structure
 
-- `src/` — React frontend (Vite, TailwindCSS, dark theme, PT-BR UI)
-- `convex/` — Convex backend (queries, mutations, actions, HTTP API)
-- `public/` — Logo assets (orange handshake icon)
+```
+src/
+  components/       UI components (pages, layout, ui primitives)
+  pages/            Public pages (DevelopersPage)
+  lib/              Utilities (routes, mentions, cn())
+convex/
+  schema.ts         All table definitions and indexes
+  router.ts         REST API endpoints (/api/v1/*)
+  leads.ts          Lead CRUD, stage moves, assignment
+  contacts.ts       Contact CRUD with enrichment
+  conversations.ts  Multi-channel messaging
+  handoffs.ts       AI-to-human handoff workflow
+  llmsTxt.ts        /llms.txt endpoint content
+  seed.ts           Development seed data
+mcp-server/         MCP server package (hnbcrm-mcp)
+public/             Logo assets
+```
 
-## Authentication
+## API & Integrations
 
-Uses [Convex Auth](https://auth.convex.dev/) with Password + Anonymous providers.
+**REST API** — RESTful endpoints at `/api/v1/` authenticated via `X-API-Key` header. Covers leads, contacts, conversations, handoffs, boards, and team members. See `convex/router.ts` for the full reference.
 
-## HTTP API
+**MCP Server** — The `mcp-server/` directory contains an MCP server (`hnbcrm-mcp`) that exposes CRM tools and resources for AI agent integration. See [mcp-server/README.md](mcp-server/README.md) for setup.
 
-RESTful endpoints at `/api/v1/` in `convex/router.ts`, authenticated via `X-API-Key` header.
+**Webhooks** — HMAC-SHA256 signed webhook events for lead, conversation, and handoff state changes.
 
-## Docs
+## UI Language
 
-- [Convex Overview](https://docs.convex.dev/understanding/)
-- [Hosting & Deployment](https://docs.convex.dev/production/)
-- [Best Practices](https://docs.convex.dev/understanding/best-practices/)
+The interface is in **Portuguese (PT-BR)**. English localization is planned.
+
+## Contributing
+
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## License
+
+[MIT](LICENSE)
+
+## Acknowledgments
+
+Built with [Convex](https://convex.dev), [Lucide](https://lucide.dev), [@dnd-kit](https://dndkit.com), and [Sonner](https://sonner.emilkowal.dev).

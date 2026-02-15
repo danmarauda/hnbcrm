@@ -2,6 +2,21 @@
 
 All notable changes to HNBCRM (formerly ClawCRM) will be documented in this file.
 
+## [0.7.0] - 2026-02-15 (continued)
+
+### Documentation Overhaul
+
+Rewrites all documentation to professional open-source standards.
+
+- **README.md** — Full rewrite: logo header, badges, features list, tech stack table, quick start, project structure, API & integrations section
+- **LICENSE** — Added MIT license
+- **CONTRIBUTING.md** — Added contribution guide with setup instructions, code style, PR process, commit conventions
+- **mcp-server/README.md** — Removed PT-BR duplicate section, fixed GitHub URLs, added license link
+- **convex/README.md** — Replaced generic Convex boilerplate with project-specific backend guide (file layout, auth, REST API)
+- **CLAUDE.md** — Removed redundant Skills and Agents sections (auto-discoverable)
+- **src/CLAUDE.md** — Added DevelopersPage to structure tree, removed Path Alias and Key Dependencies sections
+- **convex/CLAUDE.md** — Added llmsTxt.ts and onboarding files to file layout table
+
 ## [0.7.0] - 2026-02-15
 
 ### MCP Server, Developer Portal & llms.txt

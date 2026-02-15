@@ -1,90 +1,48 @@
-# Welcome to your Convex functions directory!
+# HNBCRM — Convex Backend
 
-Write your Convex functions here.
-See https://docs.convex.dev/functions for more.
+Real-time backend powered by [Convex](https://convex.dev). All queries are reactive, mutations are transactional, and HTTP actions serve the REST API.
 
-A query function that takes two arguments looks like:
+## File Layout
 
-```ts
-// convex/myFunctions.ts
-import { query } from "./_generated/server";
-import { v } from "convex/values";
+| File | Purpose |
+|------|---------|
+| `schema.ts` | All table definitions, indexes, and validators |
+| `router.ts` | REST API endpoints (`/api/v1/*`) with API key auth |
+| `http.ts` | Wires HTTP routes from `router.ts` |
+| `leads.ts` | Lead CRUD, stage moves, assignment, qualification |
+| `contacts.ts` | Contact CRUD with 20+ enrichment fields |
+| `conversations.ts` | Multi-channel conversations and messages |
+| `handoffs.ts` | AI-to-human handoff workflow |
+| `boards.ts` | Pipeline boards and stage management |
+| `organizations.ts` | Organization CRUD and settings |
+| `teamMembers.ts` | Human + AI team member management |
+| `activities.ts` | Activity timeline events on leads |
+| `auditLogs.ts` | Audit trail with severity and entity filters |
+| `dashboard.ts` | Aggregation queries for the dashboard |
+| `webhooks.ts` | Webhook CRUD |
+| `nodeActions.ts` | Node.js actions: API key hashing, webhook dispatch |
+| `apiKeys.ts` | API key generation and validation |
+| `llmsTxt.ts` | `/llms.txt` and `/llms-full.txt` endpoint content |
+| `onboarding.ts` | Onboarding wizard and checklist state |
+| `seed.ts` | Development seed data |
+| `lib/auth.ts` | Shared `requireAuth()` helper |
 
-export const myQueryFunction = query({
-  // Validators for arguments.
-  args: {
-    first: v.number(),
-    second: v.string(),
-  },
+## Authentication
 
-  // Function implementation.
-  handler: async (ctx, args) => {
-    // Read the database as many times as you need here.
-    // See https://docs.convex.dev/database/reading-data.
-    const documents = await ctx.db.query("tablename").collect();
+Every public query/mutation uses `requireAuth(ctx, organizationId)` from `lib/auth.ts` to verify the user is authenticated and belongs to the organization. The REST API authenticates via `X-API-Key` header.
 
-    // Arguments passed from the client are properties of the args object.
-    console.log(args.first, args.second);
+## REST API
 
-    // Write arbitrary JavaScript here: filter, aggregate, build derived data,
-    // remove non-public properties, or create new objects.
-    return documents;
-  },
-});
+Endpoints are defined in `router.ts` and mounted in `http.ts`. All routes follow the pattern:
+
+```
+GET|POST|PUT|DELETE /api/v1/{resource}
 ```
 
-Using this query function in a React component looks like:
+Covers: leads, contacts, conversations, handoffs, boards, team-members, and field-definitions.
 
-```ts
-const data = useQuery(api.myFunctions.myQueryFunction, {
-  first: 10,
-  second: "hello",
-});
-```
+## Learn More
 
-A mutation function looks like:
-
-```ts
-// convex/myFunctions.ts
-import { mutation } from "./_generated/server";
-import { v } from "convex/values";
-
-export const myMutationFunction = mutation({
-  // Validators for arguments.
-  args: {
-    first: v.string(),
-    second: v.string(),
-  },
-
-  // Function implementation.
-  handler: async (ctx, args) => {
-    // Insert or modify documents in the database here.
-    // Mutations can also read from the database like queries.
-    // See https://docs.convex.dev/database/writing-data.
-    const message = { body: args.first, author: args.second };
-    const id = await ctx.db.insert("messages", message);
-
-    // Optionally, return a value from your mutation.
-    return await ctx.db.get("messages", id);
-  },
-});
-```
-
-Using this mutation function in a React component looks like:
-
-```ts
-const mutation = useMutation(api.myFunctions.myMutationFunction);
-function handleButtonPress() {
-  // fire and forget, the most common way to use mutations
-  mutation({ first: "Hello!", second: "me" });
-  // OR
-  // use the result once the mutation has completed
-  mutation({ first: "Hello!", second: "me" }).then((result) =>
-    console.log(result),
-  );
-}
-```
-
-Use the Convex CLI to push your functions to a deployment. See everything
-the Convex CLI can do by running `npx convex -h` in your project root
-directory. To learn more, launch the docs with `npx convex docs`.
+- [Convex Documentation](https://docs.convex.dev)
+- [Convex Functions](https://docs.convex.dev/functions)
+- [Convex Best Practices](https://docs.convex.dev/understanding/best-practices/)

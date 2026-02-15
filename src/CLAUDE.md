@@ -30,6 +30,8 @@ src/
     │   └── BottomTabBar.tsx   # Mobile bottom tabs — URL-based (exports Tab type)
     ├── LandingPage.tsx         # Public sales landing page at /
     ├── AuthPage.tsx            # Auth screen at /entrar with back link
+├── pages/
+│   └── DevelopersPage.tsx      # Public developer portal at /developers
     ├── Dashboard.tsx           # (legacy, unused — superseded by Outlet routing)
     ├── DashboardOverview.tsx   # Metrics overview (route: /app/painel)
     ├── KanbanBoard.tsx         # Pipeline board with drag-and-drop (route: /app/pipeline)
@@ -86,15 +88,3 @@ if (data === undefined) return <Spinner size="lg" />;
 
 All user-facing text is in **Portuguese (BR)**. Navigation: Painel, Pipeline, Caixa de Entrada, Repasses, Equipe, Auditoria, Configurações.
 
-## Path Alias
-
-`@/` maps to `src/` — use `@/components/ui/Button` for imports.
-
-## Key Dependencies
-
-- `convex/react` — `useQuery`, `useMutation`, `useConvexAuth`, `Authenticated`, `Unauthenticated`
-- `@convex-dev/auth/react` — `ConvexAuthProvider`, `useAuthActions`
-- `react-router` — `createBrowserRouter`, `RouterProvider`, `useOutletContext`, `useNavigate`, `useLocation`, `Link`, `Navigate`, `Outlet`
-- `sonner` — `toast` for notifications, `<Toaster theme="dark" />` in main.tsx
-- `lucide-react` — SVG icons
-- `clsx` + `tailwind-merge` — via `cn()` utility

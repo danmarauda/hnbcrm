@@ -24,6 +24,8 @@
 | `nodeActions.ts` | Node.js actions: API key hashing, webhook dispatch |
 | `apiKeys.ts` | API key generation and validation |
 | `leadSources.ts` / `fieldDefinitions.ts` | Lead sources + custom fields |
+| `llmsTxt.ts` | `/llms.txt` and `/llms-full.txt` endpoint content |
+| `onboarding.ts` / `onboardingSeed.ts` | Onboarding wizard + checklist state |
 | `seed.ts` | Dev seed data |
 
 ## Auth Pattern (copy this for every public function)
