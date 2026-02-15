@@ -423,7 +423,7 @@ function CustomFieldsSection({ organizationId }: { organizationId: Id<"organizat
           )}
           <div>
             <label className="block text-[13px] font-medium text-text-secondary mb-1.5">Tipo</label>
-            <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="w-full bg-surface-raised border border-border-strong text-text-primary rounded-field px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20">
+            <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="w-full bg-surface-raised border border-border-strong text-text-primary rounded-field px-3.5 py-2.5 text-base md:text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20">
               <option value="text">Text</option>
               <option value="number">Number</option>
               <option value="boolean">Boolean</option>
@@ -561,7 +561,7 @@ function LeadSourcesSection({ organizationId }: { organizationId: Id<"organizati
           />
           <div>
             <label className="block text-[13px] font-medium text-text-secondary mb-1.5">Tipo</label>
-            <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="w-full bg-surface-raised border border-border-strong text-text-primary rounded-field px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20">
+            <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} className="w-full bg-surface-raised border border-border-strong text-text-primary rounded-field px-3.5 py-2.5 text-base md:text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20">
               <option value="website">Website</option>
               <option value="social">Social</option>
               <option value="email">Email</option>

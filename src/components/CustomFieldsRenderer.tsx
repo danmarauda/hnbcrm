@@ -89,7 +89,7 @@ function renderViewValue(field: FieldDefinition, value: any): React.ReactNode {
 }
 
 const inputClass =
-  "w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm";
+  "w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-base md:text-sm";
 
 function renderEditField(
   field: FieldDefinition,

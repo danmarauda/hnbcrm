@@ -2,6 +2,18 @@
 
 All notable changes to HNBCRM (formerly ClawCRM) will be documented in this file.
 
+## [0.7.1] - 2026-02-15
+
+### Fixed — Mobile Auto-Zoom on Input Focus
+
+Prevents iOS Safari auto-zoom when tapping form inputs (triggered by `font-size < 16px`).
+
+- **Viewport meta** (`index.html`) — Added `maximum-scale=1.0, user-scalable=no` to prevent auto-zoom and pinch-zoom
+- **CSS** (`src/index.css`) — Added `touch-action: manipulation` on `html` to prevent double-tap zoom
+- **Input.tsx** — Changed `text-sm` → `text-base md:text-sm` (16px on mobile, 14px on desktop)
+- **Settings.tsx** — Two `<select>` elements: `text-sm` → `text-base md:text-sm`
+- **CustomFieldsRenderer.tsx** — `inputClass`: `text-sm` → `text-base md:text-sm`
+
 ## [0.7.0] - 2026-02-15 (continued)
 
 ### Documentation Overhaul

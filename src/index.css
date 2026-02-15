@@ -34,6 +34,11 @@
   --text-muted:     #A1A1AA;
 }
 
+/* === Prevent double-tap zoom on mobile === */
+html {
+  touch-action: manipulation;
+}
+
 /* === Base styles === */
 body {
   font-family:
