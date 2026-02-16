@@ -8,71 +8,31 @@ import {
   Globe,
   Webhook,
   Code2,
-  Copy,
-  Check,
+  Rocket,
+  Play,
+  Search as SearchIcon,
+  Download,
+  BookOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
+import { CodeBlock } from "@/components/developers/CodeBlock";
+import { ApiPlayground } from "@/components/developers/ApiPlayground";
+import { ALL_ENDPOINTS, API_CATEGORIES, getEndpointsByCategory } from "@/lib/apiRegistry";
 
 const sections = [
+  { id: "quick-start", label: "Quick Start", icon: Rocket },
+  { id: "playground", label: "Playground", icon: Play },
   { id: "auth", label: "Autenticacao", icon: Key },
   { id: "mcp", label: "Servidor MCP", icon: Server },
   { id: "mcp-tools", label: "Tools MCP", icon: Table2 },
+  { id: "agent-skills", label: "Agent Skills", icon: BookOpen },
   { id: "rest-api", label: "API REST", icon: Globe },
   { id: "webhooks", label: "Webhooks", icon: Webhook },
   { id: "examples", label: "Exemplos", icon: Code2 },
 ];
-
-function CodeBlock({ children, language = "bash" }: { children: string; language?: string }) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(children.trim());
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  return (
-    <div className="relative group rounded-lg overflow-hidden border border-border">
-      <div className="flex items-center justify-between px-4 py-2 bg-[#161b22] border-b border-border">
-        <span className="text-xs text-text-muted font-mono">{language}</span>
-        <button
-          onClick={handleCopy}
-          className="text-text-muted hover:text-text-secondary transition-colors p-1"
-          aria-label="Copiar codigo"
-        >
-          {copied ? <Check size={14} /> : <Copy size={14} />}
-        </button>
-      </div>
-      <pre className="bg-[#0d1117] p-4 overflow-x-auto">
-        <code className="text-sm font-mono text-text-secondary whitespace-pre">
-          {children.trim()}
-        </code>
-      </pre>
-    </div>
-  );
-}
-
-function EndpointRow({ method, path, description }: { method: string; path: string; description: string }) {
-  const methodColors: Record<string, string> = {
-    GET: "text-semantic-success",
-    POST: "text-semantic-info",
-  };
-
-  return (
-    <tr className="border-b border-border last:border-b-0">
-      <td className="py-2.5 px-3">
-        <span className={cn("font-mono text-xs font-semibold", methodColors[method] ?? "text-text-secondary")}>
-          {method}
-        </span>
-      </td>
-      <td className="py-2.5 px-3 font-mono text-xs text-brand-400">{path}</td>
-      <td className="py-2.5 px-3 text-sm text-text-secondary">{description}</td>
-    </tr>
-  );
-}
 
 function ToolRow({ name, description, params }: { name: string; description: string; params: string }) {
   return (
@@ -85,7 +45,9 @@ function ToolRow({ name, description, params }: { name: string; description: str
 }
 
 export function DevelopersPage() {
-  const [activeSection, setActiveSection] = useState("auth");
+  const [activeSection, setActiveSection] = useState("quick-start");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [playgroundEndpointId, setPlaygroundEndpointId] = useState<string | null>(null);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
 
   useEffect(() => {
@@ -122,8 +84,8 @@ export function DevelopersPage() {
     <div className="min-h-screen bg-surface-base text-text-primary">
       {/* Header */}
       <header className="sticky top-0 z-30 bg-surface-base/80 backdrop-blur-md border-b border-border">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4 flex-shrink-0">
             <Link to="/" className="flex items-center gap-2">
               <img
                 src="/orange_icon_logo_transparent-bg-528x488.png"
@@ -135,7 +97,21 @@ export function DevelopersPage() {
             <span className="text-text-muted">/</span>
             <span className="text-sm font-medium text-text-secondary">Developers</span>
           </div>
-          <Link to="/">
+
+          <div className="flex items-center gap-2 flex-1 max-w-sm mx-4">
+            <div className="relative flex-1">
+              <SearchIcon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+              <input
+                type="text"
+                placeholder="Buscar endpoints..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-3 py-1.5 bg-surface-overlay border border-border rounded-lg text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500"
+              />
+            </div>
+          </div>
+
+          <Link to="/" className="flex-shrink-0">
             <Button variant="ghost" size="sm">
               <ArrowLeft size={16} />
               Voltar
@@ -199,6 +175,78 @@ export function DevelopersPage() {
               Build on HNBCRM — integre agentes de IA, automatize workflows e
               estenda seu CRM.
             </p>
+          </section>
+
+          {/* Quick Start */}
+          <section id="quick-start" className="space-y-6 scroll-mt-24">
+            <h2 className="text-2xl font-bold flex items-center gap-3">
+              <Rocket className="text-brand-400" size={24} />
+              Quick Start
+            </h2>
+            <p className="text-text-secondary">
+              Comece a usar a API em 3 passos simples.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Step 1 */}
+              <Card className="p-6 space-y-3">
+                <div className="w-8 h-8 rounded-full bg-brand-500/10 border border-brand-500 flex items-center justify-center">
+                  <span className="text-sm font-bold text-brand-500">1</span>
+                </div>
+                <h3 className="font-semibold text-text-primary">Gere sua API Key</h3>
+                <p className="text-sm text-text-secondary">
+                  Acesse <span className="text-brand-400">Configuracoes &gt; API Keys</span> no app e crie uma nova chave.
+                </p>
+              </Card>
+
+              {/* Step 2 */}
+              <Card className="p-6 space-y-3">
+                <div className="w-8 h-8 rounded-full bg-brand-500/10 border border-brand-500 flex items-center justify-center">
+                  <span className="text-sm font-bold text-brand-500">2</span>
+                </div>
+                <h3 className="font-semibold text-text-primary">Faca sua primeira chamada</h3>
+                <p className="text-sm text-text-secondary">
+                  Use cURL ou qualquer HTTP client:
+                </p>
+                <CodeBlock language="bash">{`curl -X GET "https://SEU-DEPLOYMENT.convex.site/api/v1/boards" \\
+  -H "X-API-Key: sua_chave_aqui"`}</CodeBlock>
+              </Card>
+
+              {/* Step 3 */}
+              <Card className="p-6 space-y-3">
+                <div className="w-8 h-8 rounded-full bg-brand-500/10 border border-brand-500 flex items-center justify-center">
+                  <span className="text-sm font-bold text-brand-500">3</span>
+                </div>
+                <h3 className="font-semibold text-text-primary">Explore o Playground</h3>
+                <p className="text-sm text-text-secondary">
+                  Teste todos os endpoints direto do navegador sem sair desta pagina.
+                </p>
+                <Button variant="primary" size="sm" onClick={() => scrollTo("playground")}>
+                  <Play size={14} />
+                  Abrir Playground
+                </Button>
+              </Card>
+            </div>
+          </section>
+
+          {/* Playground */}
+          <section id="playground" className="space-y-6 scroll-mt-24">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold flex items-center gap-3">
+                <Play className="text-brand-400" size={24} />
+                API Playground
+              </h2>
+              <a href="/api/v1/openapi.json" target="_blank" rel="noopener noreferrer">
+                <Button variant="ghost" size="sm">
+                  <Download size={14} />
+                  OpenAPI Spec
+                </Button>
+              </a>
+            </div>
+            <p className="text-text-secondary">
+              Teste endpoints em tempo real. Configure sua Base URL e API Key, selecione um endpoint e envie requisicoes.
+            </p>
+            <ApiPlayground initialEndpointId={playgroundEndpointId ?? undefined} />
           </section>
 
           {/* Authentication */}
@@ -332,7 +380,7 @@ export function DevelopersPage() {
               Tools MCP — Referencia
             </h2>
             <p className="text-text-secondary">
-              O servidor MCP expoe 19 ferramentas organizadas por categoria. Cada
+              O servidor MCP expoe 26 ferramentas organizadas por categoria. Cada
               ferramenta corresponde a uma acao no CRM.
             </p>
 
@@ -471,6 +519,102 @@ export function DevelopersPage() {
             </Card>
           </section>
 
+          {/* Agent Skills */}
+          <section id="agent-skills" className="space-y-6 scroll-mt-24">
+            <h2 className="text-2xl font-bold flex items-center gap-3">
+              <BookOpen className="text-brand-400" size={24} />
+              Agent Skills
+            </h2>
+            <p className="text-text-secondary">
+              Skill portavel open-standard que ensina qualquer agente de IA a operar como membro
+              da equipe no CRM — gerenciar leads, enriquecer contatos, responder conversas e
+              executar handoffs para humanos.
+            </p>
+
+            <Card className="p-6 space-y-4">
+              <h3 className="font-semibold text-text-primary">Conteudo do Skill</h3>
+              <p className="text-sm text-text-secondary">
+                O skill vive em <code className="text-brand-400 bg-surface-overlay px-1.5 py-0.5 rounded text-xs">.claude/skills/hnbcrm/</code> e
+                segue o padrao <span className="text-brand-400">AgentSkills.io</span>. Pode ser copiado para qualquer plataforma.
+              </p>
+              <div className="space-y-2">
+                {[
+                  { file: "SKILL.md", desc: "Skill principal — papel do agente, bootstrap, workflows, boas praticas" },
+                  { file: "references/WORKFLOWS.md", desc: "Playbooks passo a passo: intake, qualificacao, enrichment, handoffs" },
+                  { file: "references/API_REFERENCE.md", desc: "Mapeamento completo MCP tools <> REST endpoints" },
+                  { file: "references/DATA_MODEL.md", desc: "Tabelas, campos e valores de enum" },
+                  { file: "references/SETUP.md", desc: "Configuracao por plataforma (Claude, Cursor, VS Code, Gemini, OpenClaw)" },
+                ].map((item) => (
+                  <div key={item.file} className="flex items-start gap-3 p-3 rounded-lg bg-surface-overlay border border-border">
+                    <code className="text-xs font-mono text-brand-400 whitespace-nowrap mt-0.5">{item.file}</code>
+                    <span className="text-sm text-text-secondary">{item.desc}</span>
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            <Card className="p-6 space-y-4">
+              <h3 className="font-semibold text-text-primary">Quick Setup</h3>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm text-text-secondary mb-2">
+                    <span className="text-brand-400 font-semibold">1.</span> Configure o servidor MCP (necessario para as tools):
+                  </p>
+                  <CodeBlock language="bash">{`# Defina as variaveis de ambiente
+export HNBCRM_API_URL="https://seu-deployment.convex.site"
+export HNBCRM_API_KEY="sua_chave_aqui"
+
+# Teste a conexao
+npx hnbcrm-mcp`}</CodeBlock>
+                </div>
+                <div>
+                  <p className="text-sm text-text-secondary mb-2">
+                    <span className="text-brand-400 font-semibold">2.</span> Copie o skill para seu agente:
+                  </p>
+                  <CodeBlock language="bash">{`# Claude Code (ja detecta automaticamente)
+# Para outras plataformas:
+cp -r .claude/skills/hnbcrm/ ~/.sua-plataforma/skills/hnbcrm/`}</CodeBlock>
+                </div>
+                <div>
+                  <p className="text-sm text-text-secondary mb-2">
+                    <span className="text-brand-400 font-semibold">3.</span> O agente le o SKILL.md e inicia o bootstrap:
+                  </p>
+                  <CodeBlock language="text">{`1. crm_list_team → descobre sua identidade e equipe
+2. crm_list_boards → aprende as etapas do pipeline
+3. crm_list_handoffs → verifica trabalho pendente
+4. crm_list_leads → revisa leads atribuidos`}</CodeBlock>
+                </div>
+              </div>
+            </Card>
+
+            <Card className="p-6 space-y-4">
+              <h3 className="font-semibold text-text-primary">Plataformas Compativeis</h3>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  "Claude Code",
+                  "Claude Desktop",
+                  "Cursor",
+                  "VS Code",
+                  "Gemini CLI",
+                  "OpenClaw",
+                  "REST API (qualquer agente)",
+                ].map((platform) => (
+                  <span
+                    key={platform}
+                    className="px-3 py-1.5 rounded-full text-xs font-medium bg-surface-overlay border border-border text-text-secondary"
+                  >
+                    {platform}
+                  </span>
+                ))}
+              </div>
+              <p className="text-sm text-text-muted">
+                O skill funciona com qualquer plataforma que suporte MCP ou REST API. Veja{" "}
+                <code className="text-brand-400 bg-surface-overlay px-1.5 py-0.5 rounded text-xs">references/SETUP.md</code>{" "}
+                para instrucoes detalhadas.
+              </p>
+            </Card>
+          </section>
+
           {/* REST API */}
           <section id="rest-api" className="space-y-6 scroll-mt-24">
             <h2 className="text-2xl font-bold flex items-center gap-3">
@@ -483,135 +627,66 @@ export function DevelopersPage() {
             <p className="text-sm text-text-secondary">
               Todos os endpoints requerem o header{" "}
               <code className="text-brand-400 bg-surface-overlay px-1.5 py-0.5 rounded text-xs">X-API-Key</code>.
-              Respostas em JSON.
+              Respostas em JSON. Total: {ALL_ENDPOINTS.length} endpoints.
             </p>
 
-            {/* Leads endpoints */}
-            <Card className="p-0 overflow-hidden">
-              <div className="px-4 py-3 bg-surface-overlay border-b border-border">
-                <h3 className="font-semibold text-text-primary">Leads</h3>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                  <thead>
-                    <tr className="border-b border-border bg-surface-sunken/50">
-                      <th className="py-2 px-3 text-xs font-semibold text-text-muted w-16">Metodo</th>
-                      <th className="py-2 px-3 text-xs font-semibold text-text-muted w-56">Path</th>
-                      <th className="py-2 px-3 text-xs font-semibold text-text-muted">Descricao</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <EndpointRow method="POST" path="/api/v1/inbound/lead" description="Criar lead (com contato e mensagem opcionais)" />
-                    <EndpointRow method="GET" path="/api/v1/leads" description="Listar leads (filtros: boardId, stageId, assignedTo)" />
-                    <EndpointRow method="GET" path="/api/v1/leads/get" description="Detalhes do lead (param: id)" />
-                    <EndpointRow method="POST" path="/api/v1/leads/update" description="Atualizar campos do lead" />
-                    <EndpointRow method="POST" path="/api/v1/leads/delete" description="Remover lead" />
-                    <EndpointRow method="POST" path="/api/v1/leads/move-stage" description="Mover lead para outra etapa" />
-                    <EndpointRow method="POST" path="/api/v1/leads/assign" description="Atribuir lead a membro da equipe" />
-                  </tbody>
-                </table>
-              </div>
-            </Card>
+            {API_CATEGORIES.map((category) => {
+              const endpoints = getEndpointsByCategory(category);
+              // Apply search filter
+              const filtered = searchQuery
+                ? endpoints.filter((ep) =>
+                    ep.path.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    ep.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    ep.description.toLowerCase().includes(searchQuery.toLowerCase())
+                  )
+                : endpoints;
+              if (filtered.length === 0) return null;
 
-            {/* Contacts endpoints */}
-            <Card className="p-0 overflow-hidden">
-              <div className="px-4 py-3 bg-surface-overlay border-b border-border">
-                <h3 className="font-semibold text-text-primary">Contatos</h3>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                  <thead>
-                    <tr className="border-b border-border bg-surface-sunken/50">
-                      <th className="py-2 px-3 text-xs font-semibold text-text-muted w-16">Metodo</th>
-                      <th className="py-2 px-3 text-xs font-semibold text-text-muted w-56">Path</th>
-                      <th className="py-2 px-3 text-xs font-semibold text-text-muted">Descricao</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <EndpointRow method="GET" path="/api/v1/contacts" description="Listar contatos" />
-                    <EndpointRow method="POST" path="/api/v1/contacts/create" description="Criar contato" />
-                    <EndpointRow method="GET" path="/api/v1/contacts/get" description="Detalhes do contato (param: id)" />
-                    <EndpointRow method="POST" path="/api/v1/contacts/update" description="Atualizar contato" />
-                    <EndpointRow method="POST" path="/api/v1/contacts/enrich" description="Enriquecer dados do contato (IA)" />
-                    <EndpointRow method="GET" path="/api/v1/contacts/gaps" description="Gaps de enriquecimento (param: id)" />
-                  </tbody>
-                </table>
-              </div>
-            </Card>
-
-            {/* Conversations endpoints */}
-            <Card className="p-0 overflow-hidden">
-              <div className="px-4 py-3 bg-surface-overlay border-b border-border">
-                <h3 className="font-semibold text-text-primary">Conversas</h3>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                  <thead>
-                    <tr className="border-b border-border bg-surface-sunken/50">
-                      <th className="py-2 px-3 text-xs font-semibold text-text-muted w-16">Metodo</th>
-                      <th className="py-2 px-3 text-xs font-semibold text-text-muted w-56">Path</th>
-                      <th className="py-2 px-3 text-xs font-semibold text-text-muted">Descricao</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <EndpointRow method="GET" path="/api/v1/conversations" description="Listar conversas (filtro: leadId)" />
-                    <EndpointRow method="GET" path="/api/v1/conversations/messages" description="Mensagens de uma conversa (param: conversationId)" />
-                    <EndpointRow method="POST" path="/api/v1/conversations/send" description="Enviar mensagem" />
-                  </tbody>
-                </table>
-              </div>
-            </Card>
-
-            {/* Handoffs endpoints */}
-            <Card className="p-0 overflow-hidden">
-              <div className="px-4 py-3 bg-surface-overlay border-b border-border">
-                <h3 className="font-semibold text-text-primary">Handoffs</h3>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                  <thead>
-                    <tr className="border-b border-border bg-surface-sunken/50">
-                      <th className="py-2 px-3 text-xs font-semibold text-text-muted w-16">Metodo</th>
-                      <th className="py-2 px-3 text-xs font-semibold text-text-muted w-56">Path</th>
-                      <th className="py-2 px-3 text-xs font-semibold text-text-muted">Descricao</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <EndpointRow method="POST" path="/api/v1/leads/handoff" description="Solicitar repasse" />
-                    <EndpointRow method="GET" path="/api/v1/handoffs" description="Listar handoffs (filtro: status)" />
-                    <EndpointRow method="GET" path="/api/v1/handoffs/pending" description="Listar handoffs pendentes" />
-                    <EndpointRow method="POST" path="/api/v1/handoffs/accept" description="Aceitar handoff" />
-                    <EndpointRow method="POST" path="/api/v1/handoffs/reject" description="Rejeitar handoff" />
-                  </tbody>
-                </table>
-              </div>
-            </Card>
-
-            {/* Pipeline endpoints */}
-            <Card className="p-0 overflow-hidden">
-              <div className="px-4 py-3 bg-surface-overlay border-b border-border">
-                <h3 className="font-semibold text-text-primary flex items-center gap-2">
-                  Pipeline
-                  <Badge variant="success">Novo</Badge>
-                </h3>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                  <thead>
-                    <tr className="border-b border-border bg-surface-sunken/50">
-                      <th className="py-2 px-3 text-xs font-semibold text-text-muted w-16">Metodo</th>
-                      <th className="py-2 px-3 text-xs font-semibold text-text-muted w-56">Path</th>
-                      <th className="py-2 px-3 text-xs font-semibold text-text-muted">Descricao</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <EndpointRow method="GET" path="/api/v1/boards" description="Listar boards com etapas" />
-                    <EndpointRow method="GET" path="/api/v1/team-members" description="Listar membros da equipe" />
-                    <EndpointRow method="GET" path="/api/v1/field-definitions" description="Listar definicoes de campos" />
-                  </tbody>
-                </table>
-              </div>
-            </Card>
+              return (
+                <Card key={category} className="p-0 overflow-hidden">
+                  <div className="px-4 py-3 bg-surface-overlay border-b border-border">
+                    <h3 className="font-semibold text-text-primary flex items-center gap-2">
+                      {category}
+                      <Badge variant="brand">{filtered.length}</Badge>
+                    </h3>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                      <thead>
+                        <tr className="border-b border-border bg-surface-sunken/50">
+                          <th className="py-2 px-3 text-xs font-semibold text-text-muted w-16">Metodo</th>
+                          <th className="py-2 px-3 text-xs font-semibold text-text-muted w-56">Path</th>
+                          <th className="py-2 px-3 text-xs font-semibold text-text-muted">Descricao</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filtered.map((ep) => (
+                          <tr
+                            key={ep.id}
+                            className="border-b border-border last:border-b-0 hover:bg-surface-overlay/50 cursor-pointer transition-colors"
+                            onClick={() => {
+                              setPlaygroundEndpointId(ep.id);
+                              scrollTo("playground");
+                            }}
+                          >
+                            <td className="py-2.5 px-3">
+                              <span className={cn(
+                                "font-mono text-xs font-semibold",
+                                ep.method === "GET" ? "text-semantic-success" : "text-semantic-info"
+                              )}>
+                                {ep.method}
+                              </span>
+                            </td>
+                            <td className="py-2.5 px-3 font-mono text-xs text-brand-400">{ep.path}</td>
+                            <td className="py-2.5 px-3 text-sm text-text-secondary">{ep.description}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </Card>
+              );
+            })}
           </section>
 
           {/* Webhooks */}

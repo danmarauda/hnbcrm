@@ -14,9 +14,30 @@ HNBCRM is an open-source, multi-tenant CRM built on Convex with real-time collab
 ## Quick Links
 
 - REST API: /api/v1/* endpoints authenticated via X-API-Key header
-- MCP Server: npx hnbcrm-mcp
+- MCP Server: npx hnbcrm-mcp (26 tools for AI agents)
+- Agent Skill: .claude/skills/hnbcrm/ — portable skill that teaches AI agents how to operate as CRM team members
 - Channels: whatsapp, telegram, email, webchat, internal
 - Auth: API key passed in X-API-Key header (SHA-256 hashed, stored per team member)
+
+## Agent Skill (for AI Agents)
+
+HNBCRM ships an open-standard Agent Skill that teaches any AI agent to operate as a CRM team member. The skill covers lead management, contact enrichment, conversation handling, and AI-to-human handoffs.
+
+### Installation
+
+Copy the skill directory to your agent's workspace:
+\`\`\`
+git clone <repo> && cp -r .claude/skills/hnbcrm/ ~/.your-agent/skills/hnbcrm/
+\`\`\`
+
+Or use the MCP server for tool access: \`npx hnbcrm-mcp\`
+
+### Skill Contents
+- SKILL.md — Main skill with role definition, bootstrap checklist, workflows, and best practices
+- references/WORKFLOWS.md — Step-by-step playbooks (lead intake, qualification, enrichment, handoffs)
+- references/API_REFERENCE.md — Complete MCP tool and REST endpoint mapping
+- references/DATA_MODEL.md — All tables, fields, and enum values
+- references/SETUP.md — Platform-specific MCP configuration (Claude, Cursor, VS Code, Gemini, OpenClaw)
 `;
 
 export const LLMS_FULL_TXT = `# HNBCRM — Full API Reference
@@ -375,11 +396,81 @@ List custom field definitions.
 
 **Response:** \`{ fields: [...] }\`
 
+#### GET /api/v1/lead-sources
+List lead sources for the organization.
+
+**Response:** \`{ sources: [...] }\`
+
+### Activity Endpoints
+
+#### GET /api/v1/activities
+Get the activity timeline for a lead.
+
+**Query params:** leadId (required), limit (optional, default 50, max 200)
+
+**Response:** \`{ activities: [...] }\`
+
+#### POST /api/v1/activities
+Create an activity on a lead.
+
+**Body:**
+| Param | Type | Required | Description |
+|-------|------|----------|-------------|
+| leadId | Id | yes | Lead to log activity on |
+| type | string | yes | note, call, email_sent |
+| content | string | no | Activity description |
+| metadata | object | no | Additional structured data |
+
+**Response:** \`{ success: true, activityId }\`
+
+### Dashboard Endpoint
+
+#### GET /api/v1/dashboard
+Get pipeline analytics and summary statistics for the organization.
+
+**Response:** \`{ totalLeads, leadsByStage, leadsBySource, recentActivity, teamPerformance, ... }\`
+
+### Search Endpoint
+
+#### GET /api/v1/contacts/search
+Search contacts by name, email, company, or other text fields.
+
+**Query params:** q (required, search text), limit (optional, default 20, max 100)
+
+**Response:** \`{ contacts: [...] }\`
+
+### Audit Log Endpoint
+
+#### GET /api/v1/audit-logs
+Get audit logs with filtering and cursor-based pagination.
+
+**Query params:** entityType, action, severity, actorId, startDate, endDate, cursor, limit (all optional)
+
+**Response:** \`{ logs: [...], nextCursor, hasMore }\`
+
+---
+
+## Agent Skill
+
+HNBCRM ships an open-standard Agent Skill at \`.claude/skills/hnbcrm/\` that teaches any AI agent to operate as a CRM team member — managing leads, enriching contacts, handling conversations, and executing handoffs.
+
+### Skill Files
+- **SKILL.md** — Main skill: role definition, bootstrap sequence, core workflows, best practices
+- **references/WORKFLOWS.md** — Step-by-step playbooks for lead intake, qualification, pipeline advancement, contact enrichment, handoff execution, conversation management
+- **references/API_REFERENCE.md** — Complete MCP tool ↔ REST endpoint mapping with parameters and response formats
+- **references/DATA_MODEL.md** — All entity tables, fields, and enum values
+- **references/SETUP.md** — Platform-specific MCP configuration (Claude Code/Desktop, Cursor, VS Code, Gemini CLI, OpenClaw)
+
+### Getting Started
+1. Install the MCP server: \`npx hnbcrm-mcp\` (set HNBCRM_API_URL and HNBCRM_API_KEY env vars)
+2. Copy the skill: \`cp -r .claude/skills/hnbcrm/ ~/.your-agent/skills/hnbcrm/\`
+3. The agent reads SKILL.md and bootstraps by calling \`crm_list_team\` and \`crm_list_boards\`
+
 ---
 
 ## MCP Server Tools
 
-The HNBCRM MCP server (\`npx hnbcrm-mcp\`) exposes the following tools for AI agents:
+The HNBCRM MCP server (\`npx hnbcrm-mcp\`) exposes 26 tools for AI agents:
 
 ### Lead Management
 
@@ -453,6 +544,11 @@ Add enrichment data to a contact from an external source.
 Identify missing/enrichable fields on a contact.
 - **contactId** (string, required): The contact ID
 
+#### search_contacts
+Search contacts by name, email, company, or other text fields.
+- **query** (string, required): Search text
+- **limit** (number, optional): Max results (default 20, max 100)
+
 ### Conversations
 
 #### list_conversations
@@ -490,6 +586,23 @@ List all team members in the organization.
 
 #### list_field_definitions
 List custom field definitions.
+
+#### get_dashboard
+Get pipeline analytics and summary statistics.
+
+### Activities
+
+#### get_activities
+Get the activity timeline for a lead.
+- **leadId** (string, required): The lead ID
+- **limit** (number, optional): Max results (default 50, max 200)
+
+#### create_activity
+Log an activity on a lead (note, call, or email).
+- **leadId** (string, required): The lead ID
+- **type** (string, required): note, call, email_sent
+- **content** (string, optional): Activity description
+- **metadata** (object, optional): Additional structured data
 
 ---
 

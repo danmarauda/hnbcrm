@@ -25,6 +25,9 @@ import {
   Sparkles,
   Zap as Lightning,
   TrendingUp,
+  Code2,
+  Play,
+  BookOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -185,6 +188,9 @@ export function LandingPage() {
 
         {/* Features Section */}
         <FeaturesSection />
+
+        {/* Developer Section */}
+        <DeveloperSection />
 
         {/* Coming Soon Section */}
         <ComingSoonSection />
@@ -359,6 +365,108 @@ function FeaturesSection() {
                   </p>
                 </div>
               </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function DeveloperSection() {
+  const { ref, isInView } = useInView({ threshold: 0.1 });
+
+  const cards = [
+    {
+      icon: Globe,
+      title: "API REST Completa",
+      description: "30 endpoints para gerenciar leads, contatos, conversas, handoffs e mais. Autenticacao via API Key.",
+      link: "/developers#rest-api",
+      linkText: "Ver Documentacao",
+    },
+    {
+      icon: Server,
+      title: "Servidor MCP",
+      description: "26 ferramentas para agentes de IA via Model Context Protocol. Compativel com Claude, Cursor e VS Code.",
+      link: "/developers#mcp",
+      linkText: "Configurar MCP",
+    },
+    {
+      icon: Play,
+      title: "API Playground",
+      description: "Teste endpoints direto do navegador. Preencha formularios, envie requisicoes e veja respostas em tempo real.",
+      link: "/developers#playground",
+      linkText: "Abrir Playground",
+      primary: true,
+    },
+    {
+      icon: BookOpen,
+      title: "Agent Skills",
+      description: "Skill portavel que ensina qualquer agente de IA a operar como membro da equipe. Compativel com Claude Code, Cursor, Gemini e mais.",
+      link: "/developers#agent-skills",
+      linkText: "Ver Skill",
+    },
+  ];
+
+  return (
+    <section
+      id="developers"
+      ref={ref}
+      className="py-16 md:py-24 bg-surface-sunken/30"
+      aria-labelledby="developer-heading"
+    >
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="text-center mb-12 md:mb-16">
+          <Badge variant="brand">Developer Experience</Badge>
+          <h2
+            id="developer-heading"
+            className={cn(
+              "text-3xl md:text-4xl lg:text-5xl font-bold mb-4 mt-4",
+              isInView && "animate-fade-in-up"
+            )}
+          >
+            Feito para desenvolvedores
+          </h2>
+          <p
+            className={cn(
+              "text-lg text-text-secondary",
+              isInView && "animate-fade-in-up [animation-delay:100ms]"
+            )}
+          >
+            Integre agentes de IA, automatize workflows e estenda seu CRM.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {cards.map((card, index) => (
+            <Card
+              key={index}
+              className={cn(
+                "p-8 flex flex-col",
+                card.primary && "border-brand-500",
+                isInView && "animate-fade-in-up",
+                isInView && `[animation-delay:${index * 100}ms]`
+              )}
+            >
+              <div className="w-12 h-12 rounded-xl bg-brand-500/10 flex items-center justify-center mb-4">
+                <card.icon className="text-brand-400" size={24} />
+              </div>
+              <h3 className="text-xl font-semibold text-text-primary mb-2">
+                {card.title}
+              </h3>
+              <p className="text-sm text-text-secondary mb-6 flex-1">
+                {card.description}
+              </p>
+              <Link to={card.link}>
+                <Button
+                  variant={card.primary ? "primary" : "secondary"}
+                  size="sm"
+                  className="w-full min-h-[44px]"
+                >
+                  <Code2 size={16} />
+                  {card.linkText}
+                </Button>
+              </Link>
             </Card>
           ))}
         </div>

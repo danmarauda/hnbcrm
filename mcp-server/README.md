@@ -173,6 +173,10 @@ Add to your VS Code settings or workspace `.vscode/mcp.json`:
 | `hnbcrm://fields` | Custom field definitions (JSON) |
 | `hnbcrm://lead-sources` | Lead sources configured in the organization (JSON) |
 
+## Agent Skills
+
+HNBCRM also ships an open Agent Skill (following the [AgentSkills.io](https://agentskills.io) standard) with detailed workflows, data model reference, and multi-platform setup guides. Find it at `.claude/skills/hnbcrm/` in the main repository.
+
 ## Development
 
 ```bash

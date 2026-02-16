@@ -1,7 +1,7 @@
 # HNBCRM — Project Status & Roadmap
 
 **Last Updated:** 2026-02-15
-**Current Version:** v0.9.0
+**Current Version:** v0.11.0
 **Based on:** PRD v2.0 (2025-02-11)
 
 ---
@@ -447,6 +447,24 @@ HNBCRM (Humans & Bots CRM) is a **realtime-first, AI-native, multi-tenant CRM** 
 
 ---
 
+### 2.22 Agent Skills — DONE
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| SKILL.md (main skill file) | Done | Role, bootstrap, 26 tools, core workflows, best practices |
+| Workflow playbooks (6) | Done | Step-by-step `crm_*` tool call examples |
+| API reference (MCP ↔ REST mapping) | Done | All 26 tools with parameters and responses |
+| Data model reference | Done | All tables, fields, and enum values |
+| Multi-platform setup guide | Done | Claude Code/Desktop, Cursor, VS Code, Gemini, OpenClaw, REST |
+| Verify-connection script | Done | Bash script for API connectivity testing |
+| Landing page Agent Skills card | Done | Links to `/developers#agent-skills` |
+| Developer portal Agent Skills section | Done | Skill contents, quick setup, compatible platforms |
+| llms.txt Agent Skills section | Done | In both `/llms.txt` and `/llms-full.txt` |
+
+**Files:** `.claude/skills/hnbcrm/`, `src/components/LandingPage.tsx`, `src/pages/DevelopersPage.tsx`, `convex/llmsTxt.ts`
+
+---
+
 ### 2.21 Frontend Layout & Responsiveness — DONE
 
 | Feature | Status | Notes |
@@ -613,6 +631,7 @@ HNBCRM (Humans & Bots CRM) is a **realtime-first, AI-native, multi-tenant CRM** 
 | Onboarding system | 5-step wizard + checklist + spotlights + confetti |
 | Contact enrichment (20+ fields) | Social, location, company, acquisition data |
 | Saved views system | Reusable filter configurations |
+| Agent Skills (AgentSkills.io) | Portable skill package with workflows, data model, multi-platform setup |
 
 ---
 

@@ -2,6 +2,38 @@
 
 All notable changes to HNBCRM (formerly ClawCRM) will be documented in this file.
 
+## [0.11.0] - 2026-02-15
+
+### Agent Skills, Developer Portal & llms.txt Updates
+
+Introduces an open Agent Skill (AgentSkills.io standard) for AI agents to connect to HNBCRM, updates the developer portal and landing page to surface it, expands llms.txt with missing endpoints, and fixes a bug where MCP activity tools were never registered.
+
+#### Agent Skill (`.claude/skills/hnbcrm/`)
+- **SKILL.md** — Main skill file with role definition, bootstrap sequence, 26 MCP tools listing, core workflows, best practices
+- **references/WORKFLOWS.md** — 6 detailed step-by-step playbooks with `crm_*` tool call examples
+- **references/API_REFERENCE.md** — Complete MCP tool ↔ REST endpoint mapping for all 26 tools
+- **references/DATA_MODEL.md** — All entity tables, fields, and complete enum reference
+- **references/SETUP.md** — Platform configs for Claude Code, Claude Desktop, Cursor, VS Code, Gemini CLI, OpenClaw, REST-only
+- **scripts/verify-connection.sh** — Bash script to verify API connectivity
+
+#### MCP Server Bug Fix (`mcp-server/src/index.ts`)
+- Fixed `crm_get_activities` and `crm_create_activity` tools never being registered — `registerActivityTools` was defined in `tools/activities.ts` but never imported/called in the server entry point
+
+#### llms.txt Updates (`convex/llmsTxt.ts`)
+- Added Agent Skill section to both `/llms.txt` and `/llms-full.txt`
+- Added 6 missing endpoint docs to `/llms-full.txt`: `GET/POST /api/v1/activities`, `GET /api/v1/dashboard`, `GET /api/v1/contacts/search`, `GET /api/v1/lead-sources`, `GET /api/v1/audit-logs`
+- Added 4 missing MCP tools to the MCP Server Tools section: `search_contacts`, `get_dashboard`, `get_activities`, `create_activity`
+- Updated MCP server tool count to 26
+
+#### Landing Page (`src/components/LandingPage.tsx`)
+- Added "Agent Skills" card to the Developer Section with link to `/developers#agent-skills`
+- Updated developer grid from 3-col to 4-col layout
+- Updated MCP Server card: 19 → 26 ferramentas
+
+#### Developer Portal (`src/pages/DevelopersPage.tsx`)
+- Added Agent Skills section with skill contents listing, quick setup steps, and compatible platforms
+- Updated MCP tools count: 19 → 26 ferramentas
+
 ## [0.10.0] - 2026-02-15
 
 ### Audit Logs Overhaul — Human-Readable, Filterable, Agent-Friendly

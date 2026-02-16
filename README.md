@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img alt="Version" src="https://img.shields.io/badge/version-0.9.0-brand" />
+  <img alt="Version" src="https://img.shields.io/badge/version-0.11.0-brand" />
   <img alt="License" src="https://img.shields.io/badge/license-MIT-green" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.7-blue" />
   <img alt="React" src="https://img.shields.io/badge/React-19-61DAFB" />
@@ -29,7 +29,8 @@ HNBCRM (Humans & Bots CRM) is a multi-tenant CRM built for teams that combine hu
 - **Smart Handoffs** — Transfer leads between humans and AI with full conversation history
 - **Contact Enrichment** — 20+ fields with social profiles, company data, and custom fields
 - **REST API** — Full CRUD at `/api/v1/` with API key authentication and HMAC webhooks
-- **MCP Server** — AI agents connect via Model Context Protocol for tool-based CRM access
+- **MCP Server** — AI agents connect via Model Context Protocol with 26 tools for full CRM access
+- **Agent Skills** — Open skill package (AgentSkills.io standard) with workflows, data model, and setup guides
 - **Multi-tenant** — Organization-level isolation with role-based access (Admin, Manager, Agent, AI)
 - **Real-time** — Powered by Convex for instant updates across all connected clients
 - **@Mentions** — Tag team members in internal notes with autocomplete
@@ -88,6 +89,7 @@ convex/
   llmsTxt.ts        /llms.txt endpoint content
   seed.ts           Development seed data
 mcp-server/         MCP server package (hnbcrm-mcp)
+.claude/skills/     Agent Skill (workflows, data model, setup)
 public/             Logo assets
 ```
 
@@ -95,9 +97,13 @@ public/             Logo assets
 
 **REST API** — RESTful endpoints at `/api/v1/` authenticated via `X-API-Key` header. Covers leads, contacts, conversations, handoffs, boards, and team members. See `convex/router.ts` for the full reference.
 
-**MCP Server** — The `mcp-server/` directory contains an MCP server (`hnbcrm-mcp`) that exposes CRM tools and resources for AI agent integration. See [mcp-server/README.md](mcp-server/README.md) for setup.
+**MCP Server** — The `mcp-server/` directory contains an MCP server (`hnbcrm-mcp`) with 26 tools and 4 resources for AI agent integration. See [mcp-server/README.md](mcp-server/README.md) for setup.
+
+**Agent Skills** — The `.claude/skills/hnbcrm/` directory contains a portable Agent Skill following the [AgentSkills.io](https://agentskills.io) open standard. Includes workflows, data model reference, API mapping, and platform setup guides. Copy the skill into any compatible agent workspace to get started.
 
 **Webhooks** — HMAC-SHA256 signed webhook events for lead, conversation, and handoff state changes.
+
+**llms.txt** — AI-readable documentation at `/llms.txt` (summary) and `/llms-full.txt` (full reference) for LLM-powered tools and agents.
 
 ## Deploy
 
