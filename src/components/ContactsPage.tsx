@@ -4,6 +4,7 @@ import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import type { AppOutletContext } from "@/components/layout/AuthLayout";
+import { usePermissions } from "@/hooks/usePermissions";
 import { Contact2, Search, Plus, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -43,6 +44,7 @@ const DEFAULT_COLUMNS: ColumnKey[] = ["contact", "company", "email", "tags"];
 
 export function ContactsPage() {
   const { organizationId } = useOutletContext<AppOutletContext>();
+  const { can } = usePermissions(organizationId);
   const [searchText, setSearchText] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedContactId, setSelectedContactId] = useState<Id<"contacts"> | null>(null);
@@ -296,15 +298,17 @@ export function ContactsPage() {
                 Gerencie seus contatos e relacionamentos
               </p>
             </div>
-            <Button
-              variant="primary"
-              size="md"
-              onClick={() => setShowCreateModal(true)}
-              className="shrink-0"
-            >
-              <Plus size={20} className="mr-2" />
-              Novo Contato
-            </Button>
+            {can("contacts", "edit") && (
+              <Button
+                variant="primary"
+                size="md"
+                onClick={() => setShowCreateModal(true)}
+                className="shrink-0"
+              >
+                <Plus size={20} className="mr-2" />
+                Novo Contato
+              </Button>
+            )}
           </div>
 
           {/* Search + Column Selector */}
@@ -394,7 +398,7 @@ export function ContactsPage() {
                 ? "Tente ajustar sua busca ou adicione um novo contato"
                 : "Adicione seu primeiro contato para começar"}
             </p>
-            {!debouncedSearch && (
+            {!debouncedSearch && can("contacts", "edit") && (
               <Button variant="primary" size="md" onClick={() => setShowCreateModal(true)}>
                 <Plus size={20} className="mr-2" />
                 Criar Contato

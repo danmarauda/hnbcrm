@@ -4,6 +4,7 @@ import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import type { AppOutletContext } from "@/components/layout/AuthLayout";
+import { usePermissions } from "@/hooks/usePermissions";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -161,6 +162,7 @@ function formatDiffValue(val: unknown): string {
 
 export function AuditLogs() {
   const { organizationId } = useOutletContext<AppOutletContext>();
+  const { can } = usePermissions(organizationId);
 
   // Filter state
   const [selectedSeverity, setSelectedSeverity] = useState<string>("all");
@@ -382,6 +384,15 @@ export function AuditLogs() {
     link.click();
     URL.revokeObjectURL(url);
   };
+
+  if (!can("auditLogs", "view")) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 py-20">
+        <Shield size={48} className="text-text-muted" />
+        <p className="text-text-secondary text-sm">Voce nao tem permissao para acessar os logs de auditoria.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
+import { usePermissions } from "@/hooks/usePermissions";
 import { SlideOver } from "@/components/ui/SlideOver";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -391,6 +392,7 @@ function BantInfoContent() {
 /* ------------------------------------------------------------------ */
 
 function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizationId: Id<"organizations"> }) {
+  const { can } = usePermissions(organizationId);
   const lead = useQuery(api.leads.getLead, { leadId });
   const updateLead = useMutation(api.leads.updateLead);
   const updateQualification = useMutation(api.leads.updateLeadQualification);
@@ -674,11 +676,26 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
         <h3 className="text-[13px] font-semibold text-text-secondary uppercase tracking-wide mb-3">
           Atribuído a
         </h3>
-        <button
-          onClick={() => setShowAssigneePicker(!showAssigneePicker)}
-          className="w-full px-4 py-3 bg-surface-sunken rounded-card text-left hover:bg-surface-raised transition-colors flex items-center justify-between"
-        >
-          <div className="flex items-center gap-2">
+        {can("leads", "edit_all") ? (
+          <button
+            onClick={() => setShowAssigneePicker(!showAssigneePicker)}
+            className="w-full px-4 py-3 bg-surface-sunken rounded-card text-left hover:bg-surface-raised transition-colors flex items-center justify-between"
+          >
+            <div className="flex items-center gap-2">
+              <User size={16} className="text-text-muted" />
+              <span className="text-sm text-text-primary font-medium">
+                {lead.assignee ? lead.assignee.name : "Não atribuído"}
+              </span>
+              {lead.assignee && (
+                <Badge variant="default" className="text-xs">
+                  {lead.assignee.type === "ai" ? "IA" : lead.assignee.role === "admin" ? "Admin" : lead.assignee.role === "manager" ? "Gerente" : "Agente"}
+                </Badge>
+              )}
+            </div>
+            <ChevronDown size={16} className="text-text-muted" />
+          </button>
+        ) : (
+          <div className="w-full px-4 py-3 bg-surface-sunken rounded-card text-left flex items-center gap-2">
             <User size={16} className="text-text-muted" />
             <span className="text-sm text-text-primary font-medium">
               {lead.assignee ? lead.assignee.name : "Não atribuído"}
@@ -689,8 +706,7 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
               </Badge>
             )}
           </div>
-          <ChevronDown size={16} className="text-text-muted" />
-        </button>
+        )}
 
         {/* Assignee Picker Dropdown */}
         {showAssigneePicker && (

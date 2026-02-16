@@ -6,6 +6,26 @@ import { query } from "./_generated/server";
 
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
   providers: [Password, Anonymous],
+  callbacks: {
+    async afterUserCreatedOrUpdated(ctx, { userId }) {
+      const user = await ctx.db.get(userId);
+      if (!user?.email) return;
+
+      // Link any unlinked teamMembers records that match this user's email
+      // Cast needed because auth callback ctx doesn't carry our full schema types
+      const db = ctx.db as any;
+      const unlinkedMembers = await db
+        .query("teamMembers")
+        .withIndex("by_email", (q: any) => q.eq("email", user.email))
+        .collect();
+
+      for (const member of unlinkedMembers) {
+        if (!member.userId) {
+          await db.patch(member._id, { userId });
+        }
+      }
+    },
+  },
 });
 
 export const loggedInUser = query({

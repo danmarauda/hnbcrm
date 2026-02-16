@@ -4,6 +4,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import type { AppOutletContext } from "@/components/layout/AuthLayout";
+import { usePermissions } from "@/hooks/usePermissions";
 import { CreateTaskModal } from "./CreateTaskModal";
 import { TaskDetailSlideOver } from "./TaskDetailSlideOver";
 import { Button } from "@/components/ui/Button";
@@ -117,6 +118,7 @@ const STATUS_LABELS: Record<string, string> = {
 
 export function TasksPage() {
   const { organizationId } = useOutletContext<AppOutletContext>();
+  const { can } = usePermissions(organizationId);
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [smartFilter, setSmartFilter] = useState<SmartFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -334,14 +336,16 @@ export function TasksPage() {
             </button>
           </div>
 
-          <Button
-            variant="primary"
-            size="md"
-            onClick={() => setShowCreateModal(true)}
-          >
-            <Plus size={16} />
-            <span className="hidden md:inline">Nova Tarefa</span>
-          </Button>
+          {can("tasks", "edit_own") && (
+            <Button
+              variant="primary"
+              size="md"
+              onClick={() => setShowCreateModal(true)}
+            >
+              <Plus size={16} />
+              <span className="hidden md:inline">Nova Tarefa</span>
+            </Button>
+          )}
         </div>
       </div>
 
@@ -466,7 +470,7 @@ export function TasksPage() {
       )}
 
       {/* Bulk actions bar */}
-      {selectedTasks.size > 0 && (
+      {selectedTasks.size > 0 && can("tasks", "edit_own") && (
         <div className="sticky top-0 z-10 flex items-center gap-3 p-3 bg-surface-overlay border border-border rounded-card animate-fade-in-up">
           <span className="text-sm font-medium text-text-primary">
             {selectedTasks.size} selecionada{selectedTasks.size > 1 ? "s" : ""}
@@ -501,7 +505,7 @@ export function TasksPage() {
               : "Tente ajustar os filtros ou a busca."
           }
           action={
-            tasks.length === 0
+            tasks.length === 0 && can("tasks", "edit_own")
               ? { label: "Nova Tarefa", onClick: () => setShowCreateModal(true) }
               : undefined
           }

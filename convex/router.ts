@@ -4,6 +4,7 @@ import { Id } from "./_generated/dataModel";
 import { internal } from "./_generated/api";
 import { LLMS_TXT, LLMS_FULL_TXT } from "./llmsTxt";
 import { OPENAPI_SPEC } from "./openapiSpec";
+import { resolvePermissions, type Role, type Permissions } from "./lib/permissions";
 
 const http = httpRouter();
 
@@ -35,7 +36,7 @@ function jsonResponse(data: Record<string, unknown>, status: number = 200) {
   });
 }
 
-// API Key authentication helper
+// API Key authentication helper — resolves permissions from apiKey > teamMember > role defaults
 async function authenticateApiKey(ctx: any, request: Request) {
   const apiKey = request.headers.get("X-API-Key");
   if (!apiKey) {
@@ -52,7 +53,15 @@ async function authenticateApiKey(ctx: any, request: Request) {
 
   await ctx.runMutation(internal.apiKeys.updateLastUsed, { apiKeyId: apiKeyRecord._id });
 
-  return apiKeyRecord;
+  // Resolve permissions: apiKey.permissions > teamMember.permissions > role defaults
+  const teamMember = apiKeyRecord.teamMember;
+  const permissions: Permissions = apiKeyRecord.permissions
+    ?? resolvePermissions(
+      (teamMember?.role ?? "agent") as Role,
+      teamMember?.permissions ?? undefined
+    );
+
+  return { ...apiKeyRecord, permissions };
 }
 
 // ---- Lead Endpoints ----

@@ -1,5 +1,9 @@
+import { useMemo } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { cn } from "@/lib/utils";
+import { usePermissions } from "@/hooks/usePermissions";
+import { Id } from "../../../convex/_generated/dataModel";
+import type { PermissionCategory } from "../../../convex/lib/permissions";
 import {
   LayoutDashboard,
   Kanban,
@@ -15,27 +19,44 @@ import {
 import type { Tab } from "./BottomTabBar";
 import { TAB_ROUTES, PATH_TO_TAB } from "@/lib/routes";
 
-const navItems: { id: Tab; label: string; icon: React.ElementType }[] = [
+interface NavItem {
+  id: Tab;
+  label: string;
+  icon: React.ElementType;
+  /** Permission category + minimum level required to see this nav item */
+  permission?: { category: PermissionCategory; level: string };
+}
+
+const navItems: NavItem[] = [
   { id: "dashboard", label: "Painel", icon: LayoutDashboard },
-  { id: "board", label: "Pipeline", icon: Kanban },
-  { id: "contacts", label: "Contatos", icon: Contact2 },
-  { id: "inbox", label: "Caixa de Entrada", icon: MessageSquare },
-  { id: "handoffs", label: "Repasses", icon: ArrowRightLeft },
-  { id: "tasks", label: "Tarefas", icon: CheckSquare },
-  { id: "team", label: "Equipe", icon: Users },
-  { id: "audit", label: "Auditoria", icon: ScrollText },
-  { id: "settings", label: "Configurações", icon: Settings },
+  { id: "board", label: "Pipeline", icon: Kanban, permission: { category: "leads", level: "view_own" } },
+  { id: "contacts", label: "Contatos", icon: Contact2, permission: { category: "contacts", level: "view" } },
+  { id: "inbox", label: "Caixa de Entrada", icon: MessageSquare, permission: { category: "inbox", level: "view_own" } },
+  { id: "handoffs", label: "Repasses", icon: ArrowRightLeft, permission: { category: "inbox", level: "view_own" } },
+  { id: "tasks", label: "Tarefas", icon: CheckSquare, permission: { category: "tasks", level: "view_own" } },
+  { id: "team", label: "Equipe", icon: Users, permission: { category: "team", level: "view" } },
+  { id: "audit", label: "Auditoria", icon: ScrollText, permission: { category: "auditLogs", level: "view" } },
+  { id: "settings", label: "Configurações", icon: Settings, permission: { category: "settings", level: "view" } },
 ];
 
 interface SidebarProps {
   onSignOut: () => void;
+  organizationId: Id<"organizations">;
   orgSelector?: React.ReactNode;
 }
 
-export function Sidebar({ onSignOut, orgSelector }: SidebarProps) {
+export function Sidebar({ onSignOut, organizationId, orgSelector }: SidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const activeTab = PATH_TO_TAB[location.pathname];
+  const { can } = usePermissions(organizationId);
+
+  const visibleItems = useMemo(() => {
+    return navItems.filter((item) => {
+      if (!item.permission) return true;
+      return can(item.permission.category, item.permission.level);
+    });
+  }, [can]);
 
   return (
     <aside className="hidden md:flex fixed left-0 top-0 bottom-0 z-20 flex-col bg-surface-raised border-r border-border w-16 lg:w-56 transition-all duration-200">
@@ -53,7 +74,7 @@ export function Sidebar({ onSignOut, orgSelector }: SidebarProps) {
 
       {/* Nav items */}
       <nav className="flex-1 py-3 px-2 space-y-1 overflow-y-auto">
-        {navItems.map((item) => {
+        {visibleItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
           return (

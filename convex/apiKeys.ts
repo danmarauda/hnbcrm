@@ -1,16 +1,16 @@
 import { v } from "convex/values";
-import { query, internalQuery, internalMutation } from "./_generated/server";
+import { query, mutation, internalQuery, internalMutation } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { requireAuth } from "./lib/auth";
+import { requirePermission } from "./lib/auth";
 import { buildAuditDescription } from "./lib/auditDescription";
+import { batchGet } from "./lib/batchGet";
 
-// Get API keys for organization (admin only)
+// Get API keys for organization (requires apiKeys:view)
 export const getApiKeys = query({
   args: { organizationId: v.id("organizations") },
   returns: v.any(),
   handler: async (ctx, args) => {
-    const userMember = await requireAuth(ctx, args.organizationId);
-    if (userMember.role !== "admin") throw new Error("Not authorized");
+    await requirePermission(ctx, args.organizationId, "apiKeys", "view");
 
     return await ctx.db
       .query("apiKeys")
@@ -19,7 +19,66 @@ export const getApiKeys = query({
   },
 });
 
-// Internal: Get API key by hash
+// List API keys with team member names (requires apiKeys:view)
+export const listApiKeysWithMembers = query({
+  args: { organizationId: v.id("organizations") },
+  returns: v.any(),
+  handler: async (ctx, args) => {
+    await requirePermission(ctx, args.organizationId, "apiKeys", "view");
+
+    const apiKeys = await ctx.db
+      .query("apiKeys")
+      .withIndex("by_organization", (q) => q.eq("organizationId", args.organizationId))
+      .collect();
+
+    const memberMap = await batchGet(ctx.db, apiKeys.map((k) => k.teamMemberId));
+
+    return apiKeys.map((key) => ({
+      ...key,
+      teamMemberName: memberMap.get(key.teamMemberId)?.name ?? null,
+    }));
+  },
+});
+
+// Revoke API key (requires apiKeys:manage)
+export const revokeApiKey = mutation({
+  args: {
+    apiKeyId: v.id("apiKeys"),
+    organizationId: v.id("organizations"),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const apiKey = await ctx.db.get(args.apiKeyId);
+    if (!apiKey) throw new Error("Chave de API não encontrada");
+    if (apiKey.organizationId !== args.organizationId) throw new Error("Chave de API não pertence a esta organização");
+
+    const userMember = await requirePermission(ctx, args.organizationId, "apiKeys", "manage");
+
+    const now = Date.now();
+
+    await ctx.db.patch(args.apiKeyId, {
+      isActive: false,
+    });
+
+    // Log audit entry
+    await ctx.db.insert("auditLogs", {
+      organizationId: args.organizationId,
+      entityType: "apiKey",
+      entityId: args.apiKeyId,
+      action: "delete",
+      actorId: userMember._id,
+      actorType: "human",
+      metadata: { name: apiKey.name },
+      description: buildAuditDescription({ action: "delete", entityType: "apiKey", metadata: { name: apiKey.name } }),
+      severity: "high",
+      createdAt: now,
+    });
+
+    return null;
+  },
+});
+
+// Internal: Get API key by hash (checks isActive + expiresAt)
 export const getByKeyHash = internalQuery({
   args: { keyHash: v.string() },
   returns: v.any(),
@@ -30,6 +89,11 @@ export const getByKeyHash = internalQuery({
       .first();
 
     if (!apiKey) return null;
+
+    // Check expiration
+    if (apiKey.expiresAt && apiKey.expiresAt < Date.now()) {
+      return null;
+    }
 
     const teamMember = await ctx.db.get(apiKey.teamMemberId);
     return {
@@ -80,6 +144,7 @@ export const insertApiKey = internalMutation({
     name: v.string(),
     keyHash: v.string(),
     actorId: v.id("teamMembers"),
+    expiresAt: v.optional(v.number()),
   },
   returns: v.id("apiKeys"),
   handler: async (ctx, args) => {
@@ -92,6 +157,7 @@ export const insertApiKey = internalMutation({
       keyHash: args.keyHash,
       isActive: true,
       createdAt: now,
+      ...(args.expiresAt && { expiresAt: args.expiresAt }),
     });
 
     // Log audit entry
@@ -102,7 +168,7 @@ export const insertApiKey = internalMutation({
       action: "create",
       actorId: args.actorId,
       actorType: "human",
-      metadata: { name: args.name, teamMemberId: args.teamMemberId },
+      metadata: { name: args.name, teamMemberId: args.teamMemberId, expiresAt: args.expiresAt },
       description: buildAuditDescription({ action: "create", entityType: "apiKey", metadata: { name: args.name, teamMemberId: args.teamMemberId } }),
       severity: "high",
       createdAt: now,

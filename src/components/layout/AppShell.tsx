@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { Sidebar } from "./Sidebar";
 import { BottomTabBar } from "./BottomTabBar";
+import { Id } from "../../../convex/_generated/dataModel";
 
 interface AppShellProps {
   onSignOut: () => void;
+  organizationId: Id<"organizations">;
   orgSelector?: React.ReactNode;
   children: React.ReactNode;
 }
 
-export function AppShell({ onSignOut, orgSelector, children }: AppShellProps) {
+export function AppShell({ onSignOut, organizationId, orgSelector, children }: AppShellProps) {
   const [showMore, setShowMore] = useState(false);
 
   return (
@@ -16,6 +18,7 @@ export function AppShell({ onSignOut, orgSelector, children }: AppShellProps) {
       {/* Desktop sidebar */}
       <Sidebar
         onSignOut={onSignOut}
+        organizationId={organizationId}
         orgSelector={orgSelector}
       />
 
@@ -30,6 +33,7 @@ export function AppShell({ onSignOut, orgSelector, children }: AppShellProps) {
 
       {/* Mobile bottom tab bar */}
       <BottomTabBar
+        organizationId={organizationId}
         showMore={showMore}
         onToggleMore={() => setShowMore(!showMore)}
       />

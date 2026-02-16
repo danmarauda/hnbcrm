@@ -21,11 +21,15 @@ Multi-tenant CRM with human-AI team collaboration. Convex backend, React + Tailw
 
 **Multi-tenancy:** Every table has `organizationId`. All queries must be scoped to the user's org.
 
-**Auth flow:** `requireAuth(ctx, organizationId)` from `convex/lib/auth.ts` handles auth + org membership. Returns the team member. A few functions without org context (e.g. `getUserOrganizations`) still use `getAuthUserId` directly.
+**Auth flow:** `requireAuth(ctx, organizationId)` from `convex/lib/auth.ts` handles auth + org membership. Returns the team member. `requirePermission(ctx, organizationId, category, level)` extends this with granular RBAC checks. A few functions without org context (e.g. `getUserOrganizations`) still use `getAuthUserId` directly.
+
+**Permissions (RBAC):** 9 permission categories (leads, contacts, inbox, tasks, reports, team, settings, auditLogs, apiKeys) with hierarchical levels. Defined in `convex/lib/permissions.ts`. Each role (admin, manager, agent, ai) has sensible defaults; admins can override per-member. Frontend uses `usePermissions(organizationId)` hook and `<PermissionGate>` component.
+
+**Invite flow:** Admins invite humans via `inviteHumanMember` action (creates auth account with bcrypt-hashed temp password). New users must change password on first login (`mustChangePassword` flag). Users auto-linked to org via `afterUserCreatedOrUpdated` auth callback.
 
 **Side effects in mutations:** Most mutations insert into `activities` + `auditLogs` and trigger webhooks via `ctx.scheduler.runAfter(0, internal.nodeActions.triggerWebhooks, ...)`.
 
-**HTTP API:** `convex/router.ts` has RESTful endpoints at `/api/v1/` authenticated via `X-API-Key` header. Routes wired in `convex/http.ts`.
+**HTTP API:** `convex/router.ts` has RESTful endpoints at `/api/v1/` authenticated via `X-API-Key` header. API keys resolve permissions from key → team member → role defaults. Routes wired in `convex/http.ts`.
 
 **Frontend:** SPA with react-router v7. Dark theme default, mobile-first, PT-BR UI. `src/main.tsx` → `ConvexAuthProvider` → `RouterProvider`. Public routes: `/` (LandingPage), `/entrar` (AuthPage). App routes: `/app/*` wrapped by `AuthLayout` → `AppShell` → `<Outlet />`. Page components get `organizationId` via `useOutletContext`. Reusable UI in `src/components/ui/`, layout in `src/components/layout/`. State is Convex reactive queries + local `useState`. Path alias `@/` → `src/`.
 

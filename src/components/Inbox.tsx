@@ -4,6 +4,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import type { AppOutletContext } from "@/components/layout/AuthLayout";
+import { usePermissions } from "@/hooks/usePermissions";
 import { toast } from "sonner";
 import { Send, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -18,6 +19,7 @@ import { SpotlightTooltip } from "@/components/onboarding/SpotlightTooltip";
 
 export function Inbox() {
   const { organizationId } = useOutletContext<AppOutletContext>();
+  const { can } = usePermissions(organizationId);
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
   const [isInternal, setIsInternal] = useState(false);
@@ -270,60 +272,66 @@ export function Inbox() {
             </div>
 
             {/* Message Input */}
-            <form onSubmit={handleSendMessage} className="p-4 border-t border-border bg-surface-raised">
-              <div className="flex items-center gap-2 mb-2">
-                <label className="flex items-center gap-1.5 text-sm text-text-secondary cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={isInternal}
-                    onChange={(e) => setIsInternal(e.target.checked)}
-                    className="rounded accent-brand-500"
-                  />
-                  Nota interna
-                </label>
-                {isInternal && (
-                  <Badge variant="warning">Visível apenas para membros da equipe</Badge>
-                )}
-              </div>
-              <div className="flex gap-2">
-                <MentionTextarea
-                  value={newMessage}
-                  onChange={setNewMessage}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      if (newMessage.trim()) {
-                        handleSendMessage(e as unknown as React.FormEvent);
+            {can("inbox", "reply") ? (
+              <form onSubmit={handleSendMessage} className="p-4 border-t border-border bg-surface-raised">
+                <div className="flex items-center gap-2 mb-2">
+                  <label className="flex items-center gap-1.5 text-sm text-text-secondary cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={isInternal}
+                      onChange={(e) => setIsInternal(e.target.checked)}
+                      className="rounded accent-brand-500"
+                    />
+                    Nota interna
+                  </label>
+                  {isInternal && (
+                    <Badge variant="warning">Visível apenas para membros da equipe</Badge>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <MentionTextarea
+                    value={newMessage}
+                    onChange={setNewMessage}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        if (newMessage.trim()) {
+                          handleSendMessage(e as unknown as React.FormEvent);
+                        }
                       }
-                    }
-                  }}
-                  teamMembers={teamMembers ?? []}
-                  mentionEnabled={isInternal}
-                  placeholder={isInternal ? "Escreva uma nota interna... Use @ para mencionar" : "Digite uma mensagem..."}
-                  rows={1}
-                  className={cn(
-                    "bg-surface-sunken",
-                    isInternal
-                      ? "border-semantic-warning/30 focus:border-semantic-warning focus:ring-semantic-warning/20"
-                      : "border-border-strong focus:border-brand-500 focus:ring-brand-500/20"
-                  )}
-                />
-                <Button
-                  type="submit"
-                  disabled={!newMessage.trim()}
-                  variant={isInternal ? "secondary" : "primary"}
-                  size="md"
-                  className={cn(
-                    "shrink-0",
-                    isInternal && "bg-semantic-warning hover:bg-amber-600 text-white"
-                  )}
-                  aria-label={isInternal ? "Adicionar Nota" : "Enviar"}
-                >
-                  <Send size={16} />
-                  <span className="hidden sm:inline">{isInternal ? "Adicionar Nota" : "Enviar"}</span>
-                </Button>
+                    }}
+                    teamMembers={teamMembers ?? []}
+                    mentionEnabled={isInternal}
+                    placeholder={isInternal ? "Escreva uma nota interna... Use @ para mencionar" : "Digite uma mensagem..."}
+                    rows={1}
+                    className={cn(
+                      "bg-surface-sunken",
+                      isInternal
+                        ? "border-semantic-warning/30 focus:border-semantic-warning focus:ring-semantic-warning/20"
+                        : "border-border-strong focus:border-brand-500 focus:ring-brand-500/20"
+                    )}
+                  />
+                  <Button
+                    type="submit"
+                    disabled={!newMessage.trim()}
+                    variant={isInternal ? "secondary" : "primary"}
+                    size="md"
+                    className={cn(
+                      "shrink-0",
+                      isInternal && "bg-semantic-warning hover:bg-amber-600 text-white"
+                    )}
+                    aria-label={isInternal ? "Adicionar Nota" : "Enviar"}
+                  >
+                    <Send size={16} />
+                    <span className="hidden sm:inline">{isInternal ? "Adicionar Nota" : "Enviar"}</span>
+                  </Button>
+                </div>
+              </form>
+            ) : (
+              <div className="p-4 border-t border-border bg-surface-raised text-center">
+                <p className="text-sm text-text-muted">Voce nao tem permissao para enviar mensagens.</p>
               </div>
-            </form>
+            )}
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center text-text-muted">

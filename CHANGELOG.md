@@ -2,6 +2,76 @@
 
 All notable changes to HNBCRM (formerly ClawCRM) will be documented in this file.
 
+## [0.15.0] - 2026-02-16
+
+### RBAC Permissions System & Human Invite Flow
+
+Complete role-based access control implementation with granular permissions, admin-managed team invites with auto-generated passwords, and permission-scoped API keys.
+
+#### Permissions System (`convex/lib/permissions.ts`)
+- **9 permission categories** — `leads`, `contacts`, `inbox`, `tasks`, `reports`, `team`, `settings`, `auditLogs`, `apiKeys`
+- **Hierarchical permission levels** — Each category has 3-6 levels (e.g., leads: `none` → `view_own` → `view_all` → `edit_own` → `edit_all` → `full`)
+- **Role defaults** — Admin (full access), Manager (edit_all leads/contacts/tasks, manage team), Agent (view_all + edit_own), AI (view_all + edit_own, no settings/audit)
+- **Permission overrides** — Admins can set explicit per-member permissions that override role defaults
+- **Level comparison** — `hasPermission(actual, required)` checks hierarchical level sufficiency
+- **Shared types** — Used by both backend (auth) and frontend (guards/hooks)
+
+#### Backend — Permission Enforcement (`convex/lib/auth.ts`)
+- **`requirePermission(ctx, organizationId, category, level)`** — Extends `requireAuth` with RBAC checks; throws if user lacks required permission level
+- **`resolvePermissions(role, explicitPermissions?)`** — Falls back to role defaults when no explicit override exists
+- Permission resolution used in `requirePermission`, API key validation, and team member queries
+
+#### Schema Updates (`convex/schema.ts`)
+- **`teamMembers.permissions`** — Optional explicit permission overrides (uses shared `permissionsValidator`)
+- **`teamMembers.mustChangePassword`** — Flag for forcing password change on first login (invite flow)
+- **`teamMembers.invitedBy`** — Tracks which team member sent the invite
+- **`apiKeys.permissions`** — Optional permission scoping for API keys (defaults to creator's permissions)
+
+#### Invite Flow (`convex/nodeActions.ts`, `convex/authHelpers.ts`, `convex/teamMembers.ts`)
+- **`inviteHumanMember` action** — Admins invite humans by email; auto-generates temp password via `crypto.randomBytes(16)`, creates Convex user + password auth account via bcrypt, sets `mustChangePassword: true`, returns temp credentials
+- **`changePassword` action** — Users change password (requires current password); hashes new password with bcrypt, updates auth account, clears `mustChangePassword` flag
+- **`authHelpers.ts`** — Internal queries/mutations for auth table operations: `queryUserByEmail`, `queryAuthAccountForCurrentUser`, `updateAuthAccountPassword`, `queryUserById`
+- **`updateTeamMemberRole` mutation** — Now accepts optional `permissions` arg for explicit overrides
+- **Audit logging** — All invite/role/permission changes logged to `auditLogs` with actor tracking
+
+#### Frontend — Permission Guards & Hooks
+- **`usePermissions(organizationId)` hook** (`src/hooks/usePermissions.ts`) — Resolves current user's permissions; returns `{ permissions, hasPermission(category, level), isLoading }`
+- **`<PermissionGate>` component** (`src/components/guards/PermissionGate.tsx`) — Declarative permission-based rendering; hides children if user lacks required permission
+- **TeamPage overhaul** (`src/components/TeamPage.tsx`) — Invite member button (admin-only), member detail slide-over with permission editor, role change confirmation
+- **ChangePasswordScreen** (`src/components/team/ChangePasswordScreen.tsx`) — Full-page forced password change screen for new invitees
+- **InviteMemberModal** (`src/components/team/InviteMemberModal.tsx`) — Modal for inviting humans with email + optional explicit permissions
+- **MemberDetailSlideOver** (`src/components/team/MemberDetailSlideOver.tsx`) — View/edit member role, permissions, status; deactivate/reactivate member
+- **PermissionsEditor** (`src/components/team/PermissionsEditor.tsx`) — UI for editing all 9 permission categories with level dropdowns and role default fallbacks
+- **App.tsx** — Intercepts users with `mustChangePassword: true` and shows ChangePasswordScreen instead of main app
+
+#### Permission-Gated UI Updates (8 components)
+- **Settings.tsx** — Webhooks section gated by `settings.manage`, API keys by `apiKeys.manage`, custom fields by `settings.manage`
+- **TeamPage.tsx** — Invite button gated by `team.manage`, role/permission edits gated by `team.manage`
+- **ContactsPage.tsx** — Create contact button gated by `contacts.edit`, delete gated by `contacts.full`
+- **KanbanBoard.tsx** — Create lead gated by `leads.edit_own`, stage management gated by `settings.manage`
+- **LeadDetailPanel.tsx** — Edit lead gated by `leads.edit_*` (checks ownership), assign gated by `leads.edit_all`, delete gated by `leads.full`
+- **Inbox.tsx** — Reply gated by `inbox.reply`, conversation actions by `inbox.full`
+- **TasksPage.tsx** — Create/edit tasks gated by `tasks.edit_*` (checks ownership)
+- **AuditLogs.tsx** — Entire page gated by `auditLogs.view`
+- **Sidebar/BottomTabBar** — Nav items hidden when user lacks view permission for that section
+
+#### HTTP API — Permission Scoping (`convex/router.ts`, `convex/apiKeys.ts`)
+- **API key permission resolution** — Keys inherit creator's permissions unless explicitly scoped; `getApiKeyPermissions(apiKey, keyTeamMember)` returns effective permissions
+- **Permission enforcement** — All `/api/v1/*` endpoints now check permissions before executing (e.g., POST /leads requires `leads.edit_own`, DELETE requires `leads.full`)
+- **`hasApiPermission(effectivePermissions, category, level)` helper** — Used in router to gate API operations
+
+#### Developer Docs (`convex/CLAUDE.md`, `.claude/skills/hnbcrm/`)
+- **CLAUDE.md** — Added permissions pattern section with `requirePermission` usage examples
+- **SKILL.md** — Updated with permission categories and levels reference
+- **API_REFERENCE.md** — Documented permission requirements for all MCP tools
+- **DATA_MODEL.md** — Added `permissions` field docs to teamMembers and apiKeys
+
+#### Miscellaneous
+- **llms.txt** — Added permissions system documentation section
+- **openapiSpec.ts** — Updated team member and API key schemas with `permissions` field
+- **docs/IMPROVEMENTS.md** — Moved "Permissions System" from TODO to DONE
+- **docs/PROJECT-STATUS.md** — Updated to reflect RBAC completion
+
 ## [0.14.1] - 2026-02-16
 
 ### API Playground UX — Request Builder Polish

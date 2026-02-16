@@ -4,6 +4,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import type { AppOutletContext } from "@/components/layout/AuthLayout";
+import { usePermissions } from "@/hooks/usePermissions";
 import { LeadDetailPanel } from "./LeadDetailPanel";
 import { CreateLeadModal } from "./CreateLeadModal";
 import { ManageStagesModal } from "./ManageStagesModal";
@@ -582,6 +583,7 @@ function AddStageColumn({
 
 export function KanbanBoard() {
   const { organizationId } = useOutletContext<AppOutletContext>();
+  const { can } = usePermissions(organizationId);
   const [selectedBoardId, setSelectedBoardId] = useState<Id<"boards"> | null>(null);
   const [selectedLeadId, setSelectedLeadId] = useState<Id<"leads"> | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -886,15 +888,17 @@ export function KanbanBoard() {
               </div>
             )}
 
-            <Button
-              onClick={() => setShowCreateModal(true)}
-              variant="primary"
-              size="md"
-              className="whitespace-nowrap"
-            >
-              <Plus size={20} />
-              Criar Lead
-            </Button>
+            {can("leads", "edit_own") && (
+              <Button
+                onClick={() => setShowCreateModal(true)}
+                variant="primary"
+                size="md"
+                className="whitespace-nowrap"
+              >
+                <Plus size={20} />
+                Criar Lead
+              </Button>
+            )}
           </div>
         </div>
 

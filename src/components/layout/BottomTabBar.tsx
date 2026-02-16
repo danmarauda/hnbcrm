@@ -1,5 +1,9 @@
+import { useMemo } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { cn } from "@/lib/utils";
+import { usePermissions } from "@/hooks/usePermissions";
+import { Id } from "../../../convex/_generated/dataModel";
+import type { PermissionCategory } from "../../../convex/lib/permissions";
 import {
   LayoutDashboard,
   Kanban,
@@ -7,30 +11,67 @@ import {
   MessageSquare,
   CheckSquare,
   ArrowRightLeft,
+  Users,
+  ScrollText,
+  Settings,
   MoreHorizontal,
 } from "lucide-react";
 import { TAB_ROUTES, PATH_TO_TAB } from "@/lib/routes";
 
 export type Tab = "dashboard" | "board" | "contacts" | "inbox" | "tasks" | "handoffs" | "team" | "audit" | "settings";
 
-const tabs: { id: Tab; label: string; icon: React.ElementType }[] = [
+interface NavItem {
+  id: Tab;
+  label: string;
+  icon: React.ElementType;
+  permission?: { category: PermissionCategory; level: string };
+}
+
+/** Primary tabs shown in the bottom bar */
+const primaryTabs: NavItem[] = [
   { id: "dashboard", label: "Painel", icon: LayoutDashboard },
-  { id: "board", label: "Pipeline", icon: Kanban },
-  { id: "contacts", label: "Contatos", icon: Contact2 },
-  { id: "inbox", label: "Entrada", icon: MessageSquare },
-  { id: "tasks", label: "Tarefas", icon: CheckSquare },
+  { id: "board", label: "Pipeline", icon: Kanban, permission: { category: "leads", level: "view_own" } },
+  { id: "contacts", label: "Contatos", icon: Contact2, permission: { category: "contacts", level: "view" } },
+  { id: "inbox", label: "Entrada", icon: MessageSquare, permission: { category: "inbox", level: "view_own" } },
+  { id: "tasks", label: "Tarefas", icon: CheckSquare, permission: { category: "tasks", level: "view_own" } },
+];
+
+/** Overflow tabs shown in the "More" menu */
+const moreTabs: NavItem[] = [
+  { id: "handoffs", label: "Repasses", icon: ArrowRightLeft, permission: { category: "inbox", level: "view_own" } },
+  { id: "team", label: "Equipe", icon: Users, permission: { category: "team", level: "view" } },
+  { id: "audit", label: "Auditoria", icon: ScrollText, permission: { category: "auditLogs", level: "view" } },
+  { id: "settings", label: "Configurações", icon: Settings, permission: { category: "settings", level: "view" } },
 ];
 
 interface BottomTabBarProps {
+  organizationId: Id<"organizations">;
   showMore: boolean;
   onToggleMore: () => void;
 }
 
-export function BottomTabBar({ showMore, onToggleMore }: BottomTabBarProps) {
+export function BottomTabBar({ organizationId, showMore, onToggleMore }: BottomTabBarProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const activeTab = PATH_TO_TAB[location.pathname];
-  const isMoreActive = activeTab === "handoffs" || activeTab === "team" || activeTab === "audit" || activeTab === "settings";
+  const { can } = usePermissions(organizationId);
+
+  const visiblePrimary = useMemo(() => {
+    return primaryTabs.filter((t) => {
+      if (!t.permission) return true;
+      return can(t.permission.category, t.permission.level);
+    });
+  }, [can]);
+
+  const visibleMore = useMemo(() => {
+    return moreTabs.filter((t) => {
+      if (!t.permission) return true;
+      return can(t.permission.category, t.permission.level);
+    });
+  }, [can]);
+
+  const moreTabIds = useMemo(() => new Set(visibleMore.map((t) => t.id)), [visibleMore]);
+  const isMoreActive = moreTabIds.has(activeTab as Tab);
 
   return (
     <>
@@ -40,51 +81,27 @@ export function BottomTabBar({ showMore, onToggleMore }: BottomTabBarProps) {
       )}
 
       {/* More menu popup */}
-      {showMore && (
+      {showMore && visibleMore.length > 0 && (
         <div className="fixed bottom-[calc(64px+env(safe-area-inset-bottom,0px))] right-2 z-50 bg-surface-overlay border border-border rounded-xl shadow-elevated animate-fade-in-up p-1 min-w-[160px]">
-          <button
-            onClick={() => { navigate(TAB_ROUTES.handoffs); onToggleMore(); }}
-            className={cn(
-              "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-colors",
-              activeTab === "handoffs" ? "text-brand-500 bg-brand-500/10" : "text-text-secondary hover:text-text-primary hover:bg-surface-raised"
-            )}
-          >
-            Repasses
-          </button>
-          <button
-            onClick={() => { navigate(TAB_ROUTES.team); onToggleMore(); }}
-            className={cn(
-              "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-colors",
-              activeTab === "team" ? "text-brand-500 bg-brand-500/10" : "text-text-secondary hover:text-text-primary hover:bg-surface-raised"
-            )}
-          >
-            Equipe
-          </button>
-          <button
-            onClick={() => { navigate(TAB_ROUTES.audit); onToggleMore(); }}
-            className={cn(
-              "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-colors",
-              activeTab === "audit" ? "text-brand-500 bg-brand-500/10" : "text-text-secondary hover:text-text-primary hover:bg-surface-raised"
-            )}
-          >
-            Auditoria
-          </button>
-          <button
-            onClick={() => { navigate(TAB_ROUTES.settings); onToggleMore(); }}
-            className={cn(
-              "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-colors",
-              activeTab === "settings" ? "text-brand-500 bg-brand-500/10" : "text-text-secondary hover:text-text-primary hover:bg-surface-raised"
-            )}
-          >
-            Configurações
-          </button>
+          {visibleMore.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => { navigate(TAB_ROUTES[tab.id]); onToggleMore(); }}
+              className={cn(
+                "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-colors",
+                activeTab === tab.id ? "text-brand-500 bg-brand-500/10" : "text-text-secondary hover:text-text-primary hover:bg-surface-raised"
+              )}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
       )}
 
       {/* Tab bar */}
       <nav className="fixed bottom-0 left-0 right-0 z-30 md:hidden bg-surface-raised border-t border-border pb-safe">
         <div className="flex items-center justify-around h-16">
-          {tabs.map((tab) => {
+          {visiblePrimary.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
             return (
@@ -104,18 +121,20 @@ export function BottomTabBar({ showMore, onToggleMore }: BottomTabBarProps) {
             );
           })}
 
-          {/* More button */}
-          <button
-            onClick={onToggleMore}
-            className={cn(
-              "flex flex-col items-center justify-center gap-0.5 min-w-[44px] min-h-[44px] transition-colors",
-              isMoreActive ? "text-brand-500" : "text-text-muted"
-            )}
-            aria-label="Mais opções"
-          >
-            <MoreHorizontal size={20} />
-            <span className="text-[11px] font-medium">Mais</span>
-          </button>
+          {/* More button (only if there are overflow items) */}
+          {visibleMore.length > 0 && (
+            <button
+              onClick={onToggleMore}
+              className={cn(
+                "flex flex-col items-center justify-center gap-0.5 min-w-[44px] min-h-[44px] transition-colors",
+                isMoreActive ? "text-brand-500" : "text-text-muted"
+              )}
+              aria-label="Mais opcoes"
+            >
+              <MoreHorizontal size={20} />
+              <span className="text-[11px] font-medium">Mais</span>
+            </button>
+          )}
         </div>
       </nav>
     </>

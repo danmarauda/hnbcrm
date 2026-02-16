@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { query, mutation, internalQuery, internalMutation } from "./_generated/server";
-import { requireAuth } from "./lib/auth";
+import { requireAuth, requirePermission } from "./lib/auth";
 import { batchGet } from "./lib/batchGet";
 import { buildAuditDescription } from "./lib/auditDescription";
 import { parseCursor, buildCursorFromCreationTime, paginateResults } from "./lib/cursor";
@@ -194,7 +194,7 @@ export const createContact = mutation({
   },
   returns: v.id("contacts"),
   handler: async (ctx, args) => {
-    const userMember = await requireAuth(ctx, args.organizationId);
+    const userMember = await requirePermission(ctx, args.organizationId, "contacts", "edit");
     const now = Date.now();
 
     const searchText = buildSearchText(args);
@@ -364,7 +364,7 @@ export const deleteContact = mutation({
     const contact = await ctx.db.get(args.contactId);
     if (!contact) throw new Error("Contact not found");
 
-    const userMember = await requireAuth(ctx, contact.organizationId);
+    const userMember = await requirePermission(ctx, contact.organizationId, "contacts", "full");
 
     const linkedLeads = await ctx.db
       .query("leads")

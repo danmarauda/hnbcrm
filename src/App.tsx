@@ -5,7 +5,6 @@ import { Id } from "../convex/_generated/dataModel";
 import { SignInForm } from "./SignInForm";
 import { Toaster, toast } from "sonner";
 import { useState } from "react";
-import { Dashboard } from "./components/Dashboard";
 import { OrganizationSelector } from "./components/OrganizationSelector";
 import { AppShell } from "./components/layout/AppShell";
 import { Spinner } from "./components/ui/Spinner";
@@ -15,35 +14,41 @@ import { Badge } from "./components/ui/Badge";
 import { Button } from "./components/ui/Button";
 import { Input } from "./components/ui/Input";
 import { Building2, Plus } from "lucide-react";
-import type { Tab } from "./components/layout/BottomTabBar";
 import { OnboardingWizard } from "./components/onboarding/OnboardingWizard";
 
+/**
+ * @deprecated Legacy entry point — superseded by react-router + AuthLayout.
+ * Kept for reference only. The app now uses main.tsx → RouterProvider.
+ */
 export default function App() {
   const [selectedOrgId, setSelectedOrgId] = useState<Id<"organizations"> | null>(null);
-  const [activeTab, setActiveTab] = useState<Tab>("dashboard");
   const { signOut } = useAuthActions();
 
   return (
     <div className="min-h-screen bg-surface-base">
       <Authenticated>
-        <AppShell
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-          onSignOut={() => signOut()}
-          orgSelector={
-            <OrganizationSelector
+        {selectedOrgId ? (
+          <AppShell
+            onSignOut={() => signOut()}
+            organizationId={selectedOrgId}
+            orgSelector={
+              <OrganizationSelector
+                selectedOrgId={selectedOrgId}
+                onSelectOrg={setSelectedOrgId}
+              />
+            }
+          >
+            <Content
               selectedOrgId={selectedOrgId}
               onSelectOrg={setSelectedOrgId}
             />
-          }
-        >
+          </AppShell>
+        ) : (
           <Content
             selectedOrgId={selectedOrgId}
             onSelectOrg={setSelectedOrgId}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
           />
-        </AppShell>
+        )}
       </Authenticated>
 
       <Unauthenticated>
@@ -58,13 +63,9 @@ export default function App() {
 function Content({
   selectedOrgId,
   onSelectOrg,
-  activeTab,
-  onTabChange,
 }: {
   selectedOrgId: Id<"organizations"> | null;
   onSelectOrg: (orgId: Id<"organizations">) => void;
-  activeTab: Tab;
-  onTabChange: (tab: Tab) => void;
 }) {
   const [wizardDone, setWizardDone] = useState(false);
   const loggedInUser = useQuery(api.auth.loggedInUser);
@@ -100,13 +101,7 @@ function Content({
     );
   }
 
-  return (
-    <Dashboard
-      organizationId={selectedOrgId}
-      activeTab={activeTab}
-      onTabChange={onTabChange}
-    />
-  );
+  return <div>Use /app/* routes via react-router.</div>;
 }
 
 function WelcomeScreen({ onSelectOrg }: { onSelectOrg: (orgId: Id<"organizations">) => void }) {

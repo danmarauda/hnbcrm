@@ -2,6 +2,21 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 import { authTables } from "@convex-dev/auth/server";
 
+// Shared permissions validator — used by teamMembers and apiKeys
+const permissionsValidator = v.object({
+  leads: v.union(v.literal("none"), v.literal("view_own"), v.literal("view_all"), v.literal("edit_own"), v.literal("edit_all"), v.literal("full")),
+  contacts: v.union(v.literal("none"), v.literal("view"), v.literal("edit"), v.literal("full")),
+  inbox: v.union(v.literal("none"), v.literal("view_own"), v.literal("view_all"), v.literal("reply"), v.literal("full")),
+  tasks: v.union(v.literal("none"), v.literal("view_own"), v.literal("view_all"), v.literal("edit_own"), v.literal("edit_all"), v.literal("full")),
+  reports: v.union(v.literal("none"), v.literal("view"), v.literal("full")),
+  team: v.union(v.literal("none"), v.literal("view"), v.literal("manage")),
+  settings: v.union(v.literal("none"), v.literal("view"), v.literal("manage")),
+  auditLogs: v.union(v.literal("none"), v.literal("view")),
+  apiKeys: v.union(v.literal("none"), v.literal("view"), v.literal("manage")),
+});
+
+export { permissionsValidator };
+
 const applicationTables = {
   // Organizations
   organizations: defineTable({
@@ -37,11 +52,15 @@ const applicationTables = {
     status: v.union(v.literal("active"), v.literal("inactive"), v.literal("busy")),
     avatar: v.optional(v.string()),
     capabilities: v.optional(v.array(v.string())),
+    permissions: v.optional(permissionsValidator),
+    mustChangePassword: v.optional(v.boolean()),
+    invitedBy: v.optional(v.id("teamMembers")),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
     .index("by_organization", ["organizationId"])
     .index("by_user", ["userId"])
+    .index("by_email", ["email"])
     .index("by_organization_and_type", ["organizationId", "type"])
     .index("by_organization_and_user", ["organizationId", "userId"]),
 
@@ -53,6 +72,8 @@ const applicationTables = {
     keyHash: v.string(),
     lastUsed: v.optional(v.number()),
     isActive: v.boolean(),
+    permissions: v.optional(permissionsValidator),
+    expiresAt: v.optional(v.number()),
     createdAt: v.number(),
   })
     .index("by_organization", ["organizationId"])

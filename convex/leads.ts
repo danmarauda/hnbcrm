@@ -1,7 +1,7 @@
 import { v } from "convex/values";
 import { query, mutation, internalQuery, internalMutation } from "./_generated/server";
 import { internal } from "./_generated/api";
-import { requireAuth } from "./lib/auth";
+import { requireAuth, requirePermission } from "./lib/auth";
 import { batchGet } from "./lib/batchGet";
 import { buildAuditDescription } from "./lib/auditDescription";
 import { parseCursor, buildCursorFromCreationTime, paginateResults } from "./lib/cursor";
@@ -103,7 +103,7 @@ export const createLead = mutation({
   },
   returns: v.id("leads"),
   handler: async (ctx, args) => {
-    const userMember = await requireAuth(ctx, args.organizationId);
+    const userMember = await requirePermission(ctx, args.organizationId, "leads", "edit_own");
 
     // Get default stage if not provided
     let stageId = args.stageId;
@@ -321,7 +321,7 @@ export const linkContact = mutation({
   },
 });
 
-// Delete lead
+// Delete lead (requires leads:full)
 export const deleteLead = mutation({
   args: { leadId: v.id("leads") },
   returns: v.null(),
@@ -329,7 +329,7 @@ export const deleteLead = mutation({
     const lead = await ctx.db.get(args.leadId);
     if (!lead) throw new Error("Lead not found");
 
-    const userMember = await requireAuth(ctx, lead.organizationId);
+    const userMember = await requirePermission(ctx, lead.organizationId, "leads", "full");
 
     const now = Date.now();
 

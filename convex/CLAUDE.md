@@ -20,9 +20,12 @@
 | `dashboard.ts` | Aggregation queries for dashboard |
 | `webhooks.ts` | Webhook CRUD |
 | `webhookTrigger.ts` | Internal action that fires webhooks |
-| `lib/auth.ts` | Shared `requireAuth()` helper (auth + org membership check) |
-| `nodeActions.ts` | Node.js actions: API key hashing, webhook dispatch |
-| `apiKeys.ts` | API key generation and validation |
+| `lib/auth.ts` | Shared `requireAuth()` + `requirePermission()` helpers |
+| `lib/permissions.ts` | Shared permission types, defaults, hierarchy comparison |
+| `lib/batchGet.ts` | Utility for batch-fetching documents by IDs |
+| `authHelpers.ts` | Internal queries/mutations for auth table operations (user/authAccount CRUD) |
+| `nodeActions.ts` | Node.js actions: API key hashing, webhook dispatch, invite, password change |
+| `apiKeys.ts` | API key generation, validation, revocation, permission scoping |
 | `leadSources.ts` / `fieldDefinitions.ts` | Lead sources + custom fields |
 | `llmsTxt.ts` | `/llms.txt` and `/llms-full.txt` endpoint content |
 | `onboarding.ts` / `onboardingSeed.ts` | Onboarding wizard + checklist state |
@@ -42,6 +45,22 @@ const userMember = await requireAuth(ctx, entity.organizationId);
 ```
 
 Note: `getAuthUserId` is still used directly in functions without org context (e.g. `getUserOrganizations`).
+
+### Permissions Pattern
+
+For functions requiring specific permission levels, use `requirePermission`:
+
+```typescript
+import { requirePermission } from "./lib/auth";
+
+// Requires at least "edit_own" level for the "leads" category:
+const userMember = await requirePermission(ctx, args.organizationId, "leads", "edit_own");
+
+// For admin-only operations:
+const userMember = await requirePermission(ctx, args.organizationId, "team", "manage");
+```
+
+Permission categories: `leads`, `contacts`, `inbox`, `tasks`, `reports`, `team`, `settings`, `auditLogs`, `apiKeys`. Each has hierarchical levels — `resolvePermissions(role, explicitPermissions?)` falls back to role defaults when no explicit override exists. See `convex/lib/permissions.ts` for full type definitions and `DEFAULT_PERMISSIONS`.
 
 ## Mutation Side Effects Checklist
 

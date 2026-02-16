@@ -177,6 +177,25 @@ A human or AI agent on the team.
 | type | enum | `human`, `ai` |
 | status | enum | `active`, `inactive`, `busy` |
 | capabilities | string[] | What this member can do |
+| permissions | object | Granular RBAC overrides (9 categories — see Permissions below). If null, role defaults apply |
+| mustChangePassword | boolean | Forces password change on next login (set for new invited users) |
+| invitedBy | Id\<teamMembers\> | Who invited this member |
+| userId | Id\<users\> | Linked auth user (set on signup or invite) |
+
+**Permissions object (9 categories):**
+| Category | Possible Levels |
+|----------|----------------|
+| leads | `none`, `view_own`, `view_all`, `edit_own`, `edit_all`, `full` |
+| contacts | `none`, `view`, `edit`, `full` |
+| inbox | `none`, `view_own`, `view_all`, `reply`, `full` |
+| tasks | `none`, `view_own`, `view_all`, `edit_own`, `edit_all`, `full` |
+| reports | `none`, `view`, `full` |
+| team | `none`, `view`, `manage` |
+| settings | `none`, `view`, `manage` |
+| auditLogs | `none`, `view` |
+| apiKeys | `none`, `view`, `manage` |
+
+Levels are hierarchical within each category. Roles have default permissions: admin (full everything), manager (edit_all leads/tasks, full inbox), agent (edit_own leads/tasks, reply inbox), ai (same as agent). Explicit `permissions` overrides role defaults.
 
 ---
 
@@ -237,6 +256,23 @@ Change tracking for compliance and debugging.
 | changes | object | `{ before: {...}, after: {...} }` |
 | description | string | Human-readable description |
 | severity | enum | `low`, `medium`, `high`, `critical` |
+
+---
+
+### API Key
+
+Authentication key for REST API and MCP access, tied to a team member.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| name | string | Key display name |
+| teamMemberId | Id\<teamMembers\> | Associated team member |
+| keyHash | string | SHA-256 hash of the key (never store plaintext) |
+| isActive | boolean | Whether the key is currently valid |
+| permissions | object | Optional permission overrides (same structure as Team Member permissions). If null, inherits from team member |
+| expiresAt | number | Optional expiration timestamp. Expired keys are rejected |
+| lastUsed | number | Timestamp of last successful use |
+| createdAt | number | Creation timestamp |
 
 ---
 

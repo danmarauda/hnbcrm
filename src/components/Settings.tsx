@@ -4,6 +4,7 @@ import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import type { AppOutletContext } from "@/components/layout/AuthLayout";
+import { usePermissions } from "@/hooks/usePermissions";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -14,11 +15,22 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { ApiKeyRevealModal } from "@/components/ui/ApiKeyRevealModal";
 import { Spinner } from "@/components/ui/Spinner";
 import { cn } from "@/lib/utils";
+import { ShieldAlert } from "lucide-react";
 
 type SettingsSection = "general" | "apikeys" | "fields" | "sources" | "webhooks";
 
 export function Settings() {
   const { organizationId } = useOutletContext<AppOutletContext>();
+  const { can } = usePermissions(organizationId);
+
+  if (!can("settings", "view")) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 py-20">
+        <ShieldAlert size={48} className="text-text-muted" />
+        <p className="text-text-secondary text-sm">Voce nao tem permissao para acessar as configuracoes.</p>
+      </div>
+    );
+  }
   const [activeSection, setActiveSection] = useState<SettingsSection>("general");
 
   const sections = [
@@ -160,9 +172,12 @@ function OrgProfileSection({ organizationId }: { organizationId: Id<"organizatio
 function ApiKeysSection({ organizationId }: { organizationId: Id<"organizations"> }) {
   const [showCreateApiKey, setShowCreateApiKey] = useState(false);
   const [newApiKeyName, setNewApiKeyName] = useState("");
+  const [selectedAgentId, setSelectedAgentId] = useState<string>("");
+  const [expiresAt, setExpiresAt] = useState<string>("");
   const [revealedApiKey, setRevealedApiKey] = useState<string | null>(null);
+  const [confirmRevokeId, setConfirmRevokeId] = useState<string | null>(null);
 
-  const apiKeys = useQuery(api.apiKeys.getApiKeys, {
+  const apiKeys = useQuery(api.apiKeys.listApiKeysWithMembers, {
     organizationId,
   });
 
@@ -171,29 +186,48 @@ function ApiKeysSection({ organizationId }: { organizationId: Id<"organizations"
   });
 
   const createApiKey = useAction(api.nodeActions.createApiKey);
+  const revokeApiKey = useMutation(api.apiKeys.revokeApiKey);
+
+  const aiAgents = teamMembers?.filter(m => m.type === "ai") ?? [];
 
   const handleCreateApiKey = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newApiKeyName.trim()) return;
 
-    try {
-      const aiAgent = teamMembers?.find(m => m.type === "ai");
-      if (!aiAgent) {
-        toast.error("Nenhum agente IA encontrado. Crie um membro IA primeiro.");
-        return;
-      }
+    const agentId = selectedAgentId || aiAgents[0]?._id;
+    if (!agentId) {
+      toast.error("Nenhum agente IA encontrado. Crie um membro IA primeiro.");
+      return;
+    }
 
+    try {
       const result = await createApiKey({
         organizationId,
-        teamMemberId: aiAgent._id,
+        teamMemberId: agentId as Id<"teamMembers">,
         name: newApiKeyName,
+        expiresAt: expiresAt ? new Date(expiresAt).getTime() : undefined,
       });
 
       setRevealedApiKey(result.apiKey);
       setNewApiKeyName("");
+      setSelectedAgentId("");
+      setExpiresAt("");
       setShowCreateApiKey(false);
     } catch (error) {
       toast.error("Falha ao criar chave API");
+    }
+  };
+
+  const handleRevoke = async (apiKeyId: string) => {
+    try {
+      await revokeApiKey({
+        apiKeyId: apiKeyId as Id<"apiKeys">,
+        organizationId,
+      });
+      toast.success("Chave revogada com sucesso");
+      setConfirmRevokeId(null);
+    } catch (error) {
+      toast.error("Falha ao revogar chave");
     }
   };
 
@@ -214,24 +248,48 @@ function ApiKeysSection({ organizationId }: { organizationId: Id<"organizations"
 
       {apiKeys && apiKeys.length > 0 ? (
         <div className="space-y-3">
-          {apiKeys.map((key) => (
-            <div key={key._id} className="flex items-center justify-between p-3 bg-surface-sunken rounded-lg">
-              <div>
+          {apiKeys.map((key: any) => (
+            <div key={key._id} className="flex items-center justify-between p-3 bg-surface-sunken rounded-lg gap-3">
+              <div className="min-w-0 flex-1">
                 <h4 className="font-medium text-text-primary">{key.name}</h4>
                 <p className="text-sm text-text-secondary">
+                  {key.teamMemberName && <span className="text-text-muted">{key.teamMemberName} &bull; </span>}
                   Criada em {new Date(key.createdAt).toLocaleDateString("pt-BR")}
-                  {key.lastUsed && ` • Último uso ${new Date(key.lastUsed).toLocaleDateString("pt-BR")}`}
+                  {key.lastUsed && ` \u2022 Ultimo uso ${new Date(key.lastUsed).toLocaleDateString("pt-BR")}`}
+                  {key.expiresAt && ` \u2022 Expira ${new Date(key.expiresAt).toLocaleDateString("pt-BR")}`}
                 </p>
               </div>
-              <Badge variant={key.isActive ? "success" : "default"}>
-                {key.isActive ? "Ativa" : "Inativa"}
-              </Badge>
+              <div className="flex items-center gap-2 shrink-0">
+                <Badge variant={key.isActive ? "success" : "default"}>
+                  {key.isActive ? "Ativa" : "Revogada"}
+                </Badge>
+                {key.isActive && (
+                  <button
+                    onClick={() => setConfirmRevokeId(key._id)}
+                    className="text-sm text-semantic-error hover:text-semantic-error/80"
+                  >
+                    Revogar
+                  </button>
+                )}
+              </div>
             </div>
           ))}
         </div>
       ) : apiKeys ? (
         <p className="text-text-secondary">Nenhuma chave API criada.</p>
       ) : null}
+
+      <ConfirmDialog
+        open={!!confirmRevokeId}
+        onClose={() => setConfirmRevokeId(null)}
+        onConfirm={() => {
+          if (confirmRevokeId) handleRevoke(confirmRevokeId);
+        }}
+        title="Revogar Chave API"
+        description="Tem certeza que deseja revogar esta chave? Todas as integracoes que a utilizam pararao de funcionar imediatamente."
+        confirmLabel="Revogar"
+        variant="danger"
+      />
 
       <Modal
         open={showCreateApiKey}
@@ -244,9 +302,45 @@ function ApiKeysSection({ organizationId }: { organizationId: Id<"organizations"
             type="text"
             value={newApiKeyName}
             onChange={(e) => setNewApiKeyName(e.target.value)}
-            placeholder="ex: Chave de Produção"
+            placeholder="ex: Chave de Producao"
             required
           />
+          {aiAgents.length > 1 && (
+            <div>
+              <label className="block text-[13px] font-medium text-text-secondary mb-1.5">
+                Agente IA
+              </label>
+              <select
+                value={selectedAgentId}
+                onChange={(e) => setSelectedAgentId(e.target.value)}
+                className="w-full bg-surface-raised border border-border-strong text-text-primary rounded-field px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
+              >
+                {aiAgents.map((agent) => (
+                  <option key={agent._id} value={agent._id}>
+                    {agent.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          <div>
+            <label className="block text-[13px] font-medium text-text-secondary mb-1.5">
+              Expiracao (opcional)
+            </label>
+            <input
+              type="date"
+              value={expiresAt}
+              onChange={(e) => setExpiresAt(e.target.value)}
+              min={new Date().toISOString().split("T")[0]}
+              className="w-full bg-surface-raised border border-border-strong text-text-primary rounded-field px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
+              style={{ fontSize: "16px" }}
+            />
+          </div>
+          {aiAgents.length === 0 && (
+            <p className="text-sm text-semantic-warning">
+              Nenhum agente IA encontrado. Crie um membro IA na pagina de Equipe primeiro.
+            </p>
+          )}
           <div className="flex gap-2 pt-4">
             <Button
               type="button"
@@ -256,7 +350,7 @@ function ApiKeysSection({ organizationId }: { organizationId: Id<"organizations"
             >
               Cancelar
             </Button>
-            <Button type="submit" className="flex-1">
+            <Button type="submit" className="flex-1" disabled={aiAgents.length === 0}>
               Criar Chave
             </Button>
           </div>

@@ -4,6 +4,10 @@ Complete mapping of MCP tools to REST API endpoints.
 
 All REST endpoints are at `/api/v1/*` and require an `X-API-Key` header. MCP tools handle authentication automatically via environment variables.
 
+API keys resolve permissions in this order: key-level permissions > team member permissions > role defaults. Keys can optionally have:
+- **Scoped permissions**: Restrict a key to specific operations (e.g., read-only)
+- **Expiration**: Keys with `expiresAt` are automatically rejected after expiration
+
 ---
 
 ## Lead Management
@@ -393,7 +397,9 @@ List all team members in the organization.
 
 **Response:** `{ members: [...] }`
 
-Members have `type: "human" | "ai"` and `role: "admin" | "manager" | "agent" | "ai"`.
+Members have `type: "human" | "ai"`, `role: "admin" | "manager" | "agent" | "ai"`, and optional `permissions` object with 9 granular RBAC categories. When `permissions` is null, role-based defaults apply.
+
+> **Note:** Team management operations (invite, update, remove, reactivate) are Convex-only mutations and are not available via the REST API. Use the Convex client for these operations.
 
 ---
 

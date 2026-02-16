@@ -5,6 +5,7 @@ import { v } from "convex/values";
 import { internalAction, action } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
+import { permissionsValidator } from "./schema";
 
 function sha256(input: string): string {
   return crypto.createHash("sha256").update(input).digest("hex");
@@ -12,6 +13,11 @@ function sha256(input: string): string {
 
 function hmacSha256(payload: string, secret: string): string {
   return crypto.createHmac("sha256", secret).update(payload).digest("hex");
+}
+
+function generateTempPassword(): string {
+  // 12-char alphanumeric password
+  return crypto.randomBytes(9).toString("base64url");
 }
 
 // Hash a string with SHA-256 (used by router to hash incoming API keys)
@@ -29,6 +35,7 @@ export const createApiKey = action({
     organizationId: v.id("organizations"),
     teamMemberId: v.id("teamMembers"),
     name: v.string(),
+    expiresAt: v.optional(v.number()),
   },
   returns: v.object({ apiKeyId: v.id("apiKeys"), apiKey: v.string() }),
   handler: async (ctx, args): Promise<{ apiKeyId: Id<"apiKeys">; apiKey: string }> => {
@@ -49,9 +56,147 @@ export const createApiKey = action({
       name: args.name,
       keyHash,
       actorId: admin._id,
+      expiresAt: args.expiresAt,
     });
 
     return { apiKeyId, apiKey };
+  },
+});
+
+// Invite a human team member — creates auth account with temp password if user is new
+export const inviteHumanMember = action({
+  args: {
+    organizationId: v.id("organizations"),
+    name: v.string(),
+    email: v.string(),
+    role: v.union(v.literal("admin"), v.literal("manager"), v.literal("agent")),
+    permissions: v.optional(permissionsValidator),
+  },
+  returns: v.object({
+    teamMemberId: v.id("teamMembers"),
+    isNewUser: v.boolean(),
+    tempPassword: v.optional(v.string()),
+  }),
+  handler: async (ctx, args): Promise<{
+    teamMemberId: Id<"teamMembers">;
+    isNewUser: boolean;
+    tempPassword?: string;
+  }> => {
+    // Verify caller has team:manage
+    const callerMember: any = await ctx.runQuery(
+      internal.teamMembers.internalVerifyTeamManager,
+      { organizationId: args.organizationId }
+    );
+    if (!callerMember) throw new Error("Permissão insuficiente");
+
+    let isNewUser = false;
+    let userId: Id<"users"> | undefined;
+    let tempPassword: string | undefined;
+
+    const { Scrypt } = await import("lucia");
+    const scrypt = new Scrypt();
+
+    // Look for existing user in the auth system
+    const existingUser: any = await ctx.runQuery(
+      internal.authHelpers.queryUserByEmail,
+      { email: args.email }
+    );
+
+    if (existingUser) {
+      userId = existingUser._id;
+      isNewUser = false;
+
+      // Check if already a member of this org
+      const existingMember: any = await ctx.runQuery(
+        internal.teamMembers.internalGetMemberByUserId,
+        { organizationId: args.organizationId, userId: userId! }
+      );
+      if (existingMember) {
+        throw new Error("Este usuário já é membro desta organização");
+      }
+    } else {
+      // Create new user + auth account with temp password
+      isNewUser = true;
+      tempPassword = generateTempPassword();
+      const passwordHash = await scrypt.hash(tempPassword);
+
+      // Create user record + auth account
+      userId = await ctx.runMutation(internal.authHelpers.insertUserAndAuthAccount, {
+        email: args.email,
+        name: args.name,
+        passwordHash,
+      });
+    }
+
+    // Create the team member record
+    const teamMemberId = await ctx.runMutation(
+      internal.teamMembers.internalCreateInvitedMember,
+      {
+        organizationId: args.organizationId,
+        userId,
+        name: args.name,
+        email: args.email,
+        role: args.role,
+        invitedBy: callerMember._id,
+        mustChangePassword: isNewUser,
+        permissions: args.permissions,
+      }
+    );
+
+    return {
+      teamMemberId,
+      isNewUser,
+      tempPassword: isNewUser ? tempPassword : undefined,
+    };
+  },
+});
+
+// Change password — validates current password first
+export const changePassword = action({
+  args: {
+    organizationId: v.id("organizations"),
+    currentPassword: v.string(),
+    newPassword: v.string(),
+  },
+  returns: v.object({ success: v.boolean() }),
+  handler: async (ctx, args): Promise<{ success: boolean }> => {
+    const { Scrypt } = await import("lucia");
+    const scrypt = new Scrypt();
+
+    // Get auth account for the current authenticated user
+    const authAccount: any = await ctx.runQuery(
+      internal.authHelpers.queryAuthAccountForCurrentUser,
+      {}
+    );
+
+    if (!authAccount) throw new Error("Conta não encontrada");
+
+    // Verify current password
+    const valid = await scrypt.verify(authAccount.secret, args.currentPassword);
+    if (!valid) throw new Error("Senha atual incorreta");
+
+    // Hash new password and update
+    const newHash = await scrypt.hash(args.newPassword);
+    await ctx.runMutation(internal.authHelpers.patchAuthAccountSecret, {
+      authAccountId: authAccount._id,
+      newSecret: newHash,
+    });
+
+    // Clear mustChangePassword flag if set on any team member
+    if (authAccount.userId) {
+      const member: any = await ctx.runQuery(
+        internal.teamMembers.internalGetMemberByUserId,
+        { organizationId: args.organizationId, userId: authAccount.userId }
+      );
+      if (member?.mustChangePassword) {
+        await ctx.runMutation(
+          internal.teamMembers.internalClearMustChangePassword,
+          { teamMemberId: member._id }
+        );
+      }
+    }
+
+    return { success: true };
   },
 });
 

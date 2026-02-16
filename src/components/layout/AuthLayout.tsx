@@ -16,6 +16,7 @@ import { Building2, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { OnboardingWizard } from "../onboarding/OnboardingWizard";
 import { ErrorBoundary } from "../ErrorBoundary";
+import { ChangePasswordScreen } from "../team/ChangePasswordScreen";
 
 export type AppOutletContext = {
   organizationId: Id<"organizations">;
@@ -86,9 +87,22 @@ export function AuthLayout() {
     );
   }
 
+  // Force password change gate
+  if (currentMember.mustChangePassword) {
+    return (
+      <ChangePasswordScreen
+        organizationId={selectedOrgId}
+        onSuccess={() => {
+          // The currentMember query will reactively update when mustChangePassword is cleared
+        }}
+      />
+    );
+  }
+
   return (
     <AppShell
       onSignOut={() => signOut()}
+      organizationId={selectedOrgId}
       orgSelector={
         <OrganizationSelector
           selectedOrgId={selectedOrgId}

@@ -18,6 +18,7 @@ HNBCRM is an open-source, multi-tenant CRM built on Convex with real-time collab
 - Agent Skill: .claude/skills/hnbcrm/ — portable skill that teaches AI agents how to operate as CRM team members
 - Channels: whatsapp, telegram, email, webchat, internal
 - Auth: API key passed in X-API-Key header (SHA-256 hashed, stored per team member)
+- Permissions: Granular RBAC with 9 categories (leads, contacts, inbox, tasks, reports, team, settings, auditLogs, apiKeys). API keys can have scoped permissions.
 
 ## Agent Skill (for AI Agents)
 
@@ -51,6 +52,10 @@ HNBCRM is an open-source, multi-tenant CRM built on Convex. Every table is scope
 ## Authentication
 
 All REST API requests require an \`X-API-Key\` header. API keys are tied to a team member and an organization. The key is SHA-256 hashed before lookup.
+
+API keys resolve permissions in a chain: key-level permissions > team member permissions > role defaults. Keys can have:
+- Scoped permissions (restrict to specific operations, e.g. read-only leads)
+- Expiration timestamps (expired keys are automatically rejected)
 
 \`\`\`
 X-API-Key: your-api-key-here
@@ -186,6 +191,40 @@ A human or AI agent on the team.
 | type | enum | human, ai |
 | status | enum | active, inactive, busy |
 | capabilities | string[] | What this member can do |
+| permissions | object | Granular RBAC overrides (9 categories). Null = use role defaults |
+| mustChangePassword | boolean | Forces password change on first login |
+| invitedBy | Id<teamMembers> | Who invited this member |
+| userId | Id<users> | Linked auth user |
+
+### API Key
+Authentication key for REST API and MCP access, tied to a team member.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| name | string | Key display name |
+| teamMemberId | Id<teamMembers> | Associated team member |
+| keyHash | string | SHA-256 hash (never stored in plaintext) |
+| isActive | boolean | Whether the key is valid |
+| permissions | object | Optional permission overrides (9 categories). Null = inherit from team member |
+| expiresAt | number | Optional expiration timestamp |
+| lastUsed | number | Last successful use timestamp |
+
+### Permissions (RBAC)
+9 permission categories, each with hierarchical levels:
+
+| Category | Levels |
+|----------|--------|
+| leads | none, view_own, view_all, edit_own, edit_all, full |
+| contacts | none, view, edit, full |
+| inbox | none, view_own, view_all, reply, full |
+| tasks | none, view_own, view_all, edit_own, edit_all, full |
+| reports | none, view, full |
+| team | none, view, manage |
+| settings | none, view, manage |
+| auditLogs | none, view |
+| apiKeys | none, view, manage |
+
+Role defaults: admin (full), manager (edit_all leads/tasks), agent (edit_own leads/tasks), ai (same as agent). Explicit permissions override role defaults.
 
 ### Field Definition (Custom Fields)
 Schema for user-defined custom fields.
@@ -903,6 +942,9 @@ Webhook payloads include \`{ event, organizationId, payload, timestamp }\`. Each
 
 ### Team Member Status
 \`active\` | \`inactive\` | \`busy\`
+
+### Permission Category
+\`leads\` | \`contacts\` | \`inbox\` | \`tasks\` | \`reports\` | \`team\` | \`settings\` | \`auditLogs\` | \`apiKeys\`
 
 ### Lead Source Type
 \`website\` | \`social\` | \`email\` | \`phone\` | \`referral\` | \`api\` | \`other\`

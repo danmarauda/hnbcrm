@@ -4,6 +4,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import type { AppOutletContext } from "@/components/layout/AuthLayout";
+import { usePermissions } from "@/hooks/usePermissions";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -14,6 +15,8 @@ import { SpotlightTooltip } from "@/components/onboarding/SpotlightTooltip";
 
 export function HandoffQueue() {
   const { organizationId } = useOutletContext<AppOutletContext>();
+  const { can } = usePermissions(organizationId);
+
   const handoffs = useQuery(api.handoffs.getHandoffs, {
     organizationId,
     status: "pending",
@@ -21,6 +24,14 @@ export function HandoffQueue() {
 
   const acceptHandoff = useMutation(api.handoffs.acceptHandoff);
   const rejectHandoff = useMutation(api.handoffs.rejectHandoff);
+
+  if (!can("inbox", "view_own")) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 py-20">
+        <p className="text-text-secondary text-sm">Voce nao tem permissao para acessar os repasses.</p>
+      </div>
+    );
+  }
 
   const handleAccept = async (handoffId: string) => {
     try {

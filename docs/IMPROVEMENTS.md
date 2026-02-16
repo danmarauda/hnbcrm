@@ -99,39 +99,19 @@ const actorMap = new Map(actors.filter(Boolean).map(a => [a._id, a]));
 
 **Fix:** Fail-secure — if env var is missing, reject all cross-origin requests. In production, explicitly set to the frontend domain(s).
 
-### 2.2 Role-Based Access Control (RBAC)
+### 2.2 Role-Based Access Control (RBAC) — IMPLEMENTED
 
-**Problem:** `requireAuth()` in `convex/lib/auth.ts` only checks org membership. No role-level checks except in `webhooks.ts` and `apiKeys.ts` (manual admin checks).
+**Status:** Fully implemented with 9-category granular permissions system.
 
-**Current state:** Schema defines 4 roles (`admin`, `manager`, `agent`, `ai`) but they're largely unused in business logic.
+**What was built:**
+- `convex/lib/permissions.ts` — Shared types, `DEFAULT_PERMISSIONS` per role, `resolvePermissions()`, `hasPermission()` with hierarchical level comparison
+- `requirePermission(ctx, organizationId, category, level)` in `convex/lib/auth.ts` — Used alongside `requireAuth`
+- 9 categories: leads, contacts, inbox, tasks, reports, team, settings, auditLogs, apiKeys
+- Per-member permission overrides via `permissions` field on teamMembers (optional, falls back to role defaults)
+- Frontend: `usePermissions()` hook, `<PermissionGate>` component, nav filtering in Sidebar/BottomTabBar
+- Backend enforcement on leads, contacts, team, and apiKeys mutations
 
-**Fix — Custom Function Wrappers:**
-
-Use the [Convex custom functions pattern](https://stack.convex.dev/custom-functions) (`convex-helpers`) to create middleware-like wrappers:
-
-```typescript
-// convex/lib/functions.ts
-import { customQuery, customMutation } from "convex-helpers/server/customFunctions";
-
-export const authedQuery = customQuery(query, {
-  args: { organizationId: v.id("organizations") },
-  input: async (ctx, args) => {
-    const member = await requireAuth(ctx, args.organizationId);
-    return { ctx: { ...ctx, member }, args };
-  },
-});
-
-export const adminMutation = customQuery(mutation, {
-  args: { organizationId: v.id("organizations") },
-  input: async (ctx, args) => {
-    const member = await requireAuth(ctx, args.organizationId);
-    if (member.role !== "admin") throw new Error("Admin required");
-    return { ctx: { ...ctx, member }, args };
-  },
-});
-```
-
-**Benefit:** Eliminates the 8-line auth boilerplate repeated 30+ times across backend files.
+**Remaining opportunity:** Custom function wrappers (`convex-helpers`) could still reduce boilerplate by embedding `requirePermission` into middleware-like wrappers.
 
 ### 2.3 API Key Brute-Force Protection
 
@@ -142,11 +122,16 @@ export const adminMutation = customQuery(mutation, {
 - Log failed attempts to audit log with `severity: "warning"`
 - After 5 consecutive failures, temporarily block the IP
 
-### 2.4 Scoped API Key Permissions
+### 2.4 Scoped API Key Permissions — IMPLEMENTED
 
-**Problem:** API keys are all-or-nothing — no permission scoping.
+**Status:** Fully implemented with the same 9-category permission model used for team members.
 
-**Fix:** Add `permissions` array to API keys (e.g., `["leads:read", "leads:write", "messages:send"]`). Check permissions in router middleware before executing endpoints. This is in the PRD but not implemented.
+**What was built:**
+- `permissions` field (optional) on apiKeys table using shared `permissionsValidator`
+- `expiresAt` field for key expiration (checked in `getByKeyHash`)
+- `revokeApiKey` mutation with audit logging
+- Permission resolution chain in `router.ts`: API key permissions → team member permissions → role defaults
+- Frontend: agent selector in key creation, revoke button with confirmation, key list with member names
 
 ### 2.5 Input Validation
 

@@ -867,7 +867,7 @@ export const OPENAPI_SPEC = `{
       "get": {
         "tags": ["Referência"],
         "summary": "Listar membros da equipe",
-        "description": "Retorna todos os membros da equipe (humanos e agentes IA).",
+        "description": "Retorna todos os membros da equipe (humanos e agentes IA). Cada membro inclui um campo opcional `permissions` com 9 categorias RBAC. Operações de gerenciamento (convite, edição, remoção) são mutações Convex e não estão disponíveis via REST.",
         "operationId": "listTeamMembers",
         "responses": {
           "200": {
@@ -1680,7 +1680,10 @@ export const OPENAPI_SPEC = `{
           "role": { "type": "string", "enum": ["admin", "manager", "agent", "ai"], "description": "Papel na equipe" },
           "type": { "type": "string", "enum": ["human", "ai"], "description": "Tipo de membro" },
           "status": { "type": "string", "enum": ["active", "inactive", "busy"], "description": "Status atual" },
-          "capabilities": { "type": "array", "items": { "type": "string" }, "description": "Capacidades do membro" }
+          "capabilities": { "type": "array", "items": { "type": "string" }, "description": "Capacidades do membro" },
+          "permissions": { "type": "object", "nullable": true, "description": "Permissões RBAC granulares (9 categorias). Null = usar padrões do papel" },
+          "mustChangePassword": { "type": "boolean", "description": "Força troca de senha no próximo login" },
+          "invitedBy": { "type": "string", "nullable": true, "description": "ID do membro que convidou" }
         }
       },
       "FieldDefinition": {

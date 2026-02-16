@@ -69,9 +69,9 @@ HNBCRM (Humans & Bots CRM) is a **realtime-first, AI-native, multi-tenant CRM** 
 | Auth page | Done | Standalone at `/entrar` with redirect guards |
 | Auth layout with gates | Done | AuthLayout handles auth → org → onboarding → team member |
 
-**Not implemented from PRD:** OAuth (Google, GitHub), magic link, JWT bearer tokens, scoped API key permissions (currently all-or-nothing).
+**Not implemented from PRD:** OAuth (Google, GitHub), magic link, JWT bearer tokens.
 
-**Files:** `convex/auth.ts`, `convex/lib/auth.ts`, `convex/apiKeys.ts`, `convex/nodeActions.ts`, `src/components/AuthPage.tsx`, `src/components/layout/AuthLayout.tsx`
+**Files:** `convex/auth.ts`, `convex/lib/auth.ts`, `convex/lib/permissions.ts`, `convex/apiKeys.ts`, `convex/nodeActions.ts`, `convex/authHelpers.ts`, `src/components/AuthPage.tsx`, `src/components/layout/AuthLayout.tsx`
 
 ---
 
@@ -82,14 +82,19 @@ HNBCRM (Humans & Bots CRM) is a **realtime-first, AI-native, multi-tenant CRM** 
 | Team members table (human + AI types) | Done | `type: "human" \| "ai"` |
 | Roles (admin, manager, agent, ai) | Done | 4 roles (PRD has 6 — missing super_admin, viewer) |
 | Status (active, inactive, busy) | Done | Status dropdown in Team page |
-| Add human team members | Done | Modal with name, email, role |
-| Add AI agents as team members | Done | Type selection in modal |
-| AI capabilities field | Done | Stored in schema |
-| Team page UI | Done | Member list with avatars, roles, status |
+| Invite human members (temp password) | Done | `inviteHumanMember` action with bcrypt, auto-links existing users |
+| Force password change on first login | Done | `mustChangePassword` flag + `ChangePasswordScreen` gate |
+| Auto-link users to org on signup | Done | `afterUserCreatedOrUpdated` auth callback |
+| Add AI agents as team members | Done | Type selection in InviteMemberModal |
+| AI capabilities field | Done | Stored in schema, editable in modal |
+| Team CRUD (edit/deactivate/reactivate) | Done | MemberDetailSlideOver with role, permissions, danger zone |
+| Granular RBAC permissions (9 categories) | Done | `convex/lib/permissions.ts`, per-member overrides |
+| Frontend permission enforcement | Done | `usePermissions` hook, `PermissionGate`, nav filtering, element guards |
+| Team page UI | Done | Stats cards, search/filter bar, responsive card grid |
 
-**Not implemented from PRD:** AI agent config panel (model, systemPrompt, channels, handoff rules), capability tags UI, team performance detail view, agent activity monitor.
+**Not implemented from PRD:** AI agent config panel (model, systemPrompt, channels, handoff rules), team performance detail view, agent activity monitor.
 
-**Files:** `convex/teamMembers.ts`, `src/components/TeamPage.tsx`
+**Files:** `convex/teamMembers.ts`, `convex/nodeActions.ts`, `convex/authHelpers.ts`, `convex/lib/permissions.ts`, `src/components/TeamPage.tsx`, `src/components/team/InviteMemberModal.tsx`, `src/components/team/MemberDetailSlideOver.tsx`, `src/components/team/PermissionsEditor.tsx`, `src/components/team/ChangePasswordScreen.tsx`, `src/hooks/usePermissions.ts`, `src/components/guards/PermissionGate.tsx`
 
 ---
 
@@ -381,10 +386,14 @@ HNBCRM (Humans & Bots CRM) is a **realtime-first, AI-native, multi-tenant CRM** 
 | Secure key generation (`hnbcrm_*` format) | Done | Node action with crypto |
 | Key validation on API requests | Done | Hash + lookup via compound index |
 | `lastUsed` tracking | Done | |
-| Admin-only management | Done | |
-| Settings UI | Done | Settings > API Keys section |
+| Permission-based management | Done | Requires `apiKeys:view` / `apiKeys:manage` |
+| Key expiration (`expiresAt`) | Done | Checked in `getByKeyHash` |
+| Key revocation | Done | `revokeApiKey` mutation with audit log |
+| Scoped permissions per key | Done | `permissions` field on apiKeys, resolved in router |
+| Agent selector in create flow | Done | Choose which AI agent the key is for |
+| Settings UI with revoke | Done | Settings > API Keys with revoke confirmation |
 
-**Not implemented from PRD:** Scoped permissions per key, key expiration (`expiresAt`), `keyPrefix` display, rate limiting per key.
+**Not implemented from PRD:** `keyPrefix` display, rate limiting per key.
 
 **Files:** `convex/apiKeys.ts`, `convex/nodeActions.ts`, `src/components/Settings.tsx`
 
@@ -576,7 +585,7 @@ HNBCRM (Humans & Bots CRM) is a **realtime-first, AI-native, multi-tenant CRM** 
 |---------|------------|--------|
 | **Smart auto-assignment engine** | 5.5 | Round-robin, by-channel, by-capability, least-loaded strategies |
 | **Notification system** | 11.3 | In-app notification center + real-time alerts |
-| **Scoped API key permissions** | 6.1 | Fine-grained access (`leads:read`, `messages:send`, etc.) |
+| ~~Scoped API key permissions~~ | 6.1 | **DONE** — 9-category RBAC with key/member/role resolution |
 | **Webhook retry with backoff** | 8.5 | Currently fire-and-forget — needs exponential backoff |
 | **Reply-to (quote messages)** | 5.4 | Reference specific messages when replying |
 
@@ -618,7 +627,7 @@ HNBCRM (Humans & Bots CRM) is a **realtime-first, AI-native, multi-tenant CRM** 
 | nuqs for URL state | Not used | react-router handles URL state |
 | shadcn/ui components | Custom TailwindCSS design system | Intentional — custom dark theme with brand tokens |
 | `automationRules` table | Not in schema | Automation engine deferred to Phase 2 |
-| Scoped API key permissions | All-or-nothing access | Simplified for current use |
+| Scoped API key permissions | Implemented — key-level + member-level + role defaults | Full permission resolution chain |
 | Audit log `actorIp`, `apiKeyId` fields | Not tracked | HTTP action context not passed to audit writer |
 
 ### Additions Beyond PRD
@@ -643,7 +652,9 @@ HNBCRM (Humans & Bots CRM) is a **realtime-first, AI-native, multi-tenant CRM** 
 |--------|------|
 | Schema (all tables) | `convex/schema.ts` |
 | Auth config | `convex/auth.ts`, `convex/auth.config.ts` |
-| Auth helper | `convex/lib/auth.ts` |
+| Auth helper | `convex/lib/auth.ts` (`requireAuth` + `requirePermission`) |
+| Permissions | `convex/lib/permissions.ts` |
+| Auth internals | `convex/authHelpers.ts` |
 | HTTP entry | `convex/http.ts` |
 | REST API routes | `convex/router.ts` |
 | Leads | `convex/leads.ts` |
@@ -689,6 +700,9 @@ HNBCRM (Humans & Bots CRM) is a **realtime-first, AI-native, multi-tenant CRM** 
 | Inbox (conversations) | `src/components/Inbox.tsx` |
 | Handoff queue | `src/components/HandoffQueue.tsx` |
 | Team page | `src/components/TeamPage.tsx` |
+| Team components | `src/components/team/InviteMemberModal.tsx`, `MemberDetailSlideOver.tsx`, `PermissionsEditor.tsx`, `ChangePasswordScreen.tsx` |
+| Permission hook | `src/hooks/usePermissions.ts` |
+| Permission gate | `src/components/guards/PermissionGate.tsx` |
 | Audit logs | `src/components/AuditLogs.tsx` |
 | Settings (5 sections) | `src/components/Settings.tsx` |
 | Saved views | `src/components/ViewSelector.tsx`, `src/components/CreateViewModal.tsx` |
