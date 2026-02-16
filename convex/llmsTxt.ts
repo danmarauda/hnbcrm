@@ -14,7 +14,7 @@ HNBCRM is an open-source, multi-tenant CRM built on Convex with real-time collab
 ## Quick Links
 
 - REST API: /api/v1/* endpoints authenticated via X-API-Key header
-- MCP Server: npx hnbcrm-mcp (40 tools for AI agents)
+- MCP Server: npx hnbcrm-mcp (44 tools for AI agents)
 - Agent Skill: .claude/skills/hnbcrm/ — portable skill that teaches AI agents how to operate as CRM team members
 - Channels: whatsapp, telegram, email, webchat, internal
 - Auth: API key passed in X-API-Key header (SHA-256 hashed, stored per team member)
@@ -270,6 +270,30 @@ A task or reminder in the CRM, optionally linked to leads/contacts.
 | parentTaskId | Id<tasks> | Parent task for recurrence instances |
 | checklist | array | [{id, title, completed}] embedded subtasks |
 | tags | string[] | Tags for categorization |
+
+### Calendar Event
+A time-ranged event on the calendar, optionally linked to leads/contacts.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| title | string | Event title (required) |
+| description | string | Detailed description |
+| eventType | enum | call, meeting, follow_up, demo, task, reminder, other |
+| startTime | number | Start timestamp (Unix ms) |
+| endTime | number | End timestamp (Unix ms) |
+| allDay | boolean | All-day event flag |
+| status | enum | scheduled, completed, cancelled |
+| leadId | Id<leads> | Associated lead |
+| contactId | Id<contacts> | Associated contact |
+| taskId | Id<tasks> | Linked task |
+| attendees | Id<teamMembers>[] | Event attendees |
+| createdBy | Id<teamMembers> | Creator |
+| assignedTo | Id<teamMembers> | Assigned team member |
+| location | string | Meeting location |
+| meetingUrl | string | Video conference URL |
+| recurrence | object | {pattern: daily/weekly/biweekly/monthly, endDate?} |
+| parentEventId | Id<calendarEvents> | Parent for recurring instances |
+| notes | string | Additional notes |
 
 ### Task Comment
 A comment on a task.
@@ -610,6 +634,73 @@ Add a comment to a task.
 
 **Response:** \`{ success: true, commentId }\`
 
+### Calendar Endpoints
+
+#### GET /api/v1/calendar/events
+List calendar events in a date range with optional filters.
+
+**Query params:** startDate (required), endDate (required), assignedTo, eventType, status, leadId, contactId, includeTasks (all optional)
+
+**Response:** \`{ events: [...] }\`
+
+#### GET /api/v1/calendar/events/get
+Get a single calendar event.
+
+**Query params:** id (required)
+
+**Response:** \`{ event: {...} }\`
+
+#### POST /api/v1/calendar/events/create
+Create a new calendar event.
+
+**Body:**
+| Param | Type | Required | Description |
+|-------|------|----------|-------------|
+| title | string | yes | Event title |
+| eventType | string | yes | call, meeting, follow_up, demo, task, reminder, other |
+| startTime | number | yes | Start timestamp (ms) |
+| endTime | number | yes | End timestamp (ms) |
+| allDay | boolean | no | All-day event |
+| description | string | no | Description |
+| leadId | Id | no | Associated lead |
+| contactId | Id | no | Associated contact |
+| assignedTo | Id | no | Assigned team member |
+| attendees | Id[] | no | Attendee IDs |
+| location | string | no | Location |
+| meetingUrl | string | no | Meeting URL |
+| recurrence | object | no | {pattern, endDate?} |
+| notes | string | no | Notes |
+
+**Response:** \`{ success: true, eventId }\`
+
+#### POST /api/v1/calendar/events/update
+Update calendar event fields.
+
+**Body:** eventId (required), title, description, eventType, startTime, endTime, allDay, location, meetingUrl, notes (all optional)
+
+**Response:** \`{ success: true }\`
+
+#### POST /api/v1/calendar/events/delete
+Delete a calendar event (cascades to child recurring events).
+
+**Body:** eventId (required)
+
+**Response:** \`{ success: true }\`
+
+#### POST /api/v1/calendar/events/reschedule
+Reschedule a calendar event.
+
+**Body:** eventId (required), newStartTime (required), newEndTime (optional — auto-calculated from duration)
+
+**Response:** \`{ success: true }\`
+
+#### POST /api/v1/calendar/events/complete
+Mark a calendar event as completed. If recurring, auto-generates next instance.
+
+**Body:** eventId (required)
+
+**Response:** \`{ success: true }\`
+
 ### Dashboard Endpoint
 
 #### GET /api/v1/dashboard
@@ -657,7 +748,7 @@ HNBCRM ships an open-standard Agent Skill at \`.claude/skills/hnbcrm/\` that tea
 
 ## MCP Server Tools
 
-The HNBCRM MCP server (\`npx hnbcrm-mcp\`) exposes 40 tools for AI agents:
+The HNBCRM MCP server (\`npx hnbcrm-mcp\`) exposes 44 tools for AI agents:
 
 ### Lead Management
 
@@ -883,6 +974,47 @@ Add a comment to a task.
 - **content** (string, required): Comment content
 - **mentionedUserIds** (string[], optional): Mentioned team member IDs
 
+### Calendar
+
+#### calendar_list_events
+List calendar events in a date range with optional filters.
+- **startDate** (number, required): Start of date range (timestamp ms)
+- **endDate** (number, required): End of date range (timestamp ms)
+- **assignedTo** (string, optional): Filter by assigned team member
+- **eventType** (string, optional): Filter by event type
+- **status** (string, optional): Filter by status
+- **leadId** (string, optional): Filter by lead
+- **contactId** (string, optional): Filter by contact
+- **includeTasks** (boolean, optional): Include tasks with dueDate in range
+
+#### calendar_create_event
+Create a new calendar event.
+- **title** (string, required): Event title
+- **eventType** (string, required): call, meeting, follow_up, demo, task, reminder, other
+- **startTime** (number, required): Start timestamp (ms)
+- **endTime** (number, required): End timestamp (ms)
+- **allDay** (boolean, optional): All-day event
+- **description, leadId, contactId, assignedTo, attendees, location, meetingUrl, recurrence, notes** (optional)
+
+#### calendar_get_event
+Get a single calendar event by ID.
+- **eventId** (string, required): The event ID
+
+#### calendar_update_event
+Update calendar event fields.
+- **eventId** (string, required): The event ID
+- **title, description, eventType, startTime, endTime, allDay, location, meetingUrl, notes** (optional)
+
+#### calendar_delete_event
+Delete a calendar event (cascades to recurring children).
+- **eventId** (string, required): The event ID
+
+#### calendar_reschedule_event
+Reschedule a calendar event to a new time.
+- **eventId** (string, required): The event ID
+- **newStartTime** (number, required): New start timestamp (ms)
+- **newEndTime** (number, optional): New end timestamp (auto-calculated if omitted)
+
 ---
 
 ## Webhook Events
@@ -965,7 +1097,13 @@ Webhook payloads include \`{ event, organizationId, payload, timestamp }\`. Each
 \`daily\` | \`weekly\` | \`biweekly\` | \`monthly\`
 
 ### Activity Type
-\`note\` | \`call\` | \`email_sent\` | \`stage_change\` | \`assignment\` | \`handoff\` | \`qualification_update\` | \`created\` | \`message_sent\`
+\`note\` | \`call\` | \`email_sent\` | \`stage_change\` | \`assignment\` | \`handoff\` | \`qualification_update\` | \`created\` | \`message_sent\` | \`event_created\` | \`event_completed\`
+
+### Calendar Event Type
+\`call\` | \`meeting\` | \`follow_up\` | \`demo\` | \`task\` | \`reminder\` | \`other\`
+
+### Calendar Event Status
+\`scheduled\` | \`completed\` | \`cancelled\`
 
 ### Audit Log Action
 \`create\` | \`update\` | \`delete\` | \`move\` | \`assign\` | \`handoff\`

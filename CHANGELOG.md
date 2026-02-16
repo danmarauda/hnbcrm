@@ -2,6 +2,78 @@
 
 All notable changes to HNBCRM (formerly ClawCRM) will be documented in this file.
 
+## [0.16.0] - 2026-02-16
+
+### Calendar System — Full Time-Based Event Management
+
+Major feature release adding a complete calendar system with recurring events, drag-to-reschedule, multi-view navigation, and full backend/frontend/MCP integration.
+
+#### Backend — Calendar Events (`convex/calendar.ts`)
+- **12 functions** — 6 queries (list, get, getUpcoming, getByLead, getByContact, search) + 6 mutations (create, update, delete, reschedule, complete, generateRecurringInstances)
+- **Recurring event support** — Daily/weekly/biweekly/monthly patterns with auto-generation of child instances; completion auto-creates next occurrence
+- **Event types** — `call`, `meeting`, `follow_up`, `demo`, `task`, `reminder`, `other`
+- **Event statuses** — `scheduled`, `completed`, `cancelled`
+- **Rich metadata** — Attendees, location, meetingUrl, notes, linked lead/contact/task
+- **Smart scheduling** — All-day event flag, time range validation, overlap detection
+- **Full audit trail** — Every mutation logs to `activities` + `auditLogs` and triggers webhooks
+
+#### Schema — `calendarEvents` Table (`convex/schema.ts`)
+- **9 indexes** — `by_organization`, `by_organization_and_created`, `by_organization_and_start_time`, `by_organization_and_assigned`, `by_organization_and_event_type`, `by_lead`, `by_contact`, `by_parent_event`, `search_text`
+- **Full-text search** — `searchText` field for title/description/location/notes
+- **Recurrence tracking** — `parentEventId` links recurring instances to their parent
+- **Cascade delete** — Deleting parent event deletes all child instances
+
+#### HTTP API — Calendar Endpoints (`convex/router.ts`)
+- **7 REST endpoints** at `/api/v1/calendar/events/*`:
+  - `GET /api/v1/calendar/events` — List events in date range with filters (assignedTo, eventType, status, lead, contact, includeTasks)
+  - `GET /api/v1/calendar/events/get` — Get single event
+  - `POST /api/v1/calendar/events/create` — Create event with optional recurrence
+  - `POST /api/v1/calendar/events/update` — Update event fields
+  - `POST /api/v1/calendar/events/delete` — Delete event (cascades to children)
+  - `POST /api/v1/calendar/events/reschedule` — Reschedule to new time
+  - `POST /api/v1/calendar/events/complete` — Mark completed (auto-generates next if recurring)
+
+#### MCP Tools — Calendar Integration (`mcp-server/src/tools/calendar.ts`)
+- **6 calendar tools** for AI agents:
+  - `calendar_list_events` — List events in date range with filters
+  - `calendar_get_event` — Get single event details
+  - `calendar_create_event` — Create event with full field support
+  - `calendar_update_event` — Update event fields
+  - `calendar_delete_event` — Delete event
+  - `calendar_reschedule_event` — Reschedule to new time
+
+#### Frontend — Calendar Views (`src/components/calendar/`)
+- **15 components** — Complete calendar UI with three view modes:
+  - **MonthView.tsx** — 7-column month grid with event dots (color-coded by type)
+  - **WeekView.tsx** — 7-column time grid (06:00-22:00) with event blocks
+  - **DayView.tsx** — Single column time grid with date strip navigation
+- **Drag-to-reschedule** — `@dnd-kit/core` integration for drag-and-drop event rescheduling across time slots
+- **CalendarPage.tsx** — Main calendar page with view state, DnD context, data queries
+- **CalendarHeader.tsx** — View toggle (Dia/Semana/Mês), date navigation (Hoje/Anterior/Próximo), filter popover
+- **TimeGrid.tsx** — Shared 06:00-22:00 time grid with current time indicator (red line)
+- **EventBlock.tsx** — Draggable event block with type icon, time, title (useDraggable)
+- **EventDot.tsx** — Small colored dot for month view
+- **DayCell.tsx** — Day cell in month view with droppable support (useDroppable)
+- **CalendarEventModal.tsx** — Create/edit event form with all fields, recurrence configuration
+- **EventDetailSlideOver.tsx** — Event detail slide-over panel with edit/delete/complete actions
+- **CalendarFilters.tsx** — Filter popover (team member, event type)
+- **useCalendarState.ts** — Custom hook managing calendar state (view, date, filters)
+- **constants.ts** — PT-BR labels, color mappings (event types, team members)
+- **Mobile responsive** — Touch-friendly drag, compact header, stacked filters
+
+#### Navigation
+- New `/app/calendario` route in `src/lib/routes.ts`
+- "Calendário" tab added to Sidebar (desktop) and BottomTabBar (mobile)
+- Calendar icon from `lucide-react`
+
+#### Documentation Updates
+- Fixed tool count across all docs: **44 MCP tools** (was incorrectly stated as 26 or 46)
+- Added **Tasks section** (12 tools) to SKILL.md, DevelopersPage.tsx, llmsTxt.ts
+- Added **Calendar section** (6 tools) to SKILL.md, DevelopersPage.tsx, llmsTxt.ts
+- Updated API_REFERENCE.md with calendar endpoints
+- Updated DATA_MODEL.md with calendarEvents table schema
+- Updated openapiSpec.ts with calendar endpoint definitions
+
 ## [0.15.1] - 2026-02-16
 
 ### Team Management UX — AI Agent Creation & API Key Management

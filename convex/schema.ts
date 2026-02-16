@@ -367,7 +367,8 @@ const applicationTables = {
       v.literal("stage_change"), v.literal("assignment"),
       v.literal("handoff"), v.literal("qualification_update"),
       v.literal("created"), v.literal("message_sent"),
-      v.literal("task_created"), v.literal("task_completed")
+      v.literal("task_created"), v.literal("task_completed"),
+      v.literal("event_created"), v.literal("event_completed")
     ),
     actorId: v.optional(v.id("teamMembers")),
     actorType: v.union(v.literal("human"), v.literal("ai"), v.literal("system")),
@@ -496,6 +497,50 @@ const applicationTables = {
     .index("by_task", ["taskId"])
     .index("by_task_and_created", ["taskId", "createdAt"])
     .index("by_organization", ["organizationId"]),
+
+  // Calendar Events
+  calendarEvents: defineTable({
+    organizationId: v.id("organizations"),
+    title: v.string(),
+    description: v.optional(v.string()),
+    eventType: v.union(
+      v.literal("call"), v.literal("meeting"), v.literal("follow_up"),
+      v.literal("demo"), v.literal("task"), v.literal("reminder"), v.literal("other")
+    ),
+    startTime: v.number(),
+    endTime: v.number(),
+    allDay: v.boolean(),
+    status: v.union(v.literal("scheduled"), v.literal("completed"), v.literal("cancelled")),
+    leadId: v.optional(v.id("leads")),
+    contactId: v.optional(v.id("contacts")),
+    taskId: v.optional(v.id("tasks")),
+    attendees: v.optional(v.array(v.id("teamMembers"))),
+    createdBy: v.id("teamMembers"),
+    assignedTo: v.optional(v.id("teamMembers")),
+    location: v.optional(v.string()),
+    meetingUrl: v.optional(v.string()),
+    color: v.optional(v.string()),
+    recurrence: v.optional(v.object({
+      pattern: v.union(v.literal("daily"), v.literal("weekly"), v.literal("biweekly"), v.literal("monthly")),
+      endDate: v.optional(v.number()),
+      lastGeneratedAt: v.optional(v.number()),
+    })),
+    parentEventId: v.optional(v.id("calendarEvents")),
+    notes: v.optional(v.string()),
+    searchText: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_organization", ["organizationId"])
+    .index("by_organization_and_start", ["organizationId", "startTime"])
+    .index("by_organization_and_assigned", ["organizationId", "assignedTo"])
+    .index("by_organization_and_type", ["organizationId", "eventType"])
+    .index("by_organization_and_status", ["organizationId", "status"])
+    .index("by_lead", ["leadId"])
+    .index("by_contact", ["contactId"])
+    .index("by_task", ["taskId"])
+    .index("by_parent_event", ["parentEventId"])
+    .searchIndex("search_events", { searchField: "searchText", filterFields: ["organizationId"] }),
 
   // Saved Views
   savedViews: defineTable({

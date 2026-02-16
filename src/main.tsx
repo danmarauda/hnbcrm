@@ -13,6 +13,7 @@ import { ContactsPage } from "./components/ContactsPage";
 import { Inbox } from "./components/Inbox";
 import { HandoffQueue } from "./components/HandoffQueue";
 import { TasksPage } from "./components/TasksPage";
+import { CalendarPage } from "./components/calendar/CalendarPage";
 import { TeamPage } from "./components/TeamPage";
 import { AuditLogs } from "./components/AuditLogs";
 import { Settings } from "./components/Settings";
@@ -36,6 +37,7 @@ const router = createBrowserRouter([
       { path: "contatos", element: <ContactsPage /> },
       { path: "entrada", element: <Inbox /> },
       { path: "tarefas", element: <TasksPage /> },
+      { path: "calendario", element: <CalendarPage /> },
       { path: "repasses", element: <HandoffQueue /> },
       { path: "equipe", element: <TeamPage /> },
       { path: "auditoria", element: <AuditLogs /> },

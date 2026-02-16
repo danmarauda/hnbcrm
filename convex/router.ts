@@ -1337,6 +1337,209 @@ http.route({
   }),
 });
 
+// ---- Calendar Event Endpoints ----
+
+// Get calendar events (startDate, endDate required)
+http.route({
+  path: "/api/v1/calendar/events",
+  method: "GET",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const apiKeyRecord = await authenticateApiKey(ctx, request);
+      const url = new URL(request.url);
+
+      const startDate = url.searchParams.get("startDate");
+      const endDate = url.searchParams.get("endDate");
+      if (!startDate || !endDate) return errorResponse("startDate and endDate required", 400);
+
+      const assignedTo = url.searchParams.get("assignedTo");
+      const eventType = url.searchParams.get("eventType") as any || undefined;
+      const status = url.searchParams.get("status") as any || undefined;
+      const leadId = url.searchParams.get("leadId");
+      const contactId = url.searchParams.get("contactId");
+      const limit = url.searchParams.get("limit") ? Math.min(Number(url.searchParams.get("limit")), 500) : undefined;
+      const cursor = url.searchParams.get("cursor") || undefined;
+
+      const result = await ctx.runQuery(internal.calendar.internalGetEvents, {
+        organizationId: apiKeyRecord.organizationId,
+        startDate: Number(startDate),
+        endDate: Number(endDate),
+        assignedTo: assignedTo ? (assignedTo as Id<"teamMembers">) : undefined,
+        eventType,
+        status,
+        leadId: leadId ? (leadId as Id<"leads">) : undefined,
+        contactId: contactId ? (contactId as Id<"contacts">) : undefined,
+        limit,
+        cursor,
+      });
+
+      return jsonResponse(result as any);
+    } catch (error) {
+      return errorResponse(error instanceof Error ? error.message : "Internal server error");
+    }
+  }),
+});
+
+// Get single calendar event
+http.route({
+  path: "/api/v1/calendar/events/get",
+  method: "GET",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      await authenticateApiKey(ctx, request);
+      const url = new URL(request.url);
+      const eventId = url.searchParams.get("id");
+      if (!eventId) return errorResponse("Event ID required", 400);
+
+      const event = await ctx.runQuery(internal.calendar.internalGetEvent, {
+        eventId: eventId as Id<"calendarEvents">,
+      });
+
+      if (!event) return errorResponse("Event not found", 404);
+      return jsonResponse({ event });
+    } catch (error) {
+      return errorResponse(error instanceof Error ? error.message : "Internal server error");
+    }
+  }),
+});
+
+// Create calendar event
+http.route({
+  path: "/api/v1/calendar/events/create",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const apiKeyRecord = await authenticateApiKey(ctx, request);
+      const body = await request.json();
+      if (!body.title) return errorResponse("title required", 400);
+      if (!body.startTime || !body.endTime) return errorResponse("startTime and endTime required", 400);
+
+      const eventId = await ctx.runMutation(internal.calendar.internalCreateEvent, {
+        organizationId: apiKeyRecord.organizationId,
+        title: body.title,
+        description: body.description,
+        eventType: body.eventType || "other",
+        startTime: body.startTime,
+        endTime: body.endTime,
+        allDay: body.allDay,
+        leadId: body.leadId ? (body.leadId as Id<"leads">) : undefined,
+        contactId: body.contactId ? (body.contactId as Id<"contacts">) : undefined,
+        attendees: body.attendees,
+        assignedTo: body.assignedTo ? (body.assignedTo as Id<"teamMembers">) : undefined,
+        location: body.location,
+        meetingUrl: body.meetingUrl,
+        color: body.color,
+        recurrence: body.recurrence,
+        notes: body.notes,
+        teamMemberId: apiKeyRecord.teamMemberId,
+      });
+
+      return jsonResponse({ success: true, eventId }, 201);
+    } catch (error) {
+      return errorResponse(error instanceof Error ? error.message : "Internal server error");
+    }
+  }),
+});
+
+// Update calendar event
+http.route({
+  path: "/api/v1/calendar/events/update",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const apiKeyRecord = await authenticateApiKey(ctx, request);
+      const body = await request.json();
+      if (!body.eventId) return errorResponse("eventId required", 400);
+
+      await ctx.runMutation(internal.calendar.internalUpdateEvent, {
+        eventId: body.eventId as Id<"calendarEvents">,
+        title: body.title,
+        description: body.description,
+        eventType: body.eventType,
+        startTime: body.startTime,
+        endTime: body.endTime,
+        allDay: body.allDay,
+        location: body.location,
+        meetingUrl: body.meetingUrl,
+        notes: body.notes,
+        teamMemberId: apiKeyRecord.teamMemberId,
+      });
+
+      return jsonResponse({ success: true });
+    } catch (error) {
+      return errorResponse(error instanceof Error ? error.message : "Internal server error");
+    }
+  }),
+});
+
+// Delete calendar event
+http.route({
+  path: "/api/v1/calendar/events/delete",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const apiKeyRecord = await authenticateApiKey(ctx, request);
+      const body = await request.json();
+      if (!body.eventId) return errorResponse("eventId required", 400);
+
+      await ctx.runMutation(internal.calendar.internalDeleteEvent, {
+        eventId: body.eventId as Id<"calendarEvents">,
+        teamMemberId: apiKeyRecord.teamMemberId,
+      });
+
+      return jsonResponse({ success: true });
+    } catch (error) {
+      return errorResponse(error instanceof Error ? error.message : "Internal server error");
+    }
+  }),
+});
+
+// Reschedule calendar event
+http.route({
+  path: "/api/v1/calendar/events/reschedule",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const apiKeyRecord = await authenticateApiKey(ctx, request);
+      const body = await request.json();
+      if (!body.eventId || !body.newStartTime) return errorResponse("eventId and newStartTime required", 400);
+
+      await ctx.runMutation(internal.calendar.internalRescheduleEvent, {
+        eventId: body.eventId as Id<"calendarEvents">,
+        newStartTime: body.newStartTime,
+        newEndTime: body.newEndTime,
+        teamMemberId: apiKeyRecord.teamMemberId,
+      });
+
+      return jsonResponse({ success: true });
+    } catch (error) {
+      return errorResponse(error instanceof Error ? error.message : "Internal server error");
+    }
+  }),
+});
+
+// Complete calendar event
+http.route({
+  path: "/api/v1/calendar/events/complete",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const apiKeyRecord = await authenticateApiKey(ctx, request);
+      const body = await request.json();
+      if (!body.eventId) return errorResponse("eventId required", 400);
+
+      await ctx.runMutation(internal.calendar.internalCompleteEvent, {
+        eventId: body.eventId as Id<"calendarEvents">,
+        teamMemberId: apiKeyRecord.teamMemberId,
+      });
+
+      return jsonResponse({ success: true });
+    } catch (error) {
+      return errorResponse(error instanceof Error ? error.message : "Internal server error");
+    }
+  }),
+});
+
 // ---- CORS Preflight Routes ----
 const optionsHandler = httpAction(async () => handleOptions());
 
@@ -1384,5 +1587,12 @@ http.route({ path: "/api/v1/tasks/snooze", method: "OPTIONS", handler: optionsHa
 http.route({ path: "/api/v1/tasks/bulk", method: "OPTIONS", handler: optionsHandler });
 http.route({ path: "/api/v1/tasks/comments", method: "OPTIONS", handler: optionsHandler });
 http.route({ path: "/api/v1/tasks/comments/add", method: "OPTIONS", handler: optionsHandler });
+http.route({ path: "/api/v1/calendar/events", method: "OPTIONS", handler: optionsHandler });
+http.route({ path: "/api/v1/calendar/events/get", method: "OPTIONS", handler: optionsHandler });
+http.route({ path: "/api/v1/calendar/events/create", method: "OPTIONS", handler: optionsHandler });
+http.route({ path: "/api/v1/calendar/events/update", method: "OPTIONS", handler: optionsHandler });
+http.route({ path: "/api/v1/calendar/events/delete", method: "OPTIONS", handler: optionsHandler });
+http.route({ path: "/api/v1/calendar/events/reschedule", method: "OPTIONS", handler: optionsHandler });
+http.route({ path: "/api/v1/calendar/events/complete", method: "OPTIONS", handler: optionsHandler });
 
 export default http;

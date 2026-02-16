@@ -421,7 +421,7 @@ export function DevelopersPage() {
               Tools MCP — Referencia
             </h2>
             <p className="text-text-secondary">
-              O servidor MCP expoe 26 ferramentas organizadas por categoria. Cada
+              O servidor MCP expoe 44 ferramentas organizadas por categoria. Cada
               ferramenta corresponde a uma acao no CRM.
             </p>
 
@@ -584,6 +584,70 @@ export function DevelopersPage() {
                   <tbody>
                     <ToolRow name="crm_get_activities" description="Timeline de atividades do lead" params="leadId, limit?" />
                     <ToolRow name="crm_create_activity" description="Registra nota, ligacao ou email" params="leadId, type, content?" />
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+
+            {/* Tasks */}
+            <Card className="p-0 overflow-hidden">
+              <div className="px-4 py-3 bg-surface-overlay border-b border-border">
+                <h3 className="font-semibold text-text-primary flex items-center gap-2">
+                  Tarefas
+                  <Badge variant="brand">12 tools</Badge>
+                </h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="border-b border-border bg-surface-sunken/50">
+                      <th className="py-2 px-3 text-xs font-semibold text-text-muted w-40">Tool</th>
+                      <th className="py-2 px-3 text-xs font-semibold text-text-muted">Descricao</th>
+                      <th className="py-2 px-3 text-xs font-semibold text-text-muted w-48">Parametros chave</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <ToolRow name="crm_list_tasks" description="Lista tarefas com filtros" params="status?, priority?, assignedTo?" />
+                    <ToolRow name="crm_get_task" description="Retorna detalhes de uma tarefa" params="taskId" />
+                    <ToolRow name="crm_create_task" description="Cria nova tarefa ou lembrete" params="title, type?, dueDate?" />
+                    <ToolRow name="crm_update_task" description="Atualiza campos da tarefa" params="taskId, title?, priority?" />
+                    <ToolRow name="crm_delete_task" description="Remove tarefa permanentemente" params="taskId" />
+                    <ToolRow name="crm_complete_task" description="Marca tarefa como concluida" params="taskId" />
+                    <ToolRow name="crm_snooze_task" description="Adia tarefa ate data futura" params="taskId, snoozedUntil" />
+                    <ToolRow name="crm_archive_task" description="Arquiva tarefa completada" params="taskId" />
+                    <ToolRow name="crm_unarchive_task" description="Restaura tarefa arquivada" params="taskId" />
+                    <ToolRow name="crm_add_task_comment" description="Adiciona comentario a tarefa" params="taskId, content" />
+                    <ToolRow name="crm_list_task_comments" description="Lista comentarios de uma tarefa" params="taskId" />
+                    <ToolRow name="crm_search_tasks" description="Busca tarefas por texto" params="query, limit?" />
+                  </tbody>
+                </table>
+              </div>
+            </Card>
+
+            {/* Calendar */}
+            <Card className="p-0 overflow-hidden">
+              <div className="px-4 py-3 bg-surface-overlay border-b border-border">
+                <h3 className="font-semibold text-text-primary flex items-center gap-2">
+                  Calendario
+                  <Badge variant="brand">6 tools</Badge>
+                </h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="border-b border-border bg-surface-sunken/50">
+                      <th className="py-2 px-3 text-xs font-semibold text-text-muted w-40">Tool</th>
+                      <th className="py-2 px-3 text-xs font-semibold text-text-muted">Descricao</th>
+                      <th className="py-2 px-3 text-xs font-semibold text-text-muted w-48">Parametros chave</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <ToolRow name="calendar_list_events" description="Lista eventos em periodo" params="startDate, endDate, assignedTo?" />
+                    <ToolRow name="calendar_get_event" description="Retorna detalhes do evento" params="eventId" />
+                    <ToolRow name="calendar_create_event" description="Cria novo evento no calendario" params="title, eventType, startTime, endTime" />
+                    <ToolRow name="calendar_update_event" description="Atualiza campos do evento" params="eventId, title?, startTime?" />
+                    <ToolRow name="calendar_delete_event" description="Remove evento permanentemente" params="eventId" />
+                    <ToolRow name="calendar_reschedule_event" description="Reagenda evento para novo horario" params="eventId, newStartTime" />
                   </tbody>
                 </table>
               </div>

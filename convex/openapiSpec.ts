@@ -32,7 +32,8 @@ export const OPENAPI_SPEC = `{
     { "name": "Dashboard", "description": "Estatísticas e métricas do dashboard" },
     { "name": "Tarefas", "description": "Gerenciamento de tarefas e lembretes do CRM" },
     { "name": "Fontes", "description": "Fontes de captação de leads" },
-    { "name": "Auditoria", "description": "Logs de auditoria" }
+    { "name": "Auditoria", "description": "Logs de auditoria" },
+    { "name": "Calendario", "description": "Eventos do calendário" }
   ],
   "paths": {
     "/api/v1/inbound/lead": {
@@ -1546,6 +1547,249 @@ export const OPENAPI_SPEC = `{
           "500": { "$ref": "#/components/responses/InternalError" }
         }
       }
+    },
+    "/api/v1/calendar/events": {
+      "get": {
+        "tags": ["Calendario"],
+        "summary": "Listar eventos do calendario",
+        "description": "Retorna eventos do calendario em um intervalo de datas com filtros opcionais. Pode incluir tarefas com data de vencimento no intervalo.",
+        "operationId": "listCalendarEvents",
+        "parameters": [
+          { "name": "startDate", "in": "query", "required": true, "schema": { "type": "number" }, "description": "Inicio do intervalo (timestamp ms)" },
+          { "name": "endDate", "in": "query", "required": true, "schema": { "type": "number" }, "description": "Fim do intervalo (timestamp ms)" },
+          { "name": "assignedTo", "in": "query", "schema": { "type": "string" }, "description": "Filtrar por responsavel" },
+          { "name": "eventType", "in": "query", "schema": { "type": "string", "enum": ["call", "meeting", "follow_up", "demo", "task", "reminder", "other"] }, "description": "Filtrar por tipo de evento" },
+          { "name": "status", "in": "query", "schema": { "type": "string", "enum": ["scheduled", "completed", "cancelled"] }, "description": "Filtrar por status" },
+          { "name": "leadId", "in": "query", "schema": { "type": "string" }, "description": "Filtrar por lead" },
+          { "name": "contactId", "in": "query", "schema": { "type": "string" }, "description": "Filtrar por contato" },
+          { "name": "includeTasks", "in": "query", "schema": { "type": "boolean", "default": true }, "description": "Incluir tarefas com dueDate no intervalo" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de eventos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "events": { "type": "array", "items": { "$ref": "#/components/schemas/CalendarEvent" } }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/api/v1/calendar/events/get": {
+      "get": {
+        "tags": ["Calendario"],
+        "summary": "Obter evento",
+        "description": "Retorna os dados de um evento especifico pelo ID.",
+        "operationId": "getCalendarEvent",
+        "parameters": [
+          { "name": "id", "in": "query", "required": true, "schema": { "type": "string" }, "description": "ID do evento" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dados do evento",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "event": { "$ref": "#/components/schemas/CalendarEvent" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/api/v1/calendar/events/create": {
+      "post": {
+        "tags": ["Calendario"],
+        "summary": "Criar evento",
+        "description": "Cria um novo evento no calendario.",
+        "operationId": "createCalendarEvent",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["title", "eventType", "startTime", "endTime"],
+                "properties": {
+                  "title": { "type": "string", "description": "Titulo do evento" },
+                  "eventType": { "type": "string", "enum": ["call", "meeting", "follow_up", "demo", "task", "reminder", "other"], "description": "Tipo do evento" },
+                  "startTime": { "type": "number", "description": "Inicio (timestamp ms)" },
+                  "endTime": { "type": "number", "description": "Fim (timestamp ms)" },
+                  "allDay": { "type": "boolean", "default": false, "description": "Evento de dia inteiro" },
+                  "description": { "type": "string", "description": "Descricao" },
+                  "leadId": { "type": "string", "description": "ID do lead associado" },
+                  "contactId": { "type": "string", "description": "ID do contato associado" },
+                  "assignedTo": { "type": "string", "description": "ID do responsavel" },
+                  "attendees": { "type": "array", "items": { "type": "string" }, "description": "IDs dos participantes" },
+                  "location": { "type": "string", "description": "Local" },
+                  "meetingUrl": { "type": "string", "description": "URL da reuniao" },
+                  "recurrence": { "type": "object", "properties": { "pattern": { "type": "string", "enum": ["daily", "weekly", "biweekly", "monthly"] }, "endDate": { "type": "number" } } },
+                  "notes": { "type": "string", "description": "Notas" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Evento criado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "const": true },
+                    "eventId": { "type": "string", "description": "ID do evento criado" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/api/v1/calendar/events/update": {
+      "post": {
+        "tags": ["Calendario"],
+        "summary": "Atualizar evento",
+        "description": "Atualiza campos de um evento existente.",
+        "operationId": "updateCalendarEvent",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["eventId"],
+                "properties": {
+                  "eventId": { "type": "string", "description": "ID do evento" },
+                  "title": { "type": "string" },
+                  "description": { "type": "string" },
+                  "eventType": { "type": "string", "enum": ["call", "meeting", "follow_up", "demo", "task", "reminder", "other"] },
+                  "startTime": { "type": "number" },
+                  "endTime": { "type": "number" },
+                  "allDay": { "type": "boolean" },
+                  "location": { "type": "string" },
+                  "meetingUrl": { "type": "string" },
+                  "notes": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/api/v1/calendar/events/delete": {
+      "post": {
+        "tags": ["Calendario"],
+        "summary": "Excluir evento",
+        "description": "Remove um evento do calendario. Exclui tambem eventos recorrentes filhos.",
+        "operationId": "deleteCalendarEvent",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["eventId"],
+                "properties": {
+                  "eventId": { "type": "string", "description": "ID do evento" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/api/v1/calendar/events/reschedule": {
+      "post": {
+        "tags": ["Calendario"],
+        "summary": "Reagendar evento",
+        "description": "Reagenda um evento para novo horario. Se newEndTime nao for fornecido, a duracao original e mantida.",
+        "operationId": "rescheduleCalendarEvent",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["eventId", "newStartTime"],
+                "properties": {
+                  "eventId": { "type": "string", "description": "ID do evento" },
+                  "newStartTime": { "type": "number", "description": "Novo inicio (timestamp ms)" },
+                  "newEndTime": { "type": "number", "description": "Novo fim (timestamp ms, opcional)" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/api/v1/calendar/events/complete": {
+      "post": {
+        "tags": ["Calendario"],
+        "summary": "Concluir evento",
+        "description": "Marca um evento como concluido. Se o evento tiver recorrencia, gera automaticamente a proxima instancia.",
+        "operationId": "completeCalendarEvent",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["eventId"],
+                "properties": {
+                  "eventId": { "type": "string", "description": "ID do evento" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
     }
   },
   "components": {
@@ -1768,6 +2012,35 @@ export const OPENAPI_SPEC = `{
           "authorType": { "type": "string", "enum": ["human", "ai"], "description": "Tipo do autor" },
           "content": { "type": "string", "description": "Conteúdo do comentário" },
           "mentionedUserIds": { "type": "array", "items": { "type": "string" }, "description": "IDs mencionados" }
+        }
+      },
+      "CalendarEvent": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string", "description": "ID unico do evento" },
+          "_creationTime": { "type": "number", "description": "Timestamp de criacao" },
+          "organizationId": { "type": "string", "description": "ID da organizacao" },
+          "title": { "type": "string", "description": "Titulo do evento" },
+          "description": { "type": "string", "description": "Descricao" },
+          "eventType": { "type": "string", "enum": ["call", "meeting", "follow_up", "demo", "task", "reminder", "other"], "description": "Tipo do evento" },
+          "startTime": { "type": "number", "description": "Inicio (timestamp ms)" },
+          "endTime": { "type": "number", "description": "Fim (timestamp ms)" },
+          "allDay": { "type": "boolean", "description": "Evento de dia inteiro" },
+          "status": { "type": "string", "enum": ["scheduled", "completed", "cancelled"], "description": "Status do evento" },
+          "leadId": { "type": "string", "description": "ID do lead associado" },
+          "contactId": { "type": "string", "description": "ID do contato associado" },
+          "taskId": { "type": "string", "description": "ID da tarefa vinculada" },
+          "attendees": { "type": "array", "items": { "type": "string" }, "description": "IDs dos participantes" },
+          "createdBy": { "type": "string", "description": "ID do criador" },
+          "assignedTo": { "type": "string", "description": "ID do responsavel" },
+          "location": { "type": "string", "description": "Local" },
+          "meetingUrl": { "type": "string", "description": "URL da reuniao" },
+          "color": { "type": "string", "description": "Cor customizada" },
+          "recurrence": { "type": "object", "properties": { "pattern": { "type": "string", "enum": ["daily", "weekly", "biweekly", "monthly"] }, "endDate": { "type": "number" } } },
+          "parentEventId": { "type": "string", "description": "ID do evento pai (recorrencia)" },
+          "notes": { "type": "string", "description": "Notas adicionais" },
+          "createdAt": { "type": "number", "description": "Timestamp de criacao" },
+          "updatedAt": { "type": "number", "description": "Timestamp de atualizacao" }
         }
       },
       "AuditLog": {

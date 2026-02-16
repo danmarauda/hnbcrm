@@ -15,6 +15,7 @@ import {
   Webhook,
   Server,
   Zap,
+  CalendarDays,
   Bot,
   Radio,
   Paperclip,
@@ -301,6 +302,11 @@ function FeaturesSection() {
       icon: BarChart3,
       title: "Dashboard Tempo Real",
       description: "Métricas e KPIs atualizados instantaneamente.",
+    },
+    {
+      icon: CalendarDays,
+      title: "Calendário",
+      description: "Visualize eventos e tarefas em dia, semana ou mês com drag-and-drop.",
     },
     {
       icon: Webhook,

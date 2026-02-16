@@ -10,6 +10,7 @@ import {
   Contact2,
   MessageSquare,
   CheckSquare,
+  CalendarDays,
   ArrowRightLeft,
   Users,
   ScrollText,
@@ -18,7 +19,7 @@ import {
 } from "lucide-react";
 import { TAB_ROUTES, PATH_TO_TAB } from "@/lib/routes";
 
-export type Tab = "dashboard" | "board" | "contacts" | "inbox" | "tasks" | "handoffs" | "team" | "audit" | "settings";
+export type Tab = "dashboard" | "board" | "contacts" | "inbox" | "tasks" | "calendar" | "handoffs" | "team" | "audit" | "settings";
 
 interface NavItem {
   id: Tab;
@@ -31,13 +32,14 @@ interface NavItem {
 const primaryTabs: NavItem[] = [
   { id: "dashboard", label: "Painel", icon: LayoutDashboard },
   { id: "board", label: "Pipeline", icon: Kanban, permission: { category: "leads", level: "view_own" } },
-  { id: "contacts", label: "Contatos", icon: Contact2, permission: { category: "contacts", level: "view" } },
+  { id: "calendar", label: "Calendario", icon: CalendarDays, permission: { category: "tasks", level: "view_own" } },
   { id: "inbox", label: "Entrada", icon: MessageSquare, permission: { category: "inbox", level: "view_own" } },
   { id: "tasks", label: "Tarefas", icon: CheckSquare, permission: { category: "tasks", level: "view_own" } },
 ];
 
 /** Overflow tabs shown in the "More" menu */
 const moreTabs: NavItem[] = [
+  { id: "contacts", label: "Contatos", icon: Contact2, permission: { category: "contacts", level: "view" } },
   { id: "handoffs", label: "Repasses", icon: ArrowRightLeft, permission: { category: "inbox", level: "view_own" } },
   { id: "team", label: "Equipe", icon: Users, permission: { category: "team", level: "view" } },
   { id: "audit", label: "Auditoria", icon: ScrollText, permission: { category: "auditLogs", level: "view" } },

@@ -15,6 +15,7 @@
 | `boards.ts` | Kanban boards and stages |
 | `organizations.ts` | Organization CRUD + settings |
 | `teamMembers.ts` | Human + AI team member management |
+| `calendar.ts` | Calendar events CRUD (time-ranged events with recurrence) |
 | `activities.ts` | Activity timeline events on leads |
 | `auditLogs.ts` | Audit trail queries |
 | `dashboard.ts` | Aggregation queries for dashboard |

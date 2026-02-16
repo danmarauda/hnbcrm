@@ -199,6 +199,40 @@ Levels are hierarchical within each category. Roles have default permissions: ad
 
 ---
 
+### Calendar Event
+
+A time-ranged event on the calendar, optionally linked to leads and contacts.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| title | string | Event title (required) |
+| description | string | Detailed description |
+| eventType | enum | `call`, `meeting`, `follow_up`, `demo`, `task`, `reminder`, `other` |
+| startTime | number | Start timestamp (Unix ms) |
+| endTime | number | End timestamp (Unix ms) |
+| allDay | boolean | Whether this is an all-day event |
+| status | enum | `scheduled`, `completed`, `cancelled` |
+| leadId | Id\<leads\> | Associated lead (optional) |
+| contactId | Id\<contacts\> | Associated contact (optional) |
+| taskId | Id\<tasks\> | Linked task (optional) |
+| attendees | Id\<teamMembers\>[] | Event attendees |
+| createdBy | Id\<teamMembers\> | Creator |
+| assignedTo | Id\<teamMembers\> | Assigned team member |
+| location | string | Meeting location |
+| meetingUrl | string | Video conference URL |
+| color | string | Custom color override |
+| recurrence | object | Recurrence config (see below) |
+| parentEventId | Id\<calendarEvents\> | Parent event (for recurring instances) |
+| notes | string | Additional notes |
+
+**Recurrence object:**
+| Field | Type | Description |
+|-------|------|-------------|
+| pattern | enum | `daily`, `weekly`, `biweekly`, `monthly` |
+| endDate | number | Optional end date for recurrence |
+
+---
+
 ### Activity
 
 A timeline event on a lead.
@@ -293,7 +327,9 @@ Authentication key for REST API and MCP access, tied to a team member.
 | Team Member Status | `active`, `inactive`, `busy` |
 | Lead Source Type | `website`, `social`, `email`, `phone`, `referral`, `api`, `other` |
 | Custom Field Type | `text`, `number`, `boolean`, `date`, `select`, `multiselect` |
-| Activity Type | `note`, `call`, `email_sent`, `stage_change`, `assignment`, `handoff`, `qualification_update`, `created`, `message_sent` |
+| Activity Type | `note`, `call`, `email_sent`, `stage_change`, `assignment`, `handoff`, `qualification_update`, `created`, `message_sent`, `event_created`, `event_completed` |
+| Calendar Event Type | `call`, `meeting`, `follow_up`, `demo`, `task`, `reminder`, `other` |
+| Calendar Event Status | `scheduled`, `completed`, `cancelled` |
 | Audit Action | `create`, `update`, `delete`, `move`, `assign`, `handoff` |
 | Audit Severity | `low`, `medium`, `high`, `critical` |
 | Preferred Contact Time | `morning`, `afternoon`, `evening` |

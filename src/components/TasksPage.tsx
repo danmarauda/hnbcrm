@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useOutletContext } from "react-router";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
@@ -132,7 +132,11 @@ export function TasksPage() {
   const [filterActivityType, setFilterActivityType] = useState<string>("");
   const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
 
-  const now = Date.now();
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), 60000);
+    return () => clearInterval(interval);
+  }, []);
   const tasks = useQuery(api.tasks.getTasks, { organizationId });
   const taskCounts = useQuery(api.tasks.getTaskCounts, { organizationId, now });
   const teamMembers = useQuery(api.teamMembers.getTeamMembers, { organizationId });

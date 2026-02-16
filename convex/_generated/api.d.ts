@@ -14,6 +14,7 @@ import type * as auditLogs from "../auditLogs.js";
 import type * as auth from "../auth.js";
 import type * as authHelpers from "../authHelpers.js";
 import type * as boards from "../boards.js";
+import type * as calendar from "../calendar.js";
 import type * as contacts from "../contacts.js";
 import type * as conversations from "../conversations.js";
 import type * as crons from "../crons.js";
@@ -56,6 +57,7 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   authHelpers: typeof authHelpers;
   boards: typeof boards;
+  calendar: typeof calendar;
   contacts: typeof contacts;
   conversations: typeof conversations;
   crons: typeof crons;

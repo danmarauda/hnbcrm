@@ -479,6 +479,135 @@ Log an activity on a lead.
 
 ---
 
+## Calendar
+
+### calendar_list_events
+
+List calendar events in a date range with optional filters.
+
+**MCP Parameters:**
+| Param | Type | Required | Description |
+|-------|------|----------|-------------|
+| startDate | number | yes | Start of date range (timestamp ms) |
+| endDate | number | yes | End of date range (timestamp ms) |
+| assignedTo | string | no | Filter by assigned team member |
+| eventType | string | no | Filter by event type |
+| status | string | no | Filter by status |
+| leadId | string | no | Filter by associated lead |
+| contactId | string | no | Filter by associated contact |
+| includeTasks | boolean | no | Include tasks with dueDate in range (default: true) |
+
+**REST:** `GET /api/v1/calendar/events?startDate=X&endDate=Y&assignedTo=Z&eventType=T&status=S&leadId=L&contactId=C&includeTasks=true`
+
+**Response:** `{ events: [...] }`
+
+---
+
+### calendar_create_event
+
+Create a new calendar event.
+
+**MCP Parameters:**
+| Param | Type | Required | Description |
+|-------|------|----------|-------------|
+| title | string | yes | Event title |
+| eventType | string | yes | `call`, `meeting`, `follow_up`, `demo`, `task`, `reminder`, `other` |
+| startTime | number | yes | Start timestamp (ms) |
+| endTime | number | yes | End timestamp (ms) |
+| allDay | boolean | no | All-day event (default: false) |
+| description | string | no | Description |
+| leadId | string | no | Associated lead |
+| contactId | string | no | Associated contact |
+| assignedTo | string | no | Assigned team member |
+| attendees | string[] | no | Attendee team member IDs |
+| location | string | no | Meeting location |
+| meetingUrl | string | no | Video conference URL |
+| recurrence | object | no | `{ pattern, endDate? }` |
+| notes | string | no | Additional notes |
+
+**REST:** `POST /api/v1/calendar/events/create` — Same body as MCP params
+
+**Response:** `{ success: true, eventId }`
+
+---
+
+### calendar_get_event
+
+Get full details of a calendar event.
+
+**MCP Parameters:**
+| Param | Type | Required | Description |
+|-------|------|----------|-------------|
+| eventId | string | yes | The event ID |
+
+**REST:** `GET /api/v1/calendar/events/get?id=EVENT_ID`
+
+**Response:** `{ event: { ... } }`
+
+---
+
+### calendar_update_event
+
+Update calendar event fields.
+
+**MCP Parameters:**
+| Param | Type | Required | Description |
+|-------|------|----------|-------------|
+| eventId | string | yes | The event ID |
+| title | string | no | New title |
+| description | string | no | New description |
+| eventType | string | no | New type |
+| startTime | number | no | New start time |
+| endTime | number | no | New end time |
+| allDay | boolean | no | All-day toggle |
+| location | string | no | New location |
+| meetingUrl | string | no | New meeting URL |
+| notes | string | no | New notes |
+
+**REST:** `POST /api/v1/calendar/events/update` — Same body as MCP params
+
+**Response:** `{ success: true }`
+
+---
+
+### calendar_delete_event
+
+Delete a calendar event (cascades to recurring child events).
+
+**MCP Parameters:**
+| Param | Type | Required | Description |
+|-------|------|----------|-------------|
+| eventId | string | yes | The event ID |
+
+**REST:** `POST /api/v1/calendar/events/delete` — Body: `{ eventId }`
+
+**Response:** `{ success: true }`
+
+---
+
+### calendar_reschedule_event
+
+Reschedule a calendar event to a new time.
+
+**MCP Parameters:**
+| Param | Type | Required | Description |
+|-------|------|----------|-------------|
+| eventId | string | yes | The event ID |
+| newStartTime | number | yes | New start timestamp (ms) |
+| newEndTime | number | no | New end timestamp (auto-calculated from duration if omitted) |
+
+**REST:** `POST /api/v1/calendar/events/reschedule` — Body: `{ eventId, newStartTime, newEndTime? }`
+
+**Response:** `{ success: true }`
+
+---
+
+### Additional Calendar REST Endpoints
+
+**POST /api/v1/calendar/events/complete** — Mark event as completed. Body: `{ eventId }`. If event has recurrence, auto-generates next instance.
+
+---
+
 ## Pending Handoffs Shortcut
 
 **REST only:** `GET /api/v1/handoffs/pending`

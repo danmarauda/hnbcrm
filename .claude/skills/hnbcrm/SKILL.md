@@ -61,6 +61,10 @@ If `crm_*` tools are available in your environment, use them directly. They hand
 
 **Activity tools**: `crm_get_activities`, `crm_create_activity`
 
+**Task tools**: `crm_list_tasks`, `crm_get_task`, `crm_get_my_tasks`, `crm_get_overdue_tasks`, `crm_search_tasks`, `crm_create_task`, `crm_update_task`, `crm_complete_task`, `crm_delete_task`, `crm_assign_task`, `crm_snooze_task`, `crm_bulk_task_update`, `crm_list_task_comments`, `crm_add_task_comment`
+
+**Calendar tools**: `calendar_list_events`, `calendar_get_event`, `calendar_create_event`, `calendar_update_event`, `calendar_delete_event`, `calendar_reschedule_event`
+
 ### REST API (Fallback)
 
 When MCP tools are not available, use the REST API at `/api/v1/*` with `X-API-Key` header authentication. See [API Reference](references/API_REFERENCE.md) for the full endpoint mapping.
@@ -150,6 +154,8 @@ Stages marked `isClosedWon` or `isClosedLost` are terminal — use them to close
 | Handoffs | `crm_request_handoff`, `crm_list_handoffs`, `crm_accept_handoff`, `crm_reject_handoff` |
 | Pipeline | `crm_list_boards`, `crm_list_team`, `crm_get_dashboard` |
 | Activities | `crm_get_activities`, `crm_create_activity` |
+| Tasks | `crm_list_tasks`, `crm_get_task`, `crm_get_my_tasks`, `crm_get_overdue_tasks`, `crm_search_tasks`, `crm_create_task`, `crm_update_task`, `crm_complete_task`, `crm_delete_task`, `crm_assign_task`, `crm_snooze_task`, `crm_bulk_task_update`, `crm_list_task_comments`, `crm_add_task_comment` |
+| Calendar | `calendar_list_events`, `calendar_get_event`, `calendar_create_event`, `calendar_update_event`, `calendar_delete_event`, `calendar_reschedule_event` |
 
 ## Further Reading
 

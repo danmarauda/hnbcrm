@@ -17,6 +17,7 @@ const ENTITY_LABELS: Record<string, { article: string; label: string }> = {
   apiKey: { article: "a", label: "chave de API" },
   savedView: { article: "a", label: "visualização salva" },
   task: { article: "a", label: "tarefa" },
+  calendarEvent: { article: "o", label: "evento" },
 };
 
 const ACTION_VERBS: Record<string, string> = {

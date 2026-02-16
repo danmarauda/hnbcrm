@@ -605,6 +605,71 @@ export const seedMockData = mutation({
       totalTaskComments++;
     }
 
+    // ─── 11. CALENDAR EVENTS ──────────────────────────────────────────
+    const calendarEventDefs: Array<{
+      title: string;
+      description?: string;
+      eventType: "call" | "meeting" | "follow_up" | "demo" | "task" | "reminder" | "other";
+      startTime: number;
+      endTime: number;
+      allDay: boolean;
+      status: "scheduled" | "completed" | "cancelled";
+      leadIdx?: number;
+      contactIdx?: number;
+      assignedTo: Id<"teamMembers">;
+      createdBy: Id<"teamMembers">;
+      attendees?: Id<"teamMembers">[];
+      location?: string;
+      meetingUrl?: string;
+      notes?: string;
+    }> = [
+      // Past completed events
+      { title: "Demo TechCorp CRM", description: "Demonstracao do CRM para equipe da TechCorp", eventType: "demo", startTime: daysAgo(3, -10), endTime: daysAgo(3, -11), allDay: false, status: "completed", leadIdx: 0, contactIdx: 0, assignedTo: marcus, createdBy: sarah, attendees: [marcus, sarah], meetingUrl: "https://meet.example.com/techcorp", notes: "Demo bem recebida, James quer proposta" },
+      { title: "Ligacao follow-up Global Retail", eventType: "call", startTime: daysAgo(2, -14), endTime: daysAgo(2, -14.5), allDay: false, status: "completed", leadIdx: 2, contactIdx: 1, assignedTo: marcus, createdBy: marcus, notes: "Maria confirmou interesse na integracao POS" },
+      { title: "Reuniao compliance MegaHealth", description: "Revisar BAA e documentacao SOC 2 com equipe juridica", eventType: "meeting", startTime: daysAgo(1, -10), endTime: daysAgo(1, -11), allDay: false, status: "completed", leadIdx: 5, contactIdx: 4, assignedTo: sarah, createdBy: sarah, attendees: [sarah, alex], location: "Sala de reunioes 3", meetingUrl: "https://meet.example.com/megahealth" },
+
+      // Today's events
+      { title: "Call com David Lee - StartupXYZ", description: "Discutir plano startup e precos", eventType: "call", startTime: daysAgo(0, -14), endTime: daysAgo(0, -14.5), allDay: false, status: "scheduled", leadIdx: 3, contactIdx: 2, assignedTo: emily, createdBy: emily, notes: "Preparar comparativo de precos" },
+      { title: "Revisao semanal de pipeline", description: "Revisao do pipeline com toda a equipe", eventType: "meeting", startTime: daysAgo(0, -16), endTime: daysAgo(0, -17), allDay: false, status: "scheduled", assignedTo: sarah, createdBy: sarah, attendees: [sarah, marcus, emily, alex], location: "Sala principal", meetingUrl: "https://meet.example.com/pipeline-review" },
+
+      // Future events
+      { title: "Demo FinancePlus Compliance", description: "Demo personalizada do modulo de compliance", eventType: "demo", startTime: daysAgo(-1, -10), endTime: daysAgo(-1, -11.5), allDay: false, status: "scheduled", leadIdx: 4, contactIdx: 3, assignedTo: alex, createdBy: sarah, attendees: [alex, sarah], meetingUrl: "https://meet.example.com/financeplus" },
+      { title: "Follow-up proposta LogisticsPro", eventType: "follow_up", startTime: daysAgo(-2, -11), endTime: daysAgo(-2, -11.5), allDay: false, status: "scheduled", leadIdx: 7, contactIdx: 6, assignedTo: sarah, createdBy: sarah, notes: "Ahmed quer desconto 15%, oferecer 12% com contrato 2 anos" },
+      { title: "Kickoff implementacao EduLearn", description: "Reuniao de kickoff com equipe de implementacao e Lisa Thompson", eventType: "meeting", startTime: daysAgo(-3, -10), endTime: daysAgo(-3, -12), allDay: false, status: "scheduled", leadIdx: 8, contactIdx: 7, assignedTo: alex, createdBy: alex, attendees: [alex, sarah, marcus], location: "Virtual", meetingUrl: "https://meet.example.com/edulearn-kickoff" },
+
+      // All-day event
+      { title: "Treinamento interno - CRM avancado", description: "Workshop de funcionalidades avancadas do CRM para toda equipe", eventType: "other", startTime: daysAgo(-5), endTime: daysAgo(-5) + 24 * 60 * 60 * 1000, allDay: true, status: "scheduled", assignedTo: sarah, createdBy: sarah, attendees: [sarah, marcus, emily, alex, clawAI] },
+
+      // Cancelled event
+      { title: "Demo RealEstate Co", description: "Cancelado - lead perdido por restricoes de orcamento", eventType: "demo", startTime: daysAgo(1, -15), endTime: daysAgo(1, -16), allDay: false, status: "cancelled", leadIdx: 9, contactIdx: 8, assignedTo: emily, createdBy: emily },
+    ];
+
+    const calendarEventIds: Id<"calendarEvents">[] = [];
+    for (const ce of calendarEventDefs) {
+      const id = await ctx.db.insert("calendarEvents", {
+        organizationId,
+        title: ce.title,
+        description: ce.description,
+        eventType: ce.eventType,
+        startTime: ce.startTime,
+        endTime: ce.endTime,
+        allDay: ce.allDay,
+        status: ce.status,
+        leadId: ce.leadIdx !== undefined ? leadIds[ce.leadIdx] : undefined,
+        contactId: ce.contactIdx !== undefined ? contactIds[ce.contactIdx] : undefined,
+        attendees: ce.attendees,
+        createdBy: ce.createdBy,
+        assignedTo: ce.assignedTo,
+        location: ce.location,
+        meetingUrl: ce.meetingUrl,
+        notes: ce.notes,
+        searchText: [ce.title, ce.description, ce.location, ce.notes].filter(Boolean).join(" "),
+        createdAt: daysAgo(5, Math.floor(Math.random() * 48)),
+        updatedAt: daysAgo(1, Math.floor(Math.random() * 24)),
+      });
+      calendarEventIds.push(id);
+    }
+
     // ─── SUMMARY ────────────────────────────────────────────────────
     return {
       teamMembers: teamMemberIds.length,
@@ -617,6 +682,7 @@ export const seedMockData = mutation({
       auditLogs: auditDefs.length,
       tasks: taskIds.length,
       taskComments: totalTaskComments,
+      calendarEvents: calendarEventIds.length,
     };
   },
 });

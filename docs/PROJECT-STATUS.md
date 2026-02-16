@@ -25,7 +25,7 @@ HNBCRM (Humans & Bots CRM) is a **realtime-first, AI-native, multi-tenant CRM** 
 
 ### Database
 
-**16 application tables** + Convex auth tables. All tables scoped by `organizationId` for multi-tenancy.
+**17 application tables** + Convex auth tables. All tables scoped by `organizationId` for multi-tenancy.
 
 ---
 
@@ -341,7 +341,8 @@ HNBCRM (Humans & Bots CRM) is a **realtime-first, AI-native, multi-tenant CRM** 
 | Boards | 1 | Done |
 | Team members | 1 | Done |
 | Field definitions | 1 | Done |
-| **Total** | **28** | **Done** |
+| Calendar events | 7 | Done |
+| **Total** | **35** | **Done** |
 
 **Key endpoints:**
 - `POST /api/v1/inbound/lead` — Universal lead capture
@@ -440,13 +441,39 @@ HNBCRM (Humans & Bots CRM) is a **realtime-first, AI-native, multi-tenant CRM** 
 
 ---
 
-### 2.20 URL Routing & Public Pages — DONE
+### 2.20 Calendar — DONE
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| `calendarEvents` table | Done | Full schema with time ranges, recurrence, attendees, lead/contact links |
+| Calendar events CRUD | Done | `convex/calendar.ts` — create, update, reschedule, complete, cancel, delete |
+| Date-range query with filters | Done | `getEvents` uses `by_organization_and_start` index |
+| Merged tasks view | Done | Tasks with `dueDate` rendered alongside events |
+| Recurring events | Done | Auto-generate next instance on completion |
+| Calendar page UI | Done | Day/week/month views at `/app/calendario` |
+| Drag-to-reschedule | Done | @dnd-kit with PointerSensor + TouchSensor |
+| Current time indicator | Done | Red line + dot on today's column |
+| Color-coded event types | Done | 7 types: call, meeting, follow_up, demo, task, reminder, other |
+| Create/edit event modal | Done | Full form with lead/contact linking, recurrence, attendees |
+| Event detail slide-over | Done | View, complete, cancel, delete actions |
+| Calendar filters | Done | By team member and event type |
+| REST API (7 endpoints) | Done | Full CRUD + reschedule + complete |
+| MCP tools (6 tools) | Done | `calendar_list_events`, `calendar_create_event`, etc. |
+| Navigation integration | Done | Sidebar + bottom tab bar + route wiring |
+| Seed data | Done | 10 sample events |
+| Audit + activity logging | Done | All mutations logged |
+
+**Files:** `convex/calendar.ts`, `src/components/calendar/` (14 files), `mcp-server/src/tools/calendar.ts`
+
+---
+
+### 2.21 URL Routing & Public Pages — DONE
 
 | Feature | Status | Notes |
 |---------|--------|-------|
 | react-router v7 (SPA mode) | Done | `createBrowserRouter` + `RouterProvider` |
 | Public routes (`/`, `/entrar`) | Done | Landing page + auth page |
-| App routes (`/app/*`) | Done | 8 app routes with `TAB_ROUTES` mapping |
+| App routes (`/app/*`) | Done | 9 app routes with `TAB_ROUTES` mapping |
 | AuthLayout with route guards | Done | Auth → org → onboarding → team member gates |
 | Sales landing page | Done | Hero, features, pricing, CTA, footer |
 | Developer portal (`/developers`) | Done | API docs, MCP setup, SDK examples |
@@ -607,7 +634,7 @@ HNBCRM (Humans & Bots CRM) is a **realtime-first, AI-native, multi-tenant CRM** 
 | AI co-pilot mode | Phase 3 | Suggest responses, human approves |
 | Multi-agent workflows | Phase 3 | Agent A → Agent B → Human chains |
 | Sentiment analysis | Phase 3 | On conversations |
-| Calendar integration | Phase 3 | Meeting scheduling |
+| ~~Calendar integration~~ | ~~Phase 3~~ | **DONE** — Day/week/month views, drag-to-reschedule, merged tasks+events, REST API, MCP tools |
 | Natural language queries | Phase 4 | "Show me hot leads from WhatsApp" |
 | Predictive lead scoring | Phase 4 | Based on historical data |
 | Custom report builder | Phase 4 | Drag-and-drop reports |
@@ -634,6 +661,7 @@ HNBCRM (Humans & Bots CRM) is a **realtime-first, AI-native, multi-tenant CRM** 
 
 | Feature | Notes |
 |---------|-------|
+| Calendar view (day/week/month) | `/app/calendario` with drag-to-reschedule, merged tasks, REST API, MCP tools |
 | Sales landing page | Public page at `/` with hero, features, pricing |
 | Developer portal | `/developers` with API docs, MCP setup, SDK examples |
 | llms.txt endpoints | AI-readable project documentation |
@@ -676,6 +704,7 @@ HNBCRM (Humans & Bots CRM) is a **realtime-first, AI-native, multi-tenant CRM** 
 | Saved views | `convex/savedViews.ts` |
 | Onboarding | `convex/onboarding.ts`, `convex/onboardingSeed.ts` |
 | llms.txt | `convex/llmsTxt.ts` |
+| Calendar | `convex/calendar.ts` |
 | Seed data | `convex/seed.ts` |
 
 ### Frontend — Pages & Features
@@ -706,6 +735,7 @@ HNBCRM (Humans & Bots CRM) is a **realtime-first, AI-native, multi-tenant CRM** 
 | Audit logs | `src/components/AuditLogs.tsx` |
 | Settings (5 sections) | `src/components/Settings.tsx` |
 | Saved views | `src/components/ViewSelector.tsx`, `src/components/CreateViewModal.tsx` |
+| Calendar | `src/components/calendar/CalendarPage.tsx` + 13 more files |
 | Manage stages modal | `src/components/ManageStagesModal.tsx` |
 | Edit board modal | `src/components/EditBoardModal.tsx` |
 | Landing page | `src/components/LandingPage.tsx` |
@@ -750,6 +780,7 @@ Avatar, Badge, Button, Card, CollapsibleSection, EmptyState, Input, MentionRende
 | `src/tools/handoffs.ts` | Handoff tools |
 | `src/tools/pipeline.ts` | Pipeline tools |
 | `src/tools/activities.ts` | Activity tools |
+| `src/tools/calendar.ts` | Calendar event tools |
 | `src/utils.ts` | Error/success response helpers |
 
 ---

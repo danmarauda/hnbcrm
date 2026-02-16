@@ -45,6 +45,21 @@ src/
     ├── Settings.tsx            # Organization settings (route: /app/configuracoes)
     ├── AuditLogs.tsx           # Audit log viewer (route: /app/auditoria)
     ├── ContactsPage.tsx        # Contacts management (route: /app/contatos)
+    ├── calendar/               # Calendar views (day/week/month, event CRUD, DnD)
+    │   ├── CalendarPage.tsx    # Main page: view state, DnD context, data queries
+    │   ├── CalendarHeader.tsx  # View toggle (Dia/Semana/Mes), date nav, filters
+    │   ├── MonthView.tsx       # 7-column month grid with event dots
+    │   ├── WeekView.tsx        # 7-column time grid with event blocks
+    │   ├── DayView.tsx         # Single column time grid + date strip
+    │   ├── TimeGrid.tsx        # Shared 06:00-22:00 grid, current time indicator
+    │   ├── EventBlock.tsx      # Draggable event block (useDraggable)
+    │   ├── EventDot.tsx        # Small colored dot for month view
+    │   ├── DayCell.tsx         # Day cell in month view (useDroppable)
+    │   ├── CalendarEventModal.tsx    # Create/edit event form
+    │   ├── EventDetailSlideOver.tsx  # Event detail slide-over panel
+    │   ├── CalendarFilters.tsx       # Filter popover (team member, type)
+    │   ├── useCalendarState.ts       # Custom hook for calendar state
+    │   └── constants.ts              # Color mappings, labels, PT-BR names
     ├── ErrorBoundary.tsx       # Error boundary wrapper
     └── OrganizationSelector.tsx # Org switcher dropdown
 ```

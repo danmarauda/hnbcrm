@@ -33,6 +33,7 @@ HNBCRM (Humans & Bots CRM) is a multi-tenant CRM built for teams that combine hu
 - **Agent Skills** — Open skill package (AgentSkills.io standard) with workflows, data model, and setup guides
 - **Multi-tenant** — Organization-level isolation with role-based access (Admin, Manager, Agent, AI)
 - **Real-time** — Powered by Convex for instant updates across all connected clients
+- **Calendar** — Day/week/month views with drag-to-reschedule and task integration
 - **@Mentions** — Tag team members in internal notes with autocomplete
 
 ## Tech Stack
@@ -83,6 +84,7 @@ convex/
   schema.ts         All table definitions and indexes
   router.ts         REST API endpoints (/api/v1/*)
   leads.ts          Lead CRUD, stage moves, assignment
+  calendar.ts       Calendar events (time-ranged) CRUD
   contacts.ts       Contact CRUD with enrichment
   conversations.ts  Multi-channel messaging
   handoffs.ts       AI-to-human handoff workflow
