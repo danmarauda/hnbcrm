@@ -152,6 +152,22 @@ export const getDashboardStats = query({
       };
     });
 
+    // Task stats (no Date.now() — counts only, time-based filtering done client-side)
+    const allTasks = await ctx.db
+      .query("tasks")
+      .withIndex("by_organization", (q) => q.eq("organizationId", args.organizationId))
+      .take(2000);
+
+    const statusCounts: Record<string, number> = { pending: 0, in_progress: 0, completed: 0, cancelled: 0 };
+    for (const task of allTasks) {
+      if (task.status) statusCounts[task.status] = (statusCounts[task.status] || 0) + 1;
+    }
+
+    const tasks = {
+      total: allTasks.length,
+      byStatus: statusCounts,
+    };
+
     return {
       organizationName: org?.name ?? "",
       teamMemberCount: teamMembers.length,
@@ -160,6 +176,7 @@ export const getDashboardStats = query({
       teamPerformance,
       pendingHandoffs,
       recentActivities,
+      tasks,
     };
   },
 });
@@ -476,6 +493,22 @@ export const internalGetDashboardStats = internalQuery({
       };
     });
 
+    // Task stats (no Date.now() — counts only)
+    const allTasks = await ctx.db
+      .query("tasks")
+      .withIndex("by_organization", (q) => q.eq("organizationId", args.organizationId))
+      .take(2000);
+
+    const intStatusCounts: Record<string, number> = { pending: 0, in_progress: 0, completed: 0, cancelled: 0 };
+    for (const task of allTasks) {
+      if (task.status) intStatusCounts[task.status] = (intStatusCounts[task.status] || 0) + 1;
+    }
+
+    const tasks = {
+      total: allTasks.length,
+      byStatus: intStatusCounts,
+    };
+
     return {
       organizationName: org?.name ?? "",
       teamMemberCount: teamMembers.length,
@@ -484,6 +517,7 @@ export const internalGetDashboardStats = internalQuery({
       teamPerformance,
       pendingHandoffs: handoffs.length,
       recentActivities,
+      tasks,
     };
   },
 });

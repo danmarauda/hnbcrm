@@ -964,6 +964,370 @@ http.route({
   }),
 });
 
+// ---- Task Endpoints ----
+
+// Get tasks (with filters + cursor pagination)
+http.route({
+  path: "/api/v1/tasks",
+  method: "GET",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const apiKeyRecord = await authenticateApiKey(ctx, request);
+      const url = new URL(request.url);
+
+      const status = url.searchParams.get("status") as any || undefined;
+      const priority = url.searchParams.get("priority") as any || undefined;
+      const assignedTo = url.searchParams.get("assignedTo");
+      const leadId = url.searchParams.get("leadId");
+      const contactId = url.searchParams.get("contactId");
+      const type = url.searchParams.get("type") as any || undefined;
+      const activityType = url.searchParams.get("activityType") as any || undefined;
+      const dueBefore = url.searchParams.get("dueBefore") ? Number(url.searchParams.get("dueBefore")) : undefined;
+      const dueAfter = url.searchParams.get("dueAfter") ? Number(url.searchParams.get("dueAfter")) : undefined;
+      const limit = Math.min(parseInt(url.searchParams.get("limit") || "200"), 500);
+      const cursor = url.searchParams.get("cursor") || undefined;
+
+      const result = await ctx.runQuery(internal.tasks.internalGetTasks, {
+        organizationId: apiKeyRecord.organizationId,
+        status,
+        priority,
+        assignedTo: assignedTo ? (assignedTo as Id<"teamMembers">) : undefined,
+        leadId: leadId ? (leadId as Id<"leads">) : undefined,
+        contactId: contactId ? (contactId as Id<"contacts">) : undefined,
+        type,
+        activityType,
+        dueBefore,
+        dueAfter,
+        limit,
+        cursor,
+      });
+
+      return jsonResponse(result as any);
+    } catch (error) {
+      return errorResponse(error instanceof Error ? error.message : "Internal server error");
+    }
+  }),
+});
+
+// Get single task
+http.route({
+  path: "/api/v1/tasks/get",
+  method: "GET",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      await authenticateApiKey(ctx, request);
+      const url = new URL(request.url);
+      const taskId = url.searchParams.get("id");
+      if (!taskId) return errorResponse("Task ID required", 400);
+
+      const task = await ctx.runQuery(internal.tasks.internalGetTask, {
+        taskId: taskId as Id<"tasks">,
+      });
+
+      if (!task) return errorResponse("Task not found", 404);
+      return jsonResponse({ task });
+    } catch (error) {
+      return errorResponse(error instanceof Error ? error.message : "Internal server error");
+    }
+  }),
+});
+
+// Get my tasks (agent's queue)
+http.route({
+  path: "/api/v1/tasks/my",
+  method: "GET",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const apiKeyRecord = await authenticateApiKey(ctx, request);
+
+      const tasks = await ctx.runQuery(internal.tasks.internalGetMyTasks, {
+        organizationId: apiKeyRecord.organizationId,
+        teamMemberId: apiKeyRecord.teamMemberId,
+      });
+
+      return jsonResponse({ tasks });
+    } catch (error) {
+      return errorResponse(error instanceof Error ? error.message : "Internal server error");
+    }
+  }),
+});
+
+// Get overdue tasks
+http.route({
+  path: "/api/v1/tasks/overdue",
+  method: "GET",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const apiKeyRecord = await authenticateApiKey(ctx, request);
+      const url = new URL(request.url);
+      const limit = Math.min(parseInt(url.searchParams.get("limit") || "200"), 500);
+      const cursor = url.searchParams.get("cursor") || undefined;
+
+      const result = await ctx.runQuery(internal.tasks.internalGetOverdueTasks, {
+        organizationId: apiKeyRecord.organizationId,
+        limit,
+        cursor,
+      });
+
+      return jsonResponse(result as any);
+    } catch (error) {
+      return errorResponse(error instanceof Error ? error.message : "Internal server error");
+    }
+  }),
+});
+
+// Search tasks
+http.route({
+  path: "/api/v1/tasks/search",
+  method: "GET",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const apiKeyRecord = await authenticateApiKey(ctx, request);
+      const url = new URL(request.url);
+      const q = url.searchParams.get("q");
+      if (!q) return errorResponse("q (search query) required", 400);
+      const limit = Math.min(parseInt(url.searchParams.get("limit") || "50"), 100);
+
+      const tasks = await ctx.runQuery(internal.tasks.internalSearchTasks, {
+        organizationId: apiKeyRecord.organizationId,
+        searchText: q,
+        limit,
+      });
+
+      return jsonResponse({ tasks });
+    } catch (error) {
+      return errorResponse(error instanceof Error ? error.message : "Internal server error");
+    }
+  }),
+});
+
+// Create task
+http.route({
+  path: "/api/v1/tasks/create",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const apiKeyRecord = await authenticateApiKey(ctx, request);
+      const body = await request.json();
+      if (!body.title) return errorResponse("title required", 400);
+
+      const taskId = await ctx.runMutation(internal.tasks.internalCreateTask, {
+        organizationId: apiKeyRecord.organizationId,
+        title: body.title,
+        type: body.type || "task",
+        priority: body.priority || "medium",
+        activityType: body.activityType,
+        description: body.description,
+        dueDate: body.dueDate,
+        leadId: body.leadId ? (body.leadId as Id<"leads">) : undefined,
+        contactId: body.contactId ? (body.contactId as Id<"contacts">) : undefined,
+        assignedTo: body.assignedTo ? (body.assignedTo as Id<"teamMembers">) : undefined,
+        recurrence: body.recurrence,
+        checklist: body.checklist,
+        tags: body.tags,
+        teamMemberId: apiKeyRecord.teamMemberId,
+      });
+
+      return jsonResponse({ success: true, taskId }, 201);
+    } catch (error) {
+      return errorResponse(error instanceof Error ? error.message : "Internal server error");
+    }
+  }),
+});
+
+// Update task
+http.route({
+  path: "/api/v1/tasks/update",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const apiKeyRecord = await authenticateApiKey(ctx, request);
+      const body = await request.json();
+      if (!body.taskId) return errorResponse("taskId required", 400);
+
+      await ctx.runMutation(internal.tasks.internalUpdateTask, {
+        taskId: body.taskId as Id<"tasks">,
+        title: body.title,
+        description: body.description,
+        priority: body.priority,
+        activityType: body.activityType,
+        dueDate: body.dueDate,
+        tags: body.tags,
+        teamMemberId: apiKeyRecord.teamMemberId,
+      });
+
+      return jsonResponse({ success: true });
+    } catch (error) {
+      return errorResponse(error instanceof Error ? error.message : "Internal server error");
+    }
+  }),
+});
+
+// Complete task
+http.route({
+  path: "/api/v1/tasks/complete",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const apiKeyRecord = await authenticateApiKey(ctx, request);
+      const body = await request.json();
+      if (!body.taskId) return errorResponse("taskId required", 400);
+
+      await ctx.runMutation(internal.tasks.internalCompleteTask, {
+        taskId: body.taskId as Id<"tasks">,
+        teamMemberId: apiKeyRecord.teamMemberId,
+      });
+
+      return jsonResponse({ success: true });
+    } catch (error) {
+      return errorResponse(error instanceof Error ? error.message : "Internal server error");
+    }
+  }),
+});
+
+// Delete task
+http.route({
+  path: "/api/v1/tasks/delete",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const apiKeyRecord = await authenticateApiKey(ctx, request);
+      const body = await request.json();
+      if (!body.taskId) return errorResponse("taskId required", 400);
+
+      await ctx.runMutation(internal.tasks.internalDeleteTask, {
+        taskId: body.taskId as Id<"tasks">,
+        teamMemberId: apiKeyRecord.teamMemberId,
+      });
+
+      return jsonResponse({ success: true });
+    } catch (error) {
+      return errorResponse(error instanceof Error ? error.message : "Internal server error");
+    }
+  }),
+});
+
+// Assign task
+http.route({
+  path: "/api/v1/tasks/assign",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const apiKeyRecord = await authenticateApiKey(ctx, request);
+      const body = await request.json();
+      if (!body.taskId) return errorResponse("taskId required", 400);
+
+      await ctx.runMutation(internal.tasks.internalAssignTask, {
+        taskId: body.taskId as Id<"tasks">,
+        assignedTo: body.assignedTo ? (body.assignedTo as Id<"teamMembers">) : undefined,
+        teamMemberId: apiKeyRecord.teamMemberId,
+      });
+
+      return jsonResponse({ success: true });
+    } catch (error) {
+      return errorResponse(error instanceof Error ? error.message : "Internal server error");
+    }
+  }),
+});
+
+// Snooze task
+http.route({
+  path: "/api/v1/tasks/snooze",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const apiKeyRecord = await authenticateApiKey(ctx, request);
+      const body = await request.json();
+      if (!body.taskId || !body.snoozedUntil) return errorResponse("taskId and snoozedUntil required", 400);
+
+      await ctx.runMutation(internal.tasks.internalSnoozeTask, {
+        taskId: body.taskId as Id<"tasks">,
+        snoozedUntil: body.snoozedUntil,
+        teamMemberId: apiKeyRecord.teamMemberId,
+      });
+
+      return jsonResponse({ success: true });
+    } catch (error) {
+      return errorResponse(error instanceof Error ? error.message : "Internal server error");
+    }
+  }),
+});
+
+// Bulk task operations
+http.route({
+  path: "/api/v1/tasks/bulk",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const apiKeyRecord = await authenticateApiKey(ctx, request);
+      const body = await request.json();
+      if (!body.taskIds || !body.action) return errorResponse("taskIds and action required", 400);
+
+      await ctx.runMutation(internal.tasks.internalBulkUpdate, {
+        taskIds: body.taskIds as Id<"tasks">[],
+        action: body.action,
+        assignedTo: body.assignedTo ? (body.assignedTo as Id<"teamMembers">) : undefined,
+        teamMemberId: apiKeyRecord.teamMemberId,
+      });
+
+      return jsonResponse({ success: true });
+    } catch (error) {
+      return errorResponse(error instanceof Error ? error.message : "Internal server error");
+    }
+  }),
+});
+
+// Get task comments
+http.route({
+  path: "/api/v1/tasks/comments",
+  method: "GET",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      await authenticateApiKey(ctx, request);
+      const url = new URL(request.url);
+      const taskId = url.searchParams.get("taskId");
+      if (!taskId) return errorResponse("taskId required", 400);
+      const limit = Math.min(parseInt(url.searchParams.get("limit") || "200"), 500);
+      const cursor = url.searchParams.get("cursor") || undefined;
+
+      const result = await ctx.runQuery(internal.taskComments.internalGetComments, {
+        taskId: taskId as Id<"tasks">,
+        limit,
+        cursor,
+      });
+
+      return jsonResponse(result as any);
+    } catch (error) {
+      return errorResponse(error instanceof Error ? error.message : "Internal server error");
+    }
+  }),
+});
+
+// Add task comment
+http.route({
+  path: "/api/v1/tasks/comments/add",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    try {
+      const apiKeyRecord = await authenticateApiKey(ctx, request);
+      const body = await request.json();
+      if (!body.taskId || !body.content) return errorResponse("taskId and content required", 400);
+
+      const commentId = await ctx.runMutation(internal.taskComments.internalAddComment, {
+        taskId: body.taskId as Id<"tasks">,
+        content: body.content,
+        isInternal: body.isInternal,
+        mentionedUserIds: body.mentionedUserIds,
+        teamMemberId: apiKeyRecord.teamMemberId,
+      });
+
+      return jsonResponse({ success: true, commentId }, 201);
+    } catch (error) {
+      return errorResponse(error instanceof Error ? error.message : "Internal server error");
+    }
+  }),
+});
+
 // ---- CORS Preflight Routes ----
 const optionsHandler = httpAction(async () => handleOptions());
 
@@ -997,5 +1361,19 @@ http.route({ path: "/api/v1/contacts/search", method: "OPTIONS", handler: option
 http.route({ path: "/api/v1/lead-sources", method: "OPTIONS", handler: optionsHandler });
 http.route({ path: "/api/v1/audit-logs", method: "OPTIONS", handler: optionsHandler });
 http.route({ path: "/api/v1/openapi.json", method: "OPTIONS", handler: optionsHandler });
+http.route({ path: "/api/v1/tasks", method: "OPTIONS", handler: optionsHandler });
+http.route({ path: "/api/v1/tasks/get", method: "OPTIONS", handler: optionsHandler });
+http.route({ path: "/api/v1/tasks/my", method: "OPTIONS", handler: optionsHandler });
+http.route({ path: "/api/v1/tasks/overdue", method: "OPTIONS", handler: optionsHandler });
+http.route({ path: "/api/v1/tasks/search", method: "OPTIONS", handler: optionsHandler });
+http.route({ path: "/api/v1/tasks/create", method: "OPTIONS", handler: optionsHandler });
+http.route({ path: "/api/v1/tasks/update", method: "OPTIONS", handler: optionsHandler });
+http.route({ path: "/api/v1/tasks/complete", method: "OPTIONS", handler: optionsHandler });
+http.route({ path: "/api/v1/tasks/delete", method: "OPTIONS", handler: optionsHandler });
+http.route({ path: "/api/v1/tasks/assign", method: "OPTIONS", handler: optionsHandler });
+http.route({ path: "/api/v1/tasks/snooze", method: "OPTIONS", handler: optionsHandler });
+http.route({ path: "/api/v1/tasks/bulk", method: "OPTIONS", handler: optionsHandler });
+http.route({ path: "/api/v1/tasks/comments", method: "OPTIONS", handler: optionsHandler });
+http.route({ path: "/api/v1/tasks/comments/add", method: "OPTIONS", handler: optionsHandler });
 
 export default http;

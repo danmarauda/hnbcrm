@@ -503,6 +503,108 @@ export const seedMockData = mutation({
       });
     }
 
+    // ─── 9. TASKS ─────────────────────────────────────────────────────
+    const taskDefs: Array<{
+      title: string;
+      description?: string;
+      type: "task" | "reminder";
+      status: "pending" | "in_progress" | "completed" | "cancelled";
+      priority: "low" | "medium" | "high" | "urgent";
+      activityType?: "todo" | "call" | "email" | "follow_up" | "meeting" | "research";
+      dueDate?: number;
+      completedAt?: number;
+      snoozedUntil?: number;
+      leadIdx?: number;
+      contactIdx?: number;
+      assignedTo: Id<"teamMembers">;
+      createdBy: Id<"teamMembers">;
+      checklist?: Array<{ id: string; title: string; completed: boolean }>;
+      tags?: string[];
+    }> = [
+      // Overdue tasks
+      { title: "Ligar para James Wilson sobre migracao", description: "Discutir precos e timeline de migracao do Salesforce", type: "task", status: "pending", priority: "high", activityType: "call", dueDate: daysAgo(2), leadIdx: 0, contactIdx: 0, assignedTo: marcus, createdBy: sarah, tags: ["follow-up", "enterprise"] },
+      { title: "Enviar proposta atualizada Global Retail", description: "Maria precisa da proposta com integracao POS atualizada", type: "task", status: "in_progress", priority: "urgent", activityType: "email", dueDate: daysAgo(1), leadIdx: 2, contactIdx: 1, assignedTo: marcus, createdBy: marcus, tags: ["proposta"] },
+
+      // Due today
+      { title: "Follow-up StartupXYZ pós-demo", type: "task", status: "pending", priority: "medium", activityType: "follow_up", dueDate: now, leadIdx: 3, contactIdx: 2, assignedTo: emily, createdBy: emily, tags: ["startup"] },
+      { title: "Lembrete: reuniao compliance MegaHealth", description: "Segunda 10am — revisar BAA e SOC 2", type: "reminder", status: "pending", priority: "high", dueDate: now, leadIdx: 5, assignedTo: sarah, createdBy: sarah },
+
+      // Future tasks
+      { title: "Pesquisar concorrentes LogisticsPro", description: "Levantar precos e features de concorrentes no segmento de fleet management", type: "task", status: "in_progress", priority: "medium", activityType: "research", dueDate: daysAgo(-2), leadIdx: 7, assignedTo: alex, createdBy: sarah,
+        checklist: [
+          { id: "c1", title: "Pesquisar Samsara", completed: true },
+          { id: "c2", title: "Pesquisar Motive", completed: true },
+          { id: "c3", title: "Pesquisar Fleetio", completed: false },
+          { id: "c4", title: "Montar comparativo", completed: false },
+        ],
+        tags: ["research", "logistics"],
+      },
+      { title: "Agendar kickoff EduLearn", description: "Lisa quer comecar implementacao na proxima semana", type: "task", status: "pending", priority: "medium", activityType: "meeting", dueDate: daysAgo(-3), leadIdx: 8, contactIdx: 7, assignedTo: alex, createdBy: alex },
+      { title: "Revisar qualificacao FinancePlus", type: "task", status: "pending", priority: "low", activityType: "todo", dueDate: daysAgo(-5), leadIdx: 4, contactIdx: 3, assignedTo: alex, createdBy: sarah },
+
+      // Completed tasks
+      { title: "Qualificar lead TechCorp via IA", type: "task", status: "completed", priority: "medium", activityType: "todo", dueDate: daysAgo(3), completedAt: daysAgo(2, 5), leadIdx: 0, assignedTo: clawAI, createdBy: clawAI, tags: ["ai-auto"] },
+      { title: "Enviar case studies para Carlos Rivera", type: "task", status: "completed", priority: "medium", activityType: "email", dueDate: daysAgo(4), completedAt: daysAgo(3, 8), leadIdx: 6, contactIdx: 10, assignedTo: marcus, createdBy: marcus },
+
+      // Standalone tasks (no lead)
+      { title: "Atualizar templates de email", description: "Revisar e atualizar templates de outreach para Q1", type: "task", status: "pending", priority: "low", activityType: "todo", dueDate: daysAgo(-7), assignedTo: emily, createdBy: sarah, tags: ["interno"] },
+      { title: "Lembrete semanal: revisar pipeline", type: "reminder", status: "pending", priority: "low", dueDate: daysAgo(-1), assignedTo: sarah, createdBy: sarah },
+
+      // Cancelled task
+      { title: "Agendar demo para RealEstate Co", description: "Cancelado — lead perdido", type: "task", status: "cancelled", priority: "medium", activityType: "meeting", dueDate: daysAgo(1), leadIdx: 9, contactIdx: 8, assignedTo: emily, createdBy: emily },
+    ];
+
+    const taskIds: Id<"tasks">[] = [];
+    for (const t of taskDefs) {
+      const searchText = [t.title, t.description, ...(t.tags || [])].filter(Boolean).join(" ").toLowerCase();
+      const id = await ctx.db.insert("tasks", {
+        organizationId,
+        title: t.title,
+        description: t.description,
+        type: t.type,
+        status: t.status,
+        priority: t.priority,
+        activityType: t.activityType,
+        dueDate: t.dueDate,
+        completedAt: t.completedAt,
+        snoozedUntil: t.snoozedUntil,
+        leadId: t.leadIdx !== undefined ? leadIds[t.leadIdx] : undefined,
+        contactId: t.contactIdx !== undefined ? contactIds[t.contactIdx] : undefined,
+        assignedTo: t.assignedTo,
+        createdBy: t.createdBy,
+        checklist: t.checklist,
+        tags: t.tags,
+        searchText,
+        createdAt: daysAgo(5, Math.floor(Math.random() * 48)),
+        updatedAt: daysAgo(1, Math.floor(Math.random() * 24)),
+      });
+      taskIds.push(id);
+    }
+
+    // ─── 10. TASK COMMENTS ──────────────────────────────────────────
+    const taskCommentDefs = [
+      { taskIdx: 0, authorId: sarah, authorType: "human" as const, content: "Marcus, priorize essa ligacao — James esta esperando retorno desde ontem." },
+      { taskIdx: 0, authorId: marcus, authorType: "human" as const, content: "Entendido, vou ligar hoje a tarde." },
+      { taskIdx: 1, authorId: clawAI, authorType: "ai" as const, content: "Lead Global Retail tem qualification score 75. Sugiro incluir ROI calculator na proposta." },
+      { taskIdx: 4, authorId: alex, authorType: "human" as const, content: "Samsara e Motive pesquisados. Falta Fleetio e montar o comparativo final." },
+      { taskIdx: 4, authorId: sarah, authorType: "human" as const, content: "Boa! Inclua precos por veiculo no comparativo, Ahmed vai querer ver isso." },
+      { taskIdx: 7, authorId: clawAI, authorType: "ai" as const, content: "Qualificacao concluida automaticamente. BANT: budget indefinido, authority sim, need sim, timeline sim. Score: 65." },
+    ];
+
+    let totalTaskComments = 0;
+    for (const tc of taskCommentDefs) {
+      await ctx.db.insert("taskComments", {
+        organizationId,
+        taskId: taskIds[tc.taskIdx],
+        authorId: tc.authorId,
+        authorType: tc.authorType,
+        content: tc.content,
+        createdAt: daysAgo(3, Math.floor(Math.random() * 48)),
+        updatedAt: daysAgo(1, Math.floor(Math.random() * 24)),
+      });
+      totalTaskComments++;
+    }
+
     // ─── SUMMARY ────────────────────────────────────────────────────
     return {
       teamMembers: teamMemberIds.length,
@@ -513,6 +615,8 @@ export const seedMockData = mutation({
       activities: totalActivities,
       handoffs: 2,
       auditLogs: auditDefs.length,
+      tasks: taskIds.length,
+      taskComments: totalTaskComments,
     };
   },
 });

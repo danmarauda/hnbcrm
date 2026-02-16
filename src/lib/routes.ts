@@ -5,6 +5,7 @@ export const TAB_ROUTES: Record<Tab, string> = {
   board: "/app/pipeline",
   contacts: "/app/contatos",
   inbox: "/app/entrada",
+  tasks: "/app/tarefas",
   handoffs: "/app/repasses",
   team: "/app/equipe",
   audit: "/app/auditoria",

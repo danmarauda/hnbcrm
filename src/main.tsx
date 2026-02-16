@@ -12,6 +12,7 @@ import { KanbanBoard } from "./components/KanbanBoard";
 import { ContactsPage } from "./components/ContactsPage";
 import { Inbox } from "./components/Inbox";
 import { HandoffQueue } from "./components/HandoffQueue";
+import { TasksPage } from "./components/TasksPage";
 import { TeamPage } from "./components/TeamPage";
 import { AuditLogs } from "./components/AuditLogs";
 import { Settings } from "./components/Settings";
@@ -34,6 +35,7 @@ const router = createBrowserRouter([
       { path: "pipeline", element: <KanbanBoard /> },
       { path: "contatos", element: <ContactsPage /> },
       { path: "entrada", element: <Inbox /> },
+      { path: "tarefas", element: <TasksPage /> },
       { path: "repasses", element: <HandoffQueue /> },
       { path: "equipe", element: <TeamPage /> },
       { path: "auditoria", element: <AuditLogs /> },

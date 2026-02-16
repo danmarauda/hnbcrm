@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useOutletContext, useNavigate } from "react-router";
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import { Id } from "../../convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -11,6 +12,7 @@ import type { Tab } from "@/components/layout/BottomTabBar";
 import { TAB_ROUTES } from "@/lib/routes";
 import type { AppOutletContext } from "@/components/layout/AuthLayout";
 import { OnboardingChecklist } from "@/components/onboarding/OnboardingChecklist";
+import { toast } from "sonner";
 import {
   Handshake,
   DollarSign,
@@ -32,6 +34,8 @@ import {
   Bot,
   Bell,
   FileUp,
+  CheckSquare,
+  ChevronRight,
 } from "lucide-react";
 
 export function DashboardOverview() {
@@ -146,6 +150,9 @@ export function DashboardOverview() {
         </Card>
       </div>
 
+      {/* 4b. Minhas Tarefas */}
+      <MyTasksWidget organizationId={organizationId} onTabChange={onTabChange} />
+
       {/* 5. Feature Overview Grid */}
       <div>
         <h2 className="text-lg font-semibold text-text-primary mb-4">Plataforma HNBCRM</h2>
@@ -199,6 +206,116 @@ export function DashboardOverview() {
       </Card>
     </div>
   );
+}
+
+// ============================================================================
+// My Tasks Widget
+// ============================================================================
+
+const TASK_PRIORITY_BADGE: Record<string, { variant: "default" | "info" | "warning" | "error"; label: string }> = {
+  low: { variant: "default", label: "Baixa" },
+  medium: { variant: "info", label: "Média" },
+  high: { variant: "warning", label: "Alta" },
+  urgent: { variant: "error", label: "Urgente" },
+};
+
+function MyTasksWidget({
+  organizationId,
+  onTabChange,
+}: {
+  organizationId: Id<"organizations">;
+  onTabChange: (tab: Tab) => void;
+}) {
+  const myTasks = useQuery(api.tasks.getMyTasks, { organizationId });
+  const taskCounts = useQuery(api.tasks.getTaskCounts, { organizationId, now: Date.now() });
+  const completeTask = useMutation(api.tasks.completeTask);
+
+  const handleComplete = async (taskId: Id<"tasks">) => {
+    try {
+      await completeTask({ taskId });
+      toast.success("Tarefa concluída!");
+    } catch {
+      toast.error("Falha ao concluir tarefa");
+    }
+  };
+
+  const now = Date.now();
+
+  return (
+    <Card>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <h3 className="text-lg font-semibold text-text-primary">Minhas Tarefas</h3>
+          {taskCounts && taskCounts.overdue > 0 && (
+            <Badge variant="error">{taskCounts.overdue} atrasada{taskCounts.overdue > 1 ? "s" : ""}</Badge>
+          )}
+        </div>
+        <button
+          onClick={() => onTabChange("tasks")}
+          className="flex items-center gap-1 text-sm text-brand-500 hover:text-brand-400 transition-colors font-medium"
+        >
+          Ver todas
+          <ChevronRight size={16} />
+        </button>
+      </div>
+
+      {myTasks === undefined ? (
+        <div className="space-y-2">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-10" />
+          ))}
+        </div>
+      ) : myTasks.length === 0 ? (
+        <p className="text-sm text-text-muted py-4 text-center">Nenhuma tarefa pendente.</p>
+      ) : (
+        <div className="space-y-1">
+          {myTasks.slice(0, 5).map((task) => {
+            const pb = TASK_PRIORITY_BADGE[task.priority] || TASK_PRIORITY_BADGE.medium;
+            const isOverdue = task.dueDate && task.dueDate < now && task.status !== "completed";
+            return (
+              <div
+                key={task._id}
+                className="flex items-center gap-2 px-2 py-2 rounded-lg hover:bg-surface-sunken transition-colors"
+              >
+                <button
+                  onClick={() => handleComplete(task._id)}
+                  className="shrink-0 w-5 h-5 rounded-full border-2 border-border-strong hover:border-brand-500 flex items-center justify-center transition-colors"
+                  aria-label="Concluir tarefa"
+                />
+                <span className="flex-1 text-sm text-text-primary truncate">{task.title}</span>
+                <Badge variant={pb.variant} className="text-[10px] shrink-0">{pb.label}</Badge>
+                {task.dueDate && (
+                  <span
+                    className={cn(
+                      "text-xs font-medium tabular-nums shrink-0",
+                      isOverdue ? "text-semantic-error" : "text-text-muted"
+                    )}
+                  >
+                    {formatTaskRelativeDate(task.dueDate, now)}
+                  </span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </Card>
+  );
+}
+
+function formatTaskRelativeDate(dueDate: number, now: number): string {
+  const today = new Date(now);
+  today.setHours(0, 0, 0, 0);
+  const dueDay = new Date(dueDate);
+  dueDay.setHours(0, 0, 0, 0);
+  const diffMs = dueDay.getTime() - today.getTime();
+  const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+  if (diffDays < -1) return `${Math.abs(diffDays)}d atrás`;
+  if (diffDays === -1) return "Ontem";
+  if (diffDays === 0) return "Hoje";
+  if (diffDays === 1) return "Amanhã";
+  if (diffDays <= 7) return `${diffDays}d`;
+  return new Date(dueDate).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
 }
 
 // ============================================================================

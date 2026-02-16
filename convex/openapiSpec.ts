@@ -30,6 +30,7 @@ export const OPENAPI_SPEC = `{
     { "name": "Referência", "description": "Dados de referência: boards, membros e campos" },
     { "name": "Atividades", "description": "Timeline de atividades nos leads" },
     { "name": "Dashboard", "description": "Estatísticas e métricas do dashboard" },
+    { "name": "Tarefas", "description": "Gerenciamento de tarefas e lembretes do CRM" },
     { "name": "Fontes", "description": "Fontes de captação de leads" },
     { "name": "Auditoria", "description": "Logs de auditoria" }
   ],
@@ -1041,6 +1042,474 @@ export const OPENAPI_SPEC = `{
         }
       }
     },
+    "/api/v1/tasks": {
+      "get": {
+        "tags": ["Tarefas"],
+        "summary": "Listar tarefas",
+        "description": "Retorna tarefas da organização com filtros opcionais.",
+        "operationId": "listTasks",
+        "parameters": [
+          { "name": "status", "in": "query", "schema": { "type": "string", "enum": ["pending", "in_progress", "completed", "cancelled"] }, "description": "Filtrar por status" },
+          { "name": "priority", "in": "query", "schema": { "type": "string", "enum": ["low", "medium", "high", "urgent"] }, "description": "Filtrar por prioridade" },
+          { "name": "assignedTo", "in": "query", "schema": { "type": "string" }, "description": "Filtrar por responsável" },
+          { "name": "leadId", "in": "query", "schema": { "type": "string" }, "description": "Filtrar por lead" },
+          { "name": "contactId", "in": "query", "schema": { "type": "string" }, "description": "Filtrar por contato" },
+          { "name": "type", "in": "query", "schema": { "type": "string", "enum": ["task", "reminder"] }, "description": "Filtrar por tipo" },
+          { "name": "activityType", "in": "query", "schema": { "type": "string", "enum": ["todo", "call", "email", "follow_up", "meeting", "research"] }, "description": "Filtrar por tipo de atividade" },
+          { "name": "dueBefore", "in": "query", "schema": { "type": "number" }, "description": "Data limite antes de (timestamp ms)" },
+          { "name": "dueAfter", "in": "query", "schema": { "type": "number" }, "description": "Data limite após (timestamp ms)" },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 200, "maximum": 500 }, "description": "Limite de resultados" },
+          { "name": "cursor", "in": "query", "schema": { "type": "string" }, "description": "Cursor para paginação" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de tarefas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "tasks": { "type": "array", "items": { "$ref": "#/components/schemas/Task" } },
+                    "nextCursor": { "type": "string", "nullable": true },
+                    "hasMore": { "type": "boolean" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/api/v1/tasks/get": {
+      "get": {
+        "tags": ["Tarefas"],
+        "summary": "Obter tarefa",
+        "description": "Retorna os dados de uma tarefa específica pelo ID.",
+        "operationId": "getTask",
+        "parameters": [
+          { "name": "id", "in": "query", "required": true, "schema": { "type": "string" }, "description": "ID da tarefa" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dados da tarefa",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "task": { "$ref": "#/components/schemas/Task" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "404": { "$ref": "#/components/responses/NotFound" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/api/v1/tasks/my": {
+      "get": {
+        "tags": ["Tarefas"],
+        "summary": "Minhas tarefas",
+        "description": "Retorna tarefas pendentes e em andamento do agente autenticado.",
+        "operationId": "getMyTasks",
+        "responses": {
+          "200": {
+            "description": "Tarefas do agente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "tasks": { "type": "array", "items": { "$ref": "#/components/schemas/Task" } }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/api/v1/tasks/overdue": {
+      "get": {
+        "tags": ["Tarefas"],
+        "summary": "Tarefas atrasadas",
+        "description": "Lista tarefas com data de vencimento no passado e status pendente ou em andamento.",
+        "operationId": "getOverdueTasks",
+        "parameters": [
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 200, "maximum": 500 }, "description": "Limite de resultados" },
+          { "name": "cursor", "in": "query", "schema": { "type": "string" }, "description": "Cursor para paginação" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tarefas atrasadas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "tasks": { "type": "array", "items": { "$ref": "#/components/schemas/Task" } },
+                    "nextCursor": { "type": "string", "nullable": true },
+                    "hasMore": { "type": "boolean" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/api/v1/tasks/search": {
+      "get": {
+        "tags": ["Tarefas"],
+        "summary": "Buscar tarefas",
+        "description": "Busca tarefas por texto (título, descrição).",
+        "operationId": "searchTasks",
+        "parameters": [
+          { "name": "q", "in": "query", "required": true, "schema": { "type": "string" }, "description": "Texto de busca" },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 50, "maximum": 100 }, "description": "Limite de resultados" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tarefas encontradas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "tasks": { "type": "array", "items": { "$ref": "#/components/schemas/Task" } }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/api/v1/tasks/create": {
+      "post": {
+        "tags": ["Tarefas"],
+        "summary": "Criar tarefa",
+        "description": "Cria uma nova tarefa ou lembrete.",
+        "operationId": "createTask",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["title"],
+                "properties": {
+                  "title": { "type": "string", "description": "Título da tarefa" },
+                  "type": { "type": "string", "enum": ["task", "reminder"], "default": "task", "description": "Tipo" },
+                  "priority": { "type": "string", "enum": ["low", "medium", "high", "urgent"], "default": "medium", "description": "Prioridade" },
+                  "activityType": { "type": "string", "enum": ["todo", "call", "email", "follow_up", "meeting", "research"], "description": "Tipo de atividade CRM" },
+                  "description": { "type": "string", "description": "Descrição detalhada" },
+                  "dueDate": { "type": "number", "description": "Data de vencimento (timestamp ms)" },
+                  "leadId": { "type": "string", "description": "ID do lead associado" },
+                  "contactId": { "type": "string", "description": "ID do contato associado" },
+                  "assignedTo": { "type": "string", "description": "ID do membro responsável" },
+                  "recurrence": {
+                    "type": "object",
+                    "properties": {
+                      "pattern": { "type": "string", "enum": ["daily", "weekly", "biweekly", "monthly"], "description": "Padrão de recorrência" },
+                      "endDate": { "type": "number", "description": "Data final da recorrência (timestamp ms)" }
+                    }
+                  },
+                  "checklist": { "type": "array", "items": { "type": "object", "properties": { "id": { "type": "string" }, "title": { "type": "string" }, "completed": { "type": "boolean" } } }, "description": "Itens do checklist" },
+                  "tags": { "type": "array", "items": { "type": "string" }, "description": "Tags" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Tarefa criada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "const": true },
+                    "taskId": { "type": "string", "description": "ID da tarefa criada" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/api/v1/tasks/update": {
+      "post": {
+        "tags": ["Tarefas"],
+        "summary": "Atualizar tarefa",
+        "description": "Atualiza campos de uma tarefa existente.",
+        "operationId": "updateTask",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["taskId"],
+                "properties": {
+                  "taskId": { "type": "string", "description": "ID da tarefa" },
+                  "title": { "type": "string", "description": "Novo título" },
+                  "description": { "type": "string", "description": "Nova descrição" },
+                  "priority": { "type": "string", "enum": ["low", "medium", "high", "urgent"], "description": "Nova prioridade" },
+                  "activityType": { "type": "string", "enum": ["todo", "call", "email", "follow_up", "meeting", "research"], "description": "Novo tipo de atividade" },
+                  "dueDate": { "type": "number", "description": "Nova data de vencimento (timestamp ms)" },
+                  "tags": { "type": "array", "items": { "type": "string" }, "description": "Novas tags" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/api/v1/tasks/complete": {
+      "post": {
+        "tags": ["Tarefas"],
+        "summary": "Concluir tarefa",
+        "description": "Marca uma tarefa como concluída.",
+        "operationId": "completeTask",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["taskId"],
+                "properties": {
+                  "taskId": { "type": "string", "description": "ID da tarefa" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/api/v1/tasks/delete": {
+      "post": {
+        "tags": ["Tarefas"],
+        "summary": "Excluir tarefa",
+        "description": "Remove uma tarefa permanentemente.",
+        "operationId": "deleteTask",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["taskId"],
+                "properties": {
+                  "taskId": { "type": "string", "description": "ID da tarefa a excluir" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/api/v1/tasks/assign": {
+      "post": {
+        "tags": ["Tarefas"],
+        "summary": "Atribuir tarefa",
+        "description": "Atribui ou desatribui uma tarefa a um membro da equipe.",
+        "operationId": "assignTask",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["taskId"],
+                "properties": {
+                  "taskId": { "type": "string", "description": "ID da tarefa" },
+                  "assignedTo": { "type": "string", "description": "ID do membro (omita para desatribuir)" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/api/v1/tasks/snooze": {
+      "post": {
+        "tags": ["Tarefas"],
+        "summary": "Adiar tarefa",
+        "description": "Adia uma tarefa até uma data futura.",
+        "operationId": "snoozeTask",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["taskId", "snoozedUntil"],
+                "properties": {
+                  "taskId": { "type": "string", "description": "ID da tarefa" },
+                  "snoozedUntil": { "type": "number", "description": "Adiar até (timestamp ms)" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/api/v1/tasks/bulk": {
+      "post": {
+        "tags": ["Tarefas"],
+        "summary": "Operações em lote",
+        "description": "Executa operações em lote em múltiplas tarefas (completar, deletar, atribuir).",
+        "operationId": "bulkTaskUpdate",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["taskIds", "action"],
+                "properties": {
+                  "taskIds": { "type": "array", "items": { "type": "string" }, "description": "IDs das tarefas" },
+                  "action": { "type": "string", "enum": ["complete", "delete", "assign"], "description": "Ação a executar" },
+                  "assignedTo": { "type": "string", "description": "ID do membro (apenas para ação assign)" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "$ref": "#/components/responses/Success" },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/api/v1/tasks/comments": {
+      "get": {
+        "tags": ["Tarefas"],
+        "summary": "Listar comentários de tarefa",
+        "description": "Retorna comentários de uma tarefa com paginação.",
+        "operationId": "listTaskComments",
+        "parameters": [
+          { "name": "taskId", "in": "query", "required": true, "schema": { "type": "string" }, "description": "ID da tarefa" },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 200, "maximum": 500 }, "description": "Limite de resultados" },
+          { "name": "cursor", "in": "query", "schema": { "type": "string" }, "description": "Cursor para paginação" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de comentários",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "comments": { "type": "array", "items": { "$ref": "#/components/schemas/TaskComment" } },
+                    "nextCursor": { "type": "string", "nullable": true },
+                    "hasMore": { "type": "boolean" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
+    "/api/v1/tasks/comments/add": {
+      "post": {
+        "tags": ["Tarefas"],
+        "summary": "Adicionar comentário",
+        "description": "Adiciona um comentário a uma tarefa.",
+        "operationId": "addTaskComment",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["taskId", "content"],
+                "properties": {
+                  "taskId": { "type": "string", "description": "ID da tarefa" },
+                  "content": { "type": "string", "description": "Conteúdo do comentário" },
+                  "mentionedUserIds": { "type": "array", "items": { "type": "string" }, "description": "IDs de membros mencionados" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Comentário adicionado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "const": true },
+                    "commentId": { "type": "string", "description": "ID do comentário criado" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/BadRequest" },
+          "401": { "$ref": "#/components/responses/Unauthorized" },
+          "500": { "$ref": "#/components/responses/InternalError" }
+        }
+      }
+    },
     "/api/v1/audit-logs": {
       "get": {
         "tags": ["Auditoria"],
@@ -1253,6 +1722,49 @@ export const OPENAPI_SPEC = `{
           "name": { "type": "string", "description": "Nome da fonte" },
           "type": { "type": "string", "enum": ["website", "social", "email", "phone", "referral", "api", "other"], "description": "Tipo da fonte" },
           "isActive": { "type": "boolean", "description": "Se está ativa" }
+        }
+      },
+      "Task": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string", "description": "ID único da tarefa" },
+          "_creationTime": { "type": "number", "description": "Timestamp de criação" },
+          "organizationId": { "type": "string", "description": "ID da organização" },
+          "title": { "type": "string", "description": "Título da tarefa" },
+          "description": { "type": "string", "description": "Descrição detalhada" },
+          "type": { "type": "string", "enum": ["task", "reminder"], "description": "Tipo" },
+          "status": { "type": "string", "enum": ["pending", "in_progress", "completed", "cancelled"], "description": "Status" },
+          "priority": { "type": "string", "enum": ["low", "medium", "high", "urgent"], "description": "Prioridade" },
+          "activityType": { "type": "string", "enum": ["todo", "call", "email", "follow_up", "meeting", "research"], "description": "Tipo de atividade CRM" },
+          "dueDate": { "type": "number", "description": "Data de vencimento (timestamp ms)" },
+          "completedAt": { "type": "number", "description": "Timestamp de conclusão" },
+          "snoozedUntil": { "type": "number", "description": "Adiada até (timestamp ms)" },
+          "leadId": { "type": "string", "description": "ID do lead associado" },
+          "contactId": { "type": "string", "description": "ID do contato associado" },
+          "assignedTo": { "type": "string", "description": "ID do membro responsável" },
+          "createdBy": { "type": "string", "description": "ID do criador" },
+          "recurrence": {
+            "type": "object",
+            "properties": {
+              "pattern": { "type": "string", "enum": ["daily", "weekly", "biweekly", "monthly"] },
+              "endDate": { "type": "number" }
+            }
+          },
+          "checklist": { "type": "array", "items": { "type": "object", "properties": { "id": { "type": "string" }, "title": { "type": "string" }, "completed": { "type": "boolean" } } } },
+          "tags": { "type": "array", "items": { "type": "string" }, "description": "Tags" }
+        }
+      },
+      "TaskComment": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string", "description": "ID único do comentário" },
+          "_creationTime": { "type": "number", "description": "Timestamp de criação" },
+          "organizationId": { "type": "string", "description": "ID da organização" },
+          "taskId": { "type": "string", "description": "ID da tarefa" },
+          "authorId": { "type": "string", "description": "ID do autor" },
+          "authorType": { "type": "string", "enum": ["human", "ai"], "description": "Tipo do autor" },
+          "content": { "type": "string", "description": "Conteúdo do comentário" },
+          "mentionedUserIds": { "type": "array", "items": { "type": "string" }, "description": "IDs mencionados" }
         }
       },
       "AuditLog": {

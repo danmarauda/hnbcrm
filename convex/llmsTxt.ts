@@ -14,7 +14,7 @@ HNBCRM is an open-source, multi-tenant CRM built on Convex with real-time collab
 ## Quick Links
 
 - REST API: /api/v1/* endpoints authenticated via X-API-Key header
-- MCP Server: npx hnbcrm-mcp (26 tools for AI agents)
+- MCP Server: npx hnbcrm-mcp (40 tools for AI agents)
 - Agent Skill: .claude/skills/hnbcrm/ — portable skill that teaches AI agents how to operate as CRM team members
 - Channels: whatsapp, telegram, email, webchat, internal
 - Auth: API key passed in X-API-Key header (SHA-256 hashed, stored per team member)
@@ -208,6 +208,40 @@ Where leads come from.
 | name | string | Source name |
 | type | enum | website, social, email, phone, referral, api, other |
 | isActive | boolean | Whether currently active |
+
+### Task
+A task or reminder in the CRM, optionally linked to leads/contacts.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| title | string | Task title (required) |
+| description | string | Detailed description |
+| type | enum | task, reminder |
+| status | enum | pending, in_progress, completed, cancelled |
+| priority | enum | low, medium, high, urgent |
+| activityType | enum | todo, call, email, follow_up, meeting, research |
+| dueDate | number | Due date timestamp |
+| completedAt | number | Completion timestamp |
+| snoozedUntil | number | Snoozed until timestamp |
+| leadId | Id<leads> | Associated lead (optional) |
+| contactId | Id<contacts> | Associated contact (optional) |
+| assignedTo | Id<teamMembers> | Assigned team member |
+| createdBy | Id<teamMembers> | Creator |
+| recurrence | object | {pattern: daily/weekly/biweekly/monthly, endDate?} |
+| parentTaskId | Id<tasks> | Parent task for recurrence instances |
+| checklist | array | [{id, title, completed}] embedded subtasks |
+| tags | string[] | Tags for categorization |
+
+### Task Comment
+A comment on a task.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| taskId | Id<tasks> | Parent task |
+| authorId | Id<teamMembers> | Comment author |
+| authorType | enum | human, ai |
+| content | string | Comment text |
+| mentionedUserIds | Id<teamMembers>[] | @mentioned team members |
 
 ---
 
@@ -425,6 +459,118 @@ Create an activity on a lead.
 
 **Response:** \`{ success: true, activityId }\`
 
+### Task Endpoints
+
+#### GET /api/v1/tasks
+List tasks with optional filters and cursor-based pagination.
+
+**Query params:** status, priority, assignedTo, leadId, contactId, type, activityType, dueBefore, dueAfter, limit, cursor (all optional)
+
+**Response:** \`{ tasks: [...], nextCursor, hasMore }\`
+
+#### GET /api/v1/tasks/get
+Get a single task.
+
+**Query params:** id (required)
+
+**Response:** \`{ task: {...} }\`
+
+#### GET /api/v1/tasks/my
+Get the authenticated agent's pending and in-progress tasks.
+
+**Response:** \`{ tasks: [...] }\`
+
+#### GET /api/v1/tasks/overdue
+List overdue tasks (due date in the past, status pending/in_progress).
+
+**Query params:** limit, cursor (optional)
+
+**Response:** \`{ tasks: [...], nextCursor, hasMore }\`
+
+#### GET /api/v1/tasks/search
+Search tasks by text (title, description).
+
+**Query params:** q (required), limit (optional, default 50, max 100)
+
+**Response:** \`{ tasks: [...] }\`
+
+#### POST /api/v1/tasks/create
+Create a new task or reminder.
+
+**Body:**
+| Param | Type | Required | Description |
+|-------|------|----------|-------------|
+| title | string | yes | Task title |
+| type | string | no | task, reminder (default: task) |
+| priority | string | no | low, medium, high, urgent (default: medium) |
+| activityType | string | no | todo, call, email, follow_up, meeting, research |
+| description | string | no | Detailed description |
+| dueDate | number | no | Due date (timestamp ms) |
+| leadId | Id | no | Associated lead |
+| contactId | Id | no | Associated contact |
+| assignedTo | Id | no | Team member to assign |
+| recurrence | object | no | {pattern, endDate?} |
+| checklist | array | no | [{id, title, completed}] |
+| tags | string[] | no | Tags |
+
+**Response:** \`{ success: true, taskId }\`
+
+#### POST /api/v1/tasks/update
+Update task fields.
+
+**Body:** taskId (required), title, description, priority, activityType, dueDate, tags
+
+**Response:** \`{ success: true }\`
+
+#### POST /api/v1/tasks/complete
+Mark a task as completed.
+
+**Body:** taskId (required)
+
+**Response:** \`{ success: true }\`
+
+#### POST /api/v1/tasks/delete
+Delete a task.
+
+**Body:** taskId (required)
+
+**Response:** \`{ success: true }\`
+
+#### POST /api/v1/tasks/assign
+Assign or unassign a task.
+
+**Body:** taskId (required), assignedTo (optional, omit to unassign)
+
+**Response:** \`{ success: true }\`
+
+#### POST /api/v1/tasks/snooze
+Snooze a task until a future date.
+
+**Body:** taskId (required), snoozedUntil (required, timestamp ms)
+
+**Response:** \`{ success: true }\`
+
+#### POST /api/v1/tasks/bulk
+Bulk operations on multiple tasks.
+
+**Body:** taskIds (required, array), action (required: complete, delete, assign), assignedTo (optional, for assign action)
+
+**Response:** \`{ success: true }\`
+
+#### GET /api/v1/tasks/comments
+List comments on a task with cursor-based pagination.
+
+**Query params:** taskId (required), limit (optional), cursor (optional)
+
+**Response:** \`{ comments: [...], nextCursor, hasMore }\`
+
+#### POST /api/v1/tasks/comments/add
+Add a comment to a task.
+
+**Body:** taskId (required), content (required), mentionedUserIds (optional)
+
+**Response:** \`{ success: true, commentId }\`
+
 ### Dashboard Endpoint
 
 #### GET /api/v1/dashboard
@@ -472,7 +618,7 @@ HNBCRM ships an open-standard Agent Skill at \`.claude/skills/hnbcrm/\` that tea
 
 ## MCP Server Tools
 
-The HNBCRM MCP server (\`npx hnbcrm-mcp\`) exposes 26 tools for AI agents:
+The HNBCRM MCP server (\`npx hnbcrm-mcp\`) exposes 40 tools for AI agents:
 
 ### Lead Management
 
@@ -617,6 +763,87 @@ Log an activity on a lead (note, call, or email).
 - **content** (string, optional): Activity description
 - **metadata** (object, optional): Additional structured data
 
+### Tasks
+
+#### crm_list_tasks
+List tasks with optional filters.
+- **status** (string, optional): Filter by status (pending, in_progress, completed, cancelled)
+- **priority** (string, optional): Filter by priority
+- **assignedTo** (string, optional): Filter by assigned team member
+- **leadId** (string, optional): Filter by lead
+- **contactId** (string, optional): Filter by contact
+- **type** (string, optional): Filter by type (task, reminder)
+- **activityType** (string, optional): Filter by CRM activity type
+- **dueBefore** (number, optional): Due before timestamp
+- **dueAfter** (number, optional): Due after timestamp
+
+#### crm_get_task
+Get a single task by ID.
+- **taskId** (string, required): The task ID
+
+#### crm_get_my_tasks
+Get the authenticated agent's pending and in-progress tasks.
+
+#### crm_get_overdue_tasks
+List overdue tasks (past due date, not completed).
+
+#### crm_search_tasks
+Search tasks by text.
+- **query** (string, required): Search text
+- **limit** (number, optional): Max results (default 50)
+
+#### crm_create_task
+Create a new task or reminder.
+- **title** (string, required): Task title
+- **type** (string, optional): task, reminder
+- **priority** (string, optional): low, medium, high, urgent
+- **activityType** (string, optional): todo, call, email, follow_up, meeting, research
+- **description** (string, optional): Detailed description
+- **dueDate** (number, optional): Due date timestamp
+- **leadId** (string, optional): Associated lead
+- **contactId** (string, optional): Associated contact
+- **assignedTo** (string, optional): Team member to assign
+- **checklist** (array, optional): [{id, title, completed}]
+- **tags** (string[], optional): Tags
+
+#### crm_update_task
+Update task fields.
+- **taskId** (string, required): The task ID
+- **title, description, priority, activityType, dueDate, tags** (optional)
+
+#### crm_complete_task
+Mark a task as completed.
+- **taskId** (string, required): The task ID
+
+#### crm_delete_task
+Delete a task.
+- **taskId** (string, required): The task ID
+
+#### crm_assign_task
+Assign or unassign a task.
+- **taskId** (string, required): The task ID
+- **assignedTo** (string, optional): Team member ID (omit to unassign)
+
+#### crm_snooze_task
+Snooze a task until a future date.
+- **taskId** (string, required): The task ID
+- **snoozedUntil** (number, required): Timestamp to snooze until
+
+#### crm_bulk_task_update
+Bulk operations on multiple tasks.
+- **taskIds** (string[], required): Task IDs
+- **action** (string, required): complete, delete, assign
+
+#### crm_list_task_comments
+List comments on a task.
+- **taskId** (string, required): The task ID
+
+#### crm_add_task_comment
+Add a comment to a task.
+- **taskId** (string, required): The task ID
+- **content** (string, required): Comment content
+- **mentionedUserIds** (string[], optional): Mentioned team member IDs
+
 ---
 
 ## Webhook Events
@@ -682,6 +909,18 @@ Webhook payloads include \`{ event, organizationId, payload, timestamp }\`. Each
 
 ### Custom Field Type
 \`text\` | \`number\` | \`boolean\` | \`date\` | \`select\` | \`multiselect\`
+
+### Task Type
+\`task\` | \`reminder\`
+
+### Task Status
+\`pending\` | \`in_progress\` | \`completed\` | \`cancelled\`
+
+### Task Activity Type
+\`todo\` | \`call\` | \`email\` | \`follow_up\` | \`meeting\` | \`research\`
+
+### Recurrence Pattern
+\`daily\` | \`weekly\` | \`biweekly\` | \`monthly\`
 
 ### Activity Type
 \`note\` | \`call\` | \`email_sent\` | \`stage_change\` | \`assignment\` | \`handoff\` | \`qualification_update\` | \`created\` | \`message_sent\`

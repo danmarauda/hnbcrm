@@ -16,6 +16,7 @@ const ENTITY_LABELS: Record<string, { article: string; label: string }> = {
   fieldDefinition: { article: "o", label: "campo personalizado" },
   apiKey: { article: "a", label: "chave de API" },
   savedView: { article: "a", label: "visualização salva" },
+  task: { article: "a", label: "tarefa" },
 };
 
 const ACTION_VERBS: Record<string, string> = {

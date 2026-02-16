@@ -345,7 +345,8 @@ const applicationTables = {
       v.literal("note"), v.literal("call"), v.literal("email_sent"),
       v.literal("stage_change"), v.literal("assignment"),
       v.literal("handoff"), v.literal("qualification_update"),
-      v.literal("created"), v.literal("message_sent")
+      v.literal("created"), v.literal("message_sent"),
+      v.literal("task_created"), v.literal("task_completed")
     ),
     actorId: v.optional(v.id("teamMembers")),
     actorType: v.union(v.literal("human"), v.literal("ai"), v.literal("system")),
@@ -395,12 +396,92 @@ const applicationTables = {
     .index("by_organization_and_severity_and_created", ["organizationId", "severity", "createdAt"])
     .index("by_organization_and_actor_and_created", ["organizationId", "actorId", "createdAt"]),
 
+  // Tasks & Reminders
+  tasks: defineTable({
+    organizationId: v.id("organizations"),
+
+    // Core
+    title: v.string(),
+    description: v.optional(v.string()),
+    type: v.union(v.literal("task"), v.literal("reminder")),
+    status: v.union(v.literal("pending"), v.literal("in_progress"), v.literal("completed"), v.literal("cancelled")),
+    priority: v.union(v.literal("low"), v.literal("medium"), v.literal("high"), v.literal("urgent")),
+
+    // Activity type (CRM context)
+    activityType: v.optional(v.union(
+      v.literal("todo"), v.literal("call"), v.literal("email"),
+      v.literal("follow_up"), v.literal("meeting"), v.literal("research")
+    )),
+
+    // Time
+    dueDate: v.optional(v.number()),
+    completedAt: v.optional(v.number()),
+    snoozedUntil: v.optional(v.number()),
+
+    // Relations (all optional — tasks work standalone or CRM-connected)
+    leadId: v.optional(v.id("leads")),
+    contactId: v.optional(v.id("contacts")),
+    assignedTo: v.optional(v.id("teamMembers")),
+    createdBy: v.id("teamMembers"),
+
+    // Recurrence
+    recurrence: v.optional(v.object({
+      pattern: v.union(v.literal("daily"), v.literal("weekly"), v.literal("biweekly"), v.literal("monthly")),
+      endDate: v.optional(v.number()),
+      lastGeneratedAt: v.optional(v.number()),
+    })),
+    parentTaskId: v.optional(v.id("tasks")),
+
+    // Checklist (embedded subtasks)
+    checklist: v.optional(v.array(v.object({
+      id: v.string(),
+      title: v.string(),
+      completed: v.boolean(),
+    }))),
+
+    // Reminder engine
+    reminderTriggered: v.optional(v.boolean()),
+
+    // Metadata
+    tags: v.optional(v.array(v.string())),
+    searchText: v.optional(v.string()),
+
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_organization", ["organizationId"])
+    .index("by_organization_and_status", ["organizationId", "status"])
+    .index("by_organization_and_assigned", ["organizationId", "assignedTo"])
+    .index("by_organization_and_due_date", ["organizationId", "dueDate"])
+    .index("by_organization_and_type", ["organizationId", "type"])
+    .index("by_organization_and_assigned_and_status", ["organizationId", "assignedTo", "status"])
+    .index("by_lead", ["leadId"])
+    .index("by_contact", ["contactId"])
+    .index("by_assigned_to", ["assignedTo"])
+    .index("by_parent_task", ["parentTaskId"])
+    .searchIndex("search_tasks", { searchField: "searchText", filterFields: ["organizationId"] }),
+
+  // Task Comments
+  taskComments: defineTable({
+    organizationId: v.id("organizations"),
+    taskId: v.id("tasks"),
+    authorId: v.id("teamMembers"),
+    authorType: v.union(v.literal("human"), v.literal("ai")),
+    content: v.string(),
+    mentionedUserIds: v.optional(v.array(v.id("teamMembers"))),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_task", ["taskId"])
+    .index("by_task_and_created", ["taskId", "createdAt"])
+    .index("by_organization", ["organizationId"]),
+
   // Saved Views
   savedViews: defineTable({
     organizationId: v.id("organizations"),
     createdBy: v.id("teamMembers"),
     name: v.string(),
-    entityType: v.union(v.literal("leads"), v.literal("contacts")),
+    entityType: v.union(v.literal("leads"), v.literal("contacts"), v.literal("tasks")),
     isShared: v.boolean(),
     filters: v.object({
       boardId: v.optional(v.id("boards")),

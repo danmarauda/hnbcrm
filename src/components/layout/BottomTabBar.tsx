@@ -5,19 +5,20 @@ import {
   Kanban,
   Contact2,
   MessageSquare,
+  CheckSquare,
   ArrowRightLeft,
   MoreHorizontal,
 } from "lucide-react";
 import { TAB_ROUTES, PATH_TO_TAB } from "@/lib/routes";
 
-export type Tab = "dashboard" | "board" | "contacts" | "inbox" | "handoffs" | "team" | "audit" | "settings";
+export type Tab = "dashboard" | "board" | "contacts" | "inbox" | "tasks" | "handoffs" | "team" | "audit" | "settings";
 
 const tabs: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: "dashboard", label: "Painel", icon: LayoutDashboard },
   { id: "board", label: "Pipeline", icon: Kanban },
   { id: "contacts", label: "Contatos", icon: Contact2 },
   { id: "inbox", label: "Entrada", icon: MessageSquare },
-  { id: "handoffs", label: "Repasses", icon: ArrowRightLeft },
+  { id: "tasks", label: "Tarefas", icon: CheckSquare },
 ];
 
 interface BottomTabBarProps {
@@ -29,7 +30,7 @@ export function BottomTabBar({ showMore, onToggleMore }: BottomTabBarProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const activeTab = PATH_TO_TAB[location.pathname];
-  const isMoreActive = activeTab === "team" || activeTab === "audit" || activeTab === "settings";
+  const isMoreActive = activeTab === "handoffs" || activeTab === "team" || activeTab === "audit" || activeTab === "settings";
 
   return (
     <>
@@ -41,6 +42,15 @@ export function BottomTabBar({ showMore, onToggleMore }: BottomTabBarProps) {
       {/* More menu popup */}
       {showMore && (
         <div className="fixed bottom-[calc(64px+env(safe-area-inset-bottom,0px))] right-2 z-50 bg-surface-overlay border border-border rounded-xl shadow-elevated animate-fade-in-up p-1 min-w-[160px]">
+          <button
+            onClick={() => { navigate(TAB_ROUTES.handoffs); onToggleMore(); }}
+            className={cn(
+              "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-colors",
+              activeTab === "handoffs" ? "text-brand-500 bg-brand-500/10" : "text-text-secondary hover:text-text-primary hover:bg-surface-raised"
+            )}
+          >
+            Repasses
+          </button>
           <button
             onClick={() => { navigate(TAB_ROUTES.team); onToggleMore(); }}
             className={cn(
