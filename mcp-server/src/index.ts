@@ -8,6 +8,7 @@ import { registerContactTools } from "./tools/contacts.js";
 import { registerConversationTools } from "./tools/conversations.js";
 import { registerHandoffTools } from "./tools/handoffs.js";
 import { registerPipelineTools } from "./tools/pipeline.js";
+import { registerActivityTools } from "./tools/activities.js";
 import { registerResources } from "./resources.js";
 
 const HNBCRM_API_URL = process.env.HNBCRM_API_URL;
@@ -32,6 +33,7 @@ registerContactTools(server, client);
 registerConversationTools(server, client);
 registerHandoffTools(server, client);
 registerPipelineTools(server, client);
+registerActivityTools(server, client);
 registerResources(server, client);
 
 async function main() {

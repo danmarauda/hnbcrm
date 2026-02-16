@@ -1,0 +1,264 @@
+# HNBCRM Data Model
+
+Complete reference for tables, fields, and enum values.
+
+---
+
+## Entity Tables
+
+### Lead
+
+The core sales entity tracked through a pipeline.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| title | string | Lead title (required) |
+| contactId | Id\<contacts\> | Associated contact |
+| boardId | Id\<boards\> | Pipeline board |
+| stageId | Id\<stages\> | Current stage in pipeline |
+| assignedTo | Id\<teamMembers\> | Assigned team member (human or AI) |
+| value | number | Monetary value |
+| currency | string | Currency code (default: BRL) |
+| priority | enum | `low`, `medium`, `high`, `urgent` |
+| temperature | enum | `cold`, `warm`, `hot` |
+| sourceId | Id\<leadSources\> | Origin source |
+| tags | string[] | Tags for categorization |
+| customFields | Record\<string, any\> | User-defined fields |
+| qualification | object | BANT scoring (see below) |
+| conversationStatus | enum | `new`, `active`, `waiting`, `closed` |
+| handoffState | object | Current handoff status if any |
+| closedAt | number | Timestamp if closed |
+| closedType | enum | `won`, `lost` |
+| lastActivityAt | number | Timestamp of last activity |
+
+**Qualification object:**
+| Field | Type | Description |
+|-------|------|-------------|
+| budget | boolean | Can afford the solution |
+| authority | boolean | Is the decision-maker |
+| need | boolean | Has a clear pain point |
+| timeline | boolean | Has urgency to buy |
+| score | number | Count of true values (0-4) |
+
+---
+
+### Contact
+
+A person or company associated with leads.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| firstName, lastName | string | Name |
+| email | string | Email address |
+| phone | string | Phone number |
+| company | string | Company name |
+| title | string | Job title |
+| whatsappNumber | string | WhatsApp number |
+| telegramUsername | string | Telegram handle |
+| tags | string[] | Tags |
+| photoUrl | string | Profile photo URL |
+| bio | string | Short bio |
+| linkedinUrl | string | LinkedIn profile |
+| instagramUrl | string | Instagram profile |
+| facebookUrl | string | Facebook profile |
+| twitterUrl | string | Twitter/X profile |
+| city, state, country | string | Location |
+| industry | string | Industry |
+| companySize | string | Company size category |
+| cnpj | string | Brazilian company ID |
+| companyWebsite | string | Company website |
+| preferredContactTime | enum | `morning`, `afternoon`, `evening` |
+| deviceType | enum | `android`, `iphone`, `desktop`, `unknown` |
+| utmSource | string | UTM source |
+| acquisitionChannel | string | How they were acquired |
+| instagramFollowers | number | Instagram follower count |
+| linkedinConnections | number | LinkedIn connections |
+| socialInfluenceScore | number | Influence score (0-100) |
+| customFields | Record\<string, any\> | User-defined fields |
+| enrichmentMeta | Record\<string, object\> | Provenance tracking (see below) |
+| enrichmentExtra | Record\<string, any\> | Overflow for AI-discovered data |
+
+**enrichmentMeta value:**
+| Field | Type | Description |
+|-------|------|-------------|
+| source | string | Where the data came from |
+| updatedAt | number | When it was last enriched |
+| confidence | number | Confidence score (0.0-1.0) |
+
+---
+
+### Board (Pipeline)
+
+A kanban board containing stages.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| name | string | Board name |
+| description | string | Description |
+| color | string | Display color |
+| isDefault | boolean | Default board for new leads |
+| order | number | Display order |
+
+---
+
+### Stage
+
+A column within a board.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| boardId | Id\<boards\> | Parent board |
+| name | string | Stage name |
+| color | string | Display color |
+| order | number | Display order |
+| isClosedWon | boolean | Marks as won stage (terminal) |
+| isClosedLost | boolean | Marks as lost stage (terminal) |
+
+---
+
+### Conversation
+
+A message thread on a lead, scoped by channel.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| leadId | Id\<leads\> | Associated lead |
+| channel | enum | `whatsapp`, `telegram`, `email`, `webchat`, `internal` |
+| status | enum | `active`, `closed` |
+| messageCount | number | Total messages |
+| lastMessageAt | number | Timestamp of last message |
+
+---
+
+### Message
+
+An individual message in a conversation.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| conversationId | Id\<conversations\> | Parent conversation |
+| leadId | Id\<leads\> | Associated lead |
+| direction | enum | `inbound`, `outbound`, `internal` |
+| senderId | Id\<teamMembers\> | Sender (null for contact inbound) |
+| senderType | enum | `contact`, `human`, `ai` |
+| content | string | Message text |
+| contentType | enum | `text`, `image`, `file`, `audio` |
+| isInternal | boolean | Internal note (not visible to contact) |
+| mentionedUserIds | Id\<teamMembers\>[] | @mentioned team members |
+
+---
+
+### Handoff
+
+An AI-to-human (or human-to-human) handoff request.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| leadId | Id\<leads\> | Lead being handed off |
+| fromMemberId | Id\<teamMembers\> | Requester |
+| toMemberId | Id\<teamMembers\> | Target (optional, any human if null) |
+| reason | string | Why the handoff is needed |
+| summary | string | Conversation summary |
+| suggestedActions | string[] | Recommended next steps |
+| status | enum | `pending`, `accepted`, `rejected` |
+| notes | string | Resolution notes |
+
+---
+
+### Team Member
+
+A human or AI agent on the team.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| name | string | Display name |
+| email | string | Email (humans) |
+| role | enum | `admin`, `manager`, `agent`, `ai` |
+| type | enum | `human`, `ai` |
+| status | enum | `active`, `inactive`, `busy` |
+| capabilities | string[] | What this member can do |
+
+---
+
+### Activity
+
+A timeline event on a lead.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| leadId | Id\<leads\> | Associated lead |
+| type | enum | `note`, `call`, `email_sent`, `stage_change`, `assignment`, `handoff`, `qualification_update`, `created`, `message_sent` |
+| actorId | Id\<teamMembers\> | Who performed the action |
+| actorType | enum | `human`, `ai`, `system` |
+| content | string | Activity description |
+| metadata | Record\<string, any\> | Additional structured data |
+
+---
+
+### Field Definition (Custom Fields)
+
+Schema for user-defined custom fields.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| name | string | Display name |
+| key | string | Unique key for storage |
+| type | enum | `text`, `number`, `boolean`, `date`, `select`, `multiselect` |
+| entityType | enum | `lead`, `contact` (null = both) |
+| options | string[] | Options for select/multiselect types |
+| isRequired | boolean | Whether the field is required |
+| order | number | Display order |
+
+---
+
+### Lead Source
+
+Where leads come from.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| name | string | Source name |
+| type | enum | `website`, `social`, `email`, `phone`, `referral`, `api`, `other` |
+| isActive | boolean | Whether currently active |
+
+---
+
+### Audit Log
+
+Change tracking for compliance and debugging.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| entityType | string | Table name (e.g. "leads", "contacts") |
+| entityId | string | Entity ID |
+| action | enum | `create`, `update`, `delete`, `move`, `assign`, `handoff` |
+| actorId | Id\<teamMembers\> | Who performed the action |
+| actorType | enum | `human`, `ai`, `system` |
+| changes | object | `{ before: {...}, after: {...} }` |
+| description | string | Human-readable description |
+| severity | enum | `low`, `medium`, `high`, `critical` |
+
+---
+
+## Complete Enum Reference
+
+| Enum | Values |
+|------|--------|
+| Priority | `low`, `medium`, `high`, `urgent` |
+| Temperature | `cold`, `warm`, `hot` |
+| Conversation Status | `new`, `active`, `waiting`, `closed` |
+| Channel | `whatsapp`, `telegram`, `email`, `webchat`, `internal` |
+| Message Direction | `inbound`, `outbound`, `internal` |
+| Content Type | `text`, `image`, `file`, `audio` |
+| Sender Type | `contact`, `human`, `ai` |
+| Handoff Status | `pending`, `accepted`, `rejected` |
+| Team Member Role | `admin`, `manager`, `agent`, `ai` |
+| Team Member Type | `human`, `ai` |
+| Team Member Status | `active`, `inactive`, `busy` |
+| Lead Source Type | `website`, `social`, `email`, `phone`, `referral`, `api`, `other` |
+| Custom Field Type | `text`, `number`, `boolean`, `date`, `select`, `multiselect` |
+| Activity Type | `note`, `call`, `email_sent`, `stage_change`, `assignment`, `handoff`, `qualification_update`, `created`, `message_sent` |
+| Audit Action | `create`, `update`, `delete`, `move`, `assign`, `handoff` |
+| Audit Severity | `low`, `medium`, `high`, `critical` |
+| Preferred Contact Time | `morning`, `afternoon`, `evening` |
+| Device Type | `android`, `iphone`, `desktop`, `unknown` |
