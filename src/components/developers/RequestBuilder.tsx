@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { Copy, Send, WrapText } from "lucide-react";
+import { highlightJson } from "./JsonHighlighter";
 import type { ApiEndpoint, ApiParam } from "@/lib/apiRegistry";
 
 interface RequestBuilderProps {
@@ -383,14 +384,16 @@ export function RequestBuilder({ endpoint, baseUrl, apiKey, onSendRequest }: Req
   return (
     <div className="h-full flex flex-col bg-surface-raised">
       {/* URL bar header */}
-      <div className="px-3 py-2 border-b border-border">
-        <div className="flex items-center gap-2">
+      <div className="px-3 py-2 border-b border-border space-y-1.5">
+        <div className="flex items-center gap-2 min-w-0">
           <Badge variant={getMethodColor(endpoint.method)} className="flex-shrink-0">
             {endpoint.method}
           </Badge>
-          <span className="text-sm font-mono text-text-primary truncate flex-1">
+          <span className="text-sm font-mono text-text-primary truncate">
             {endpoint.path}
           </span>
+        </div>
+        <div className="flex items-center gap-2">
           {endpoint.method !== "GET" && (
             <div className="flex gap-0.5 bg-surface-sunken rounded-full p-0.5 flex-shrink-0">
               <button
@@ -411,6 +414,7 @@ export function RequestBuilder({ endpoint, baseUrl, apiKey, onSendRequest }: Req
               </button>
             </div>
           )}
+          <div className="flex-1" />
           <Button variant="ghost" size="sm" onClick={handleCopyCurl} className="flex-shrink-0">
             <Copy size={14} />
             {showCopied ? "Copiado!" : "cURL"}
@@ -426,42 +430,98 @@ export function RequestBuilder({ endpoint, baseUrl, apiKey, onSendRequest }: Req
             {isLoading ? "Enviando..." : "Enviar"}
           </Button>
         </div>
-        <p className="text-[11px] text-text-muted mt-1">{endpoint.description}</p>
+        <p className="text-[11px] text-text-muted">{endpoint.description}</p>
       </div>
 
       {/* Form fields */}
-      <div className="flex-1 overflow-y-auto p-3">
-        {mode === "json" && endpoint.method !== "GET" ? (
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="block text-[13px] font-medium text-text-secondary">
-                Request Body (JSON)
-              </label>
-              <button
-                onClick={handleFormatJson}
-                className="flex items-center gap-1 text-[11px] text-text-muted hover:text-text-secondary transition-colors"
-              >
-                <WrapText size={12} />
-                Formatar
-              </button>
-            </div>
-            <textarea
-              value={jsonBody}
-              onChange={(e) => { setJsonBody(e.target.value); setJsonError(null); }}
-              onBlur={handleJsonBlur}
-              rows={15}
-              className={`w-full bg-surface-sunken border rounded-field px-3.5 py-2 text-sm text-text-primary font-mono focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 ${
-                jsonError ? "border-semantic-error" : "border-border-strong"
-              }`}
-            />
-            {jsonError && <p className="mt-1 text-[11px] text-semantic-error">{jsonError}</p>}
+      {mode === "json" && endpoint.method !== "GET" ? (
+        <div className="flex-1 flex flex-col min-h-0 p-3 gap-1">
+          <div className="flex items-center justify-between flex-shrink-0">
+            <label className="block text-[13px] font-medium text-text-secondary">
+              Request Body (JSON)
+            </label>
+            <button
+              onClick={handleFormatJson}
+              className="flex items-center gap-1 text-[11px] text-text-muted hover:text-text-secondary transition-colors"
+            >
+              <WrapText size={12} />
+              Formatar
+            </button>
           </div>
-        ) : (
+          <JsonEditorOverlay
+            value={jsonBody}
+            onChange={(v) => { setJsonBody(v); setJsonError(null); }}
+            onBlur={handleJsonBlur}
+            hasError={!!jsonError}
+          />
+          {jsonError && <p className="text-[11px] text-semantic-error flex-shrink-0">{jsonError}</p>}
+        </div>
+      ) : (
+        <div className="flex-1 overflow-y-auto p-3">
           <div className="space-y-3">
             {endpoint.params.map((param) => renderFormField(param))}
           </div>
-        )}
-      </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function JsonEditorOverlay({
+  value,
+  onChange,
+  onBlur,
+  hasError,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  onBlur: () => void;
+  hasError: boolean;
+}) {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const preRef = useRef<HTMLPreElement>(null);
+
+  const handleScroll = () => {
+    if (textareaRef.current && preRef.current) {
+      preRef.current.scrollTop = textareaRef.current.scrollTop;
+      preRef.current.scrollLeft = textareaRef.current.scrollLeft;
+    }
+  };
+
+  // Try to highlight; fall back to plain escaped text if JSON is invalid mid-edit
+  let highlighted: string;
+  try {
+    // Validate it's parseable, then highlight the raw text
+    JSON.parse(value);
+    highlighted = highlightJson(value);
+  } catch {
+    // Still highlight what we can — the regex handles partial JSON fine
+    highlighted = highlightJson(value);
+  }
+
+  return (
+    <div
+      className={`relative flex-1 min-h-0 rounded-lg border overflow-hidden ${
+        hasError ? "border-semantic-error" : "border-border-strong focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-500/20"
+      }`}
+    >
+      {/* Highlighted layer (behind) */}
+      <pre
+        ref={preRef}
+        aria-hidden="true"
+        className="absolute inset-0 m-0 p-3 text-[13px] leading-relaxed font-mono overflow-hidden whitespace-pre-wrap break-words bg-[#0d1117] text-gray-400 pointer-events-none"
+        dangerouslySetInnerHTML={{ __html: highlighted + "\n" }}
+      />
+      {/* Editable textarea (on top, transparent text) */}
+      <textarea
+        ref={textareaRef}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onBlur={onBlur}
+        onScroll={handleScroll}
+        spellCheck={false}
+        className="relative w-full h-full m-0 p-3 text-[13px] leading-relaxed font-mono bg-transparent text-transparent caret-white resize-none outline-none whitespace-pre-wrap break-words"
+      />
     </div>
   );
 }

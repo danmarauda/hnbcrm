@@ -2,7 +2,7 @@ interface JsonHighlighterProps {
   data: unknown;
 }
 
-function highlightJson(json: string): string {
+export function highlightJson(json: string): string {
   // Escape HTML entities first
   const escaped = json
     .replace(/&/g, "&amp;")

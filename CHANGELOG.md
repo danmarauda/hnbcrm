@@ -2,6 +2,15 @@
 
 All notable changes to HNBCRM (formerly ClawCRM) will be documented in this file.
 
+## [0.14.1] - 2026-02-16
+
+### API Playground UX — Request Builder Polish
+
+- **Two-row URL bar header** (`RequestBuilder.tsx`) — Split single-row header into two rows (method+path / controls+Enviar) to fix "Enviar" button being clipped by `overflow-hidden` at narrow panel widths
+- **Syntax-highlighted JSON editor** (`RequestBuilder.tsx`) — Replaced plain textarea with overlay editor using `highlightJson()` from `JsonHighlighter.tsx` (sky-blue keys, green strings, amber numbers, purple booleans); transparent textarea over highlighted `<pre>` with synced scroll
+- **Full-height JSON editor** — JSON body textarea now fills all available vertical space (`flex-1`) instead of fixed `rows={15}`
+- **Exported `highlightJson`** (`JsonHighlighter.tsx`) — Made highlight function reusable across components
+
 ## [0.14.0] - 2026-02-16
 
 ### API Playground v2 — Cursor Pagination, Resizable Panels, URL Routing, UX Polish
