@@ -32,6 +32,9 @@ import { MentionTextarea } from "@/components/ui/MentionTextarea";
 import { MentionRenderer } from "@/components/ui/MentionRenderer";
 import { extractMentionIds } from "@/lib/mentions";
 import { CreateTaskModal } from "./CreateTaskModal";
+import { LeadDocuments } from "./LeadDocuments";
+import { FileUploadButton, UploadedFile } from "@/components/ui/FileUploadButton";
+import { AttachmentPreview } from "@/components/ui/AttachmentPreview";
 
 interface LeadDetailPanelProps {
   leadId: Id<"leads">;
@@ -107,6 +110,7 @@ function ConversationTab({
   const [messageText, setMessageText] = useState("");
   const [isInternal, setIsInternal] = useState(false);
   const [sending, setSending] = useState(false);
+  const [stagedFiles, setStagedFiles] = useState<UploadedFile[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const teamMembers = useQuery(api.teamMembers.getTeamMembers, { organizationId });
@@ -131,7 +135,7 @@ function ConversationTab({
   }, [messages]);
 
   const handleSend = async () => {
-    if (!messageText.trim() || sending) return;
+    if ((!messageText.trim() && stagedFiles.length === 0) || sending) return;
     setSending(true);
 
     try {
@@ -149,16 +153,30 @@ function ConversationTab({
 
       const trimmed = messageText.trim();
       const mentionedUserIds = isInternal ? extractMentionIds(trimmed) : undefined;
+      const attachmentIds = stagedFiles.length > 0
+        ? stagedFiles.map((f) => f.fileId)
+        : undefined;
+
+      // Determine content type based on attachments
+      let contentType: "text" | "image" | "file" | "audio" = "text";
+      if (stagedFiles.length > 0) {
+        const firstMime = stagedFiles[0].mimeType;
+        if (firstMime.startsWith("image/")) contentType = "image";
+        else if (firstMime.startsWith("audio/")) contentType = "audio";
+        else contentType = "file";
+      }
 
       await sendMessage({
         conversationId,
-        content: trimmed,
-        contentType: "text",
+        content: trimmed || (stagedFiles.length > 0 ? `${stagedFiles.length} arquivo(s) anexado(s)` : ""),
+        contentType,
         isInternal,
+        attachments: attachmentIds,
         mentionedUserIds: mentionedUserIds?.length ? mentionedUserIds : undefined,
       });
 
       setMessageText("");
+      setStagedFiles([]);
     } catch (error) {
       console.error("Failed to send message:", error);
     } finally {
@@ -236,6 +254,9 @@ function ConversationTab({
                   ) : (
                     <p className="whitespace-pre-wrap">{msg.content}</p>
                   )}
+                  {msg.attachmentFiles && msg.attachmentFiles.length > 0 && (
+                    <AttachmentPreview files={msg.attachmentFiles} />
+                  )}
                   <div
                     className={cn(
                       "text-xs mt-1",
@@ -271,7 +292,35 @@ function ConversationTab({
             Nota interna
           </label>
         </div>
-        <div className="flex gap-2">
+        {/* Staged file previews */}
+        {stagedFiles.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-2">
+            {stagedFiles.map((file) => (
+              <div
+                key={file.fileId}
+                className="flex items-center gap-1.5 px-2 py-1 bg-surface-sunken border border-border rounded-lg text-xs max-w-[200px]"
+              >
+                <span className="truncate text-text-secondary">{file.name}</span>
+                <button
+                  type="button"
+                  onClick={() => setStagedFiles((prev) => prev.filter((f) => f.fileId !== file.fileId))}
+                  className="shrink-0 p-0.5 rounded hover:bg-surface-raised text-text-muted hover:text-semantic-error transition-colors"
+                  aria-label={`Remover ${file.name}`}
+                >
+                  <X size={12} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        <div className="flex gap-2 items-end">
+          <FileUploadButton
+            organizationId={organizationId}
+            uploadedFiles={stagedFiles}
+            onFilesUploaded={(newFiles) => setStagedFiles((prev) => [...prev, ...newFiles])}
+            onFilesRemoved={(fileId) => setStagedFiles((prev) => prev.filter((f) => f.fileId !== fileId))}
+            disabled={sending}
+          />
           <MentionTextarea
             value={messageText}
             onChange={setMessageText}
@@ -283,7 +332,7 @@ function ConversationTab({
           />
           <Button
             onClick={handleSend}
-            disabled={!messageText.trim() || sending}
+            disabled={(!messageText.trim() && stagedFiles.length === 0) || sending}
             variant="primary"
             size="md"
             className="self-end"
@@ -1009,6 +1058,9 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
           </Button>
         </div>
       </div>
+
+      {/* Documents */}
+      <LeadDocuments leadId={leadId} organizationId={organizationId} />
     </div>
   );
 }

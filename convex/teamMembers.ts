@@ -17,10 +17,23 @@ export const getTeamMembers = query({
   handler: async (ctx, args) => {
     await requireAuth(ctx, args.organizationId);
 
-    return await ctx.db
+    const members = await ctx.db
       .query("teamMembers")
       .withIndex("by_organization", (q) => q.eq("organizationId", args.organizationId))
       .take(200);
+
+    return await Promise.all(
+      members.map(async (m) => {
+        let avatarUrl: string | null = null;
+        if (m.avatarFileId) {
+          const file = await ctx.db.get(m.avatarFileId);
+          if (file) {
+            avatarUrl = await ctx.storage.getUrl(file.storageId);
+          }
+        }
+        return { ...m, avatarUrl };
+      })
+    );
   },
 });
 
@@ -366,6 +379,68 @@ export const reactivateTeamMember = mutation({
       metadata: { name: teamMember.name },
       description: buildAuditDescription({ action: "update", entityType: "teamMember", metadata: { name: teamMember.name }, changes: { before: { status: "inactive" }, after: { status: "active" } } }),
       severity: "medium",
+      createdAt: now,
+    });
+
+    return null;
+  },
+});
+
+// Update member avatar
+export const updateMemberAvatar = mutation({
+  args: {
+    teamMemberId: v.id("teamMembers"),
+    avatarFileId: v.optional(v.id("files")),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const teamMember = await ctx.db.get(args.teamMemberId);
+    if (!teamMember) throw new Error("Membro não encontrado");
+
+    const userMember = await requireAuth(ctx, teamMember.organizationId);
+    const now = Date.now();
+
+    // Self or team:manage
+    if (userMember._id !== args.teamMemberId) {
+      const perms = resolvePermissions(userMember.role as Role, (userMember as any).permissions);
+      if (!hasPermission(perms, "team", "manage")) {
+        throw new Error("Permissão insuficiente");
+      }
+    }
+
+    // Delete old avatar file if exists
+    if (teamMember.avatarFileId) {
+      const oldFile = await ctx.db.get(teamMember.avatarFileId);
+      if (oldFile) {
+        await ctx.storage.delete(oldFile.storageId);
+        await ctx.db.delete(oldFile._id);
+      }
+    }
+
+    await ctx.db.patch(args.teamMemberId, {
+      avatarFileId: args.avatarFileId,
+      updatedAt: now,
+    });
+
+    await ctx.db.insert("auditLogs", {
+      organizationId: teamMember.organizationId,
+      entityType: "teamMember",
+      entityId: args.teamMemberId,
+      action: "update",
+      actorId: userMember._id,
+      actorType: "human",
+      changes: {
+        before: { avatarFileId: teamMember.avatarFileId },
+        after: { avatarFileId: args.avatarFileId },
+      },
+      metadata: { name: teamMember.name },
+      description: buildAuditDescription({
+        action: "update",
+        entityType: "teamMember",
+        metadata: { name: teamMember.name },
+        changes: { before: { avatarFileId: teamMember.avatarFileId }, after: { avatarFileId: args.avatarFileId } },
+      }),
+      severity: "low",
       createdAt: now,
     });
 

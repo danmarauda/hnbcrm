@@ -17,7 +17,7 @@ interface TimeGridEvent {
 interface TimeGridProps {
   date: Date;
   events: TimeGridEvent[];
-  onEventClick: (eventId: string) => void;
+  onEventClick: (eventId: string, source: "event" | "task") => void;
   onSlotClick: (date: Date, hour: number, minute: number) => void;
   columns?: number; // For week view, number of columns
   columnDates?: Date[]; // For week view, the dates of each column
@@ -126,7 +126,7 @@ export function TimeGrid({
 interface TimeGridColumnProps {
   date: Date;
   events: TimeGridEvent[];
-  onEventClick: (eventId: string) => void;
+  onEventClick: (eventId: string, source: "event" | "task") => void;
   onSlotClick: (date: Date, hour: number, minute: number) => void;
   getEventStyle: (event: TimeGridEvent) => { top: string; height: string };
   isToday: boolean;
@@ -175,7 +175,7 @@ function TimeGridColumn({
                 className={compact ? "absolute left-px right-px" : "absolute left-1 right-1"}
                 style={{ top: style.top, height: style.height }}
               >
-                <EventBlock event={event} onClick={() => onEventClick(event._id)} compact={compact} />
+                <EventBlock event={event} onClick={() => onEventClick(event._id, event._source || "event")} compact={compact} />
               </div>
             );
           })}

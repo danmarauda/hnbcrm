@@ -82,10 +82,39 @@ export const getMessages = query({
 
     // Batch fetch sender info
     const senderMap = await batchGet(ctx.db, messages.map(m => m.senderId));
-    const messagesWithSenders = messages.map(message => ({
-      ...message,
-      sender: message.senderId ? senderMap.get(message.senderId) ?? null : null,
-    }));
+
+    // Batch fetch attachment files
+    const allAttachmentIds = messages.flatMap(m => m.attachments ?? []);
+    const attachmentFileMap = await batchGet(ctx.db, allAttachmentIds);
+
+    // Generate URLs for attachment files
+    const attachmentUrlMap = new Map<string, string | null>();
+    await Promise.all(
+      Array.from(attachmentFileMap.entries()).map(async ([id, file]) => {
+        const url = await ctx.storage.getUrl(file.storageId);
+        attachmentUrlMap.set(id, url);
+      })
+    );
+
+    const messagesWithSenders = messages.map(message => {
+      const attachmentFiles = (message.attachments ?? []).map(fileId => {
+        const file = attachmentFileMap.get(fileId);
+        if (!file) return null;
+        return {
+          _id: file._id,
+          name: file.name,
+          mimeType: file.mimeType,
+          size: file.size,
+          url: attachmentUrlMap.get(fileId) ?? null,
+        };
+      }).filter(Boolean);
+
+      return {
+        ...message,
+        sender: message.senderId ? senderMap.get(message.senderId) ?? null : null,
+        attachmentFiles,
+      };
+    });
 
     return messagesWithSenders;
   },
@@ -98,12 +127,7 @@ export const sendMessage = mutation({
     content: v.string(),
     contentType: v.optional(v.union(v.literal("text"), v.literal("image"), v.literal("file"), v.literal("audio"))),
     isInternal: v.optional(v.boolean()),
-    attachments: v.optional(v.array(v.object({
-      name: v.string(),
-      url: v.string(),
-      type: v.string(),
-      size: v.number(),
-    }))),
+    attachments: v.optional(v.array(v.id("files"))),
     mentionedUserIds: v.optional(v.array(v.id("teamMembers"))),
   },
   returns: v.id("messages"),
@@ -129,6 +153,15 @@ export const sendMessage = mutation({
       mentionedUserIds: args.isInternal ? args.mentionedUserIds : undefined,
       createdAt: now,
     });
+
+    // Link attachment files back to this message
+    if (args.attachments && args.attachments.length > 0) {
+      await Promise.all(
+        args.attachments.map((fileId) =>
+          ctx.db.patch(fileId, { messageId })
+        )
+      );
+    }
 
     // Update conversation
     await ctx.db.patch(args.conversationId, {
@@ -334,10 +367,39 @@ export const internalGetMessages = internalQuery({
 
     // Batch fetch sender info
     const senderMap = await batchGet(ctx.db, messages.map(m => m.senderId));
-    const messagesWithSenders = messages.map(message => ({
-      ...message,
-      sender: message.senderId ? senderMap.get(message.senderId) ?? null : null,
-    }));
+
+    // Batch fetch attachment files
+    const allAttachmentIds = messages.flatMap(m => m.attachments ?? []);
+    const attachmentFileMap = await batchGet(ctx.db, allAttachmentIds);
+
+    // Generate URLs for attachment files
+    const attachmentUrlMap = new Map<string, string | null>();
+    await Promise.all(
+      Array.from(attachmentFileMap.entries()).map(async ([id, file]) => {
+        const url = await ctx.storage.getUrl(file.storageId);
+        attachmentUrlMap.set(id, url);
+      })
+    );
+
+    const messagesWithSenders = messages.map(message => {
+      const attachmentFiles = (message.attachments ?? []).map(fileId => {
+        const file = attachmentFileMap.get(fileId);
+        if (!file) return null;
+        return {
+          _id: file._id,
+          name: file.name,
+          mimeType: file.mimeType,
+          size: file.size,
+          url: attachmentUrlMap.get(fileId) ?? null,
+        };
+      }).filter(Boolean);
+
+      return {
+        ...message,
+        sender: message.senderId ? senderMap.get(message.senderId) ?? null : null,
+        attachmentFiles,
+      };
+    });
 
     return messagesWithSenders;
   },
@@ -350,12 +412,7 @@ export const internalSendMessage = internalMutation({
     content: v.string(),
     contentType: v.optional(v.union(v.literal("text"), v.literal("image"), v.literal("file"), v.literal("audio"))),
     isInternal: v.optional(v.boolean()),
-    attachments: v.optional(v.array(v.object({
-      name: v.string(),
-      url: v.string(),
-      type: v.string(),
-      size: v.number(),
-    }))),
+    attachments: v.optional(v.array(v.id("files"))),
     mentionedUserIds: v.optional(v.array(v.id("teamMembers"))),
     teamMemberId: v.id("teamMembers"),
   },
@@ -383,6 +440,15 @@ export const internalSendMessage = internalMutation({
       mentionedUserIds: args.isInternal ? args.mentionedUserIds : undefined,
       createdAt: now,
     });
+
+    // Link attachment files back to this message
+    if (args.attachments && args.attachments.length > 0) {
+      await Promise.all(
+        args.attachments.map((fileId) =>
+          ctx.db.patch(fileId, { messageId })
+        )
+      );
+    }
 
     // Update conversation
     await ctx.db.patch(args.conversationId, {

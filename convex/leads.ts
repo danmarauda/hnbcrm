@@ -592,6 +592,148 @@ export const updateLeadQualification = mutation({
   },
 });
 
+// Add document to lead
+export const addLeadDocument = mutation({
+  args: {
+    leadId: v.id("leads"),
+    fileId: v.id("files"),
+    title: v.optional(v.string()),
+    category: v.optional(v.union(
+      v.literal("contract"),
+      v.literal("proposal"),
+      v.literal("invoice"),
+      v.literal("other")
+    )),
+  },
+  returns: v.id("leadDocuments"),
+  handler: async (ctx, args) => {
+    const lead = await ctx.db.get(args.leadId);
+    if (!lead) throw new Error("Lead não encontrado");
+
+    const userMember = await requirePermission(ctx, lead.organizationId, "leads", "edit_own");
+
+    const now = Date.now();
+
+    const file = await ctx.db.get(args.fileId);
+    if (!file) throw new Error("Arquivo não encontrado");
+
+    const docId = await ctx.db.insert("leadDocuments", {
+      organizationId: lead.organizationId,
+      leadId: args.leadId,
+      fileId: args.fileId,
+      title: args.title,
+      category: args.category,
+      uploadedBy: userMember._id,
+      createdAt: now,
+    });
+
+    // Activity log
+    await ctx.db.insert("activities", {
+      organizationId: lead.organizationId,
+      leadId: args.leadId,
+      type: "note",
+      actorId: userMember._id,
+      actorType: userMember.type === "ai" ? "ai" : "human",
+      content: `Documento adicionado: ${args.title || file.name}`,
+      createdAt: now,
+    });
+
+    // Audit log
+    await ctx.db.insert("auditLogs", {
+      organizationId: lead.organizationId,
+      entityType: "lead",
+      entityId: args.leadId,
+      action: "update",
+      actorId: userMember._id,
+      actorType: userMember.type === "ai" ? "ai" : "human",
+      changes: {
+        after: { document: args.title || file.name, fileId: args.fileId },
+      },
+      metadata: { title: lead.title },
+      description: buildAuditDescription({ action: "update", entityType: "lead", metadata: { title: lead.title }, changes: { after: { document: args.title || file.name } } }),
+      severity: "low",
+      createdAt: now,
+    });
+
+    // Trigger webhooks
+    await ctx.scheduler.runAfter(0, internal.nodeActions.triggerWebhooks, {
+      organizationId: lead.organizationId,
+      event: "lead.updated",
+      payload: { leadId: args.leadId, documentAdded: args.title || file.name },
+    });
+
+    return docId;
+  },
+});
+
+// Remove document from lead
+export const removeLeadDocument = mutation({
+  args: {
+    documentId: v.id("leadDocuments"),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const doc = await ctx.db.get(args.documentId);
+    if (!doc) throw new Error("Documento não encontrado");
+
+    const lead = await ctx.db.get(doc.leadId);
+    if (!lead) throw new Error("Lead não encontrado");
+
+    const userMember = await requirePermission(ctx, lead.organizationId, "leads", "edit_own");
+
+    const now = Date.now();
+
+    const file = await ctx.db.get(doc.fileId);
+    const fileName = file?.name || "arquivo desconhecido";
+
+    // Delete file from storage
+    if (file) {
+      await ctx.storage.delete(file.storageId);
+      await ctx.db.delete(file._id);
+    }
+
+    // Delete lead document entry
+    await ctx.db.delete(args.documentId);
+
+    // Activity log
+    await ctx.db.insert("activities", {
+      organizationId: lead.organizationId,
+      leadId: doc.leadId,
+      type: "note",
+      actorId: userMember._id,
+      actorType: userMember.type === "ai" ? "ai" : "human",
+      content: `Documento removido: ${doc.title || fileName}`,
+      createdAt: now,
+    });
+
+    // Audit log
+    await ctx.db.insert("auditLogs", {
+      organizationId: lead.organizationId,
+      entityType: "lead",
+      entityId: doc.leadId,
+      action: "update",
+      actorId: userMember._id,
+      actorType: userMember.type === "ai" ? "ai" : "human",
+      changes: {
+        before: { document: doc.title || fileName, fileId: doc.fileId },
+      },
+      metadata: { title: lead.title },
+      description: buildAuditDescription({ action: "update", entityType: "lead", metadata: { title: lead.title }, changes: { before: { document: doc.title || fileName } } }),
+      severity: "medium",
+      createdAt: now,
+    });
+
+    // Trigger webhooks
+    await ctx.scheduler.runAfter(0, internal.nodeActions.triggerWebhooks, {
+      organizationId: lead.organizationId,
+      event: "lead.updated",
+      payload: { leadId: doc.leadId, documentRemoved: doc.title || fileName },
+    });
+
+    return null;
+  },
+});
+
 // ===== Internal functions (for HTTP API / httpAction context) =====
 
 // Internal: Get leads for organization (no auth check)

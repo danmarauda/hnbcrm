@@ -211,16 +211,16 @@ export function EventDetailSlideOver({ open, onClose, eventId, onEdit }: EventDe
           )}
 
           {/* Attendees */}
-          {event.attendees && event.attendees.length > 0 && (
+          {event.attendeesResolved && event.attendeesResolved.length > 0 && (
             <div>
               <h3 className="text-sm font-medium text-text-secondary mb-2 flex items-center gap-2">
                 <Users size={16} />
                 Participantes
               </h3>
               <div className="space-y-2">
-                {event.attendees.map((attendee) => (
+                {event.attendeesResolved.map((attendee) => (
                   <div key={attendee._id} className="flex items-center gap-2">
-                    <Avatar name={attendee.name} type={attendee.type} size="xs" />
+                    <Avatar name={attendee.name} type={attendee.type} size="sm" />
                     <span className="text-sm text-text-primary">{attendee.name}</span>
                   </div>
                 ))}

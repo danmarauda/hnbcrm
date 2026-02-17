@@ -11,6 +11,7 @@ import { CollapsibleSection } from "@/components/ui/CollapsibleSection";
 import { SocialIcons } from "@/components/SocialIcons";
 import { CustomFieldsRenderer } from "@/components/CustomFieldsRenderer";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { AvatarUpload } from "@/components/ui/AvatarUpload";
 import { Trash2, Bot } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -102,6 +103,7 @@ export function ContactDetailPanel({ contactId, onClose }: ContactDetailPanelPro
   );
 
   const updateContact = useMutation(api.contacts.updateContact);
+  const updateContactPhoto = useMutation(api.contacts.updateContactPhoto);
   const deleteContact = useMutation(api.contacts.deleteContact);
 
   // Initialize form when data first loads
@@ -274,13 +276,17 @@ export function ContactDetailPanel({ contactId, onClose }: ContactDetailPanelPro
                 {!editing ? (
                   <div className="space-y-3">
                     <div className="flex items-center gap-3">
-                      {contact.photoUrl ? (
-                        <img src={contact.photoUrl} alt="" className="w-12 h-12 rounded-full object-cover" />
-                      ) : (
-                        <div className="w-12 h-12 rounded-full bg-brand-600 flex items-center justify-center text-white font-semibold text-lg">
-                          {initials}
-                        </div>
-                      )}
+                      <AvatarUpload
+                        currentPhotoUrl={contact.photoUrl}
+                        initials={initials}
+                        organizationId={contact.organizationId}
+                        fileType="contact_photo"
+                        contactId={contactId}
+                        onPhotoChange={(fileId) => {
+                          updateContactPhoto({ contactId, photoFileId: fileId });
+                        }}
+                        size="md"
+                      />
                       <div>
                         <div className="font-medium text-text-primary">{displayName}</div>
                         {contact.title && <div className="text-sm text-text-muted">{contact.title}</div>}
@@ -300,7 +306,19 @@ export function ContactDetailPanel({ contactId, onClose }: ContactDetailPanelPro
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    <EditField label="URL da Foto" value={form.photoUrl} onChange={(v) => updateField("photoUrl", v)} />
+                    <div className="flex justify-center">
+                      <AvatarUpload
+                        currentPhotoUrl={contact.photoUrl}
+                        initials={initials}
+                        organizationId={contact.organizationId}
+                        fileType="contact_photo"
+                        contactId={contactId}
+                        onPhotoChange={(fileId) => {
+                          updateContactPhoto({ contactId, photoFileId: fileId });
+                        }}
+                        size="lg"
+                      />
+                    </div>
                     <div className="grid grid-cols-2 gap-3">
                       <EditField label="Nome" value={form.firstName} onChange={(v) => updateField("firstName", v)} />
                       <EditField label="Sobrenome" value={form.lastName} onChange={(v) => updateField("lastName", v)} />

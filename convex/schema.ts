@@ -50,7 +50,7 @@ const applicationTables = {
     role: v.union(v.literal("admin"), v.literal("manager"), v.literal("agent"), v.literal("ai")),
     type: v.union(v.literal("human"), v.literal("ai")),
     status: v.union(v.literal("active"), v.literal("inactive"), v.literal("busy")),
-    avatar: v.optional(v.string()),
+    avatarFileId: v.optional(v.id("files")),
     capabilities: v.optional(v.array(v.string())),
     permissions: v.optional(permissionsValidator),
     mustChangePassword: v.optional(v.boolean()),
@@ -166,7 +166,7 @@ const applicationTables = {
     searchText: v.optional(v.string()),
 
     // Identity
-    photoUrl: v.optional(v.string()),
+    photoFileId: v.optional(v.id("files")),
     bio: v.optional(v.string()),
 
     // Social Profiles
@@ -314,12 +314,7 @@ const applicationTables = {
     senderType: v.union(v.literal("contact"), v.literal("human"), v.literal("ai")),
     content: v.string(),
     contentType: v.union(v.literal("text"), v.literal("image"), v.literal("file"), v.literal("audio")),
-    attachments: v.optional(v.array(v.object({
-      name: v.string(),
-      url: v.string(),
-      type: v.string(),
-      size: v.number(),
-    }))),
+    attachments: v.optional(v.array(v.id("files"))),
     deliveryStatus: v.optional(v.union(
       v.literal("sent"),
       v.literal("delivered"),
@@ -597,6 +592,57 @@ const applicationTables = {
     lastTriggered: v.optional(v.number()),
     createdAt: v.number(),
   }).index("by_organization", ["organizationId"]),
+
+  // File Storage
+  files: defineTable({
+    organizationId: v.id("organizations"),
+    storageId: v.string(),
+    name: v.string(),
+    mimeType: v.string(),
+    size: v.number(),
+    fileType: v.union(
+      v.literal("message_attachment"),
+      v.literal("contact_photo"),
+      v.literal("member_avatar"),
+      v.literal("lead_document"),
+      v.literal("import_file"),
+      v.literal("other")
+    ),
+
+    // Relations (all optional, at most one set)
+    messageId: v.optional(v.id("messages")),
+    contactId: v.optional(v.id("contacts")),
+    leadId: v.optional(v.id("leads")),
+    teamMemberId: v.optional(v.id("teamMembers")),
+
+    uploadedBy: v.id("teamMembers"),
+    metadata: v.optional(v.record(v.string(), v.any())),
+    createdAt: v.number(),
+  })
+    .index("by_organization", ["organizationId"])
+    .index("by_organization_and_type", ["organizationId", "fileType"])
+    .index("by_message", ["messageId"])
+    .index("by_contact", ["contactId"])
+    .index("by_lead", ["leadId"])
+    .index("by_storage_id", ["storageId"]),
+
+  // Lead Documents (join table for lead ↔ document relationships)
+  leadDocuments: defineTable({
+    organizationId: v.id("organizations"),
+    leadId: v.id("leads"),
+    fileId: v.id("files"),
+    title: v.optional(v.string()),
+    category: v.optional(v.union(
+      v.literal("contract"),
+      v.literal("proposal"),
+      v.literal("invoice"),
+      v.literal("other")
+    )),
+    uploadedBy: v.id("teamMembers"),
+    createdAt: v.number(),
+  })
+    .index("by_lead", ["leadId"])
+    .index("by_organization", ["organizationId"]),
 };
 
 export default defineSchema({

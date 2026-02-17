@@ -74,7 +74,7 @@ export function EventBlock({ event, onClick, compact }: EventBlockProps) {
             <Avatar
               name={event.assignee.name}
               type={event.assignee.type}
-              size="xs"
+              size="sm"
             />
           )}
         </div>

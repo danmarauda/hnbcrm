@@ -17,7 +17,7 @@ interface DayViewEvent {
 interface DayViewProps {
   date: Date;
   events: DayViewEvent[];
-  onEventClick: (eventId: string) => void;
+  onEventClick: (eventId: string, source: "event" | "task") => void;
   onSlotClick: (date: Date, hour: number, minute: number) => void;
   onSelectDay: (date: Date) => void;
 }
@@ -94,7 +94,7 @@ export function DayView({ date, events, onEventClick, onSlotClick, onSelectDay }
             {allDayEvents.map((event) => (
               <div
                 key={event._id}
-                onClick={() => onEventClick(event._id)}
+                onClick={() => onEventClick(event._id, event._source || "event")}
                 className="text-sm px-2 py-1 rounded bg-surface-overlay border border-border cursor-pointer hover:bg-surface-sunken transition-colors"
               >
                 {event.title}

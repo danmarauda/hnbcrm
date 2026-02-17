@@ -20,7 +20,7 @@ function buildSearchText(contact: {
 
 // Shared optional-field arg validators for enrichment fields
 const enrichmentArgFields = {
-  photoUrl: v.optional(v.string()),
+  photoFileId: v.optional(v.id("files")),
   bio: v.optional(v.string()),
   linkedinUrl: v.optional(v.string()),
   instagramUrl: v.optional(v.string()),
@@ -100,7 +100,16 @@ export const getContact = query({
     const contact = await ctx.db.get(args.contactId);
     if (!contact) return null;
     await requireAuth(ctx, contact.organizationId);
-    return contact;
+
+    let photoUrl: string | null = null;
+    if (contact.photoFileId) {
+      const file = await ctx.db.get(contact.photoFileId);
+      if (file) {
+        photoUrl = await ctx.storage.getUrl(file.storageId);
+      }
+    }
+
+    return { ...contact, photoUrl };
   },
 });
 
@@ -130,6 +139,14 @@ export const getContactWithLeads = query({
     if (!contact) return null;
     await requireAuth(ctx, contact.organizationId);
 
+    let photoUrl: string | null = null;
+    if (contact.photoFileId) {
+      const file = await ctx.db.get(contact.photoFileId);
+      if (file) {
+        photoUrl = await ctx.storage.getUrl(file.storageId);
+      }
+    }
+
     const leads = await ctx.db
       .query("leads")
       .withIndex("by_contact", (q) => q.eq("contactId", args.contactId))
@@ -145,7 +162,7 @@ export const getContactWithLeads = query({
       assignee: lead.assignedTo ? assigneeMap.get(lead.assignedTo) ?? null : null,
     }));
 
-    return { ...contact, leads: leadsWithData };
+    return { ...contact, photoUrl, leads: leadsWithData };
   },
 });
 
@@ -159,7 +176,7 @@ export const getContactEnrichmentGaps = query({
 
     const allFields = [
       "firstName", "lastName", "email", "phone", "company", "title",
-      "whatsappNumber", "telegramUsername", "photoUrl", "bio",
+      "whatsappNumber", "telegramUsername", "bio",
       "linkedinUrl", "instagramUrl", "facebookUrl", "twitterUrl",
       "city", "state", "country",
       "industry", "companySize", "cnpj", "companyWebsite",
@@ -210,7 +227,7 @@ export const createContact = mutation({
       telegramUsername: args.telegramUsername,
       tags: args.tags || [],
       searchText: searchText || undefined,
-      photoUrl: args.photoUrl,
+      photoFileId: args.photoFileId,
       bio: args.bio,
       linkedinUrl: args.linkedinUrl,
       instagramUrl: args.instagramUrl,
@@ -530,7 +547,7 @@ export const internalCreateContact = internalMutation({
       telegramUsername: args.telegramUsername,
       tags: args.tags || [],
       searchText: searchText || undefined,
-      photoUrl: args.photoUrl,
+      photoFileId: args.photoFileId,
       bio: args.bio,
       linkedinUrl: args.linkedinUrl,
       instagramUrl: args.instagramUrl,
@@ -691,6 +708,59 @@ export const enrichContact = internalMutation({
   },
 });
 
+// Update contact photo
+export const updateContactPhoto = mutation({
+  args: {
+    contactId: v.id("contacts"),
+    photoFileId: v.optional(v.id("files")),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const contact = await ctx.db.get(args.contactId);
+    if (!contact) throw new Error("Contact not found");
+
+    const userMember = await requireAuth(ctx, contact.organizationId);
+    const now = Date.now();
+
+    // Delete old photo file if exists
+    if (contact.photoFileId) {
+      const oldFile = await ctx.db.get(contact.photoFileId);
+      if (oldFile) {
+        await ctx.storage.delete(oldFile.storageId);
+        await ctx.db.delete(oldFile._id);
+      }
+    }
+
+    await ctx.db.patch(args.contactId, {
+      photoFileId: args.photoFileId,
+      updatedAt: now,
+    });
+
+    await ctx.db.insert("auditLogs", {
+      organizationId: contact.organizationId,
+      entityType: "contact",
+      entityId: args.contactId,
+      action: "update",
+      actorId: userMember._id,
+      actorType: userMember.type === "ai" ? "ai" : "human",
+      changes: {
+        before: { photoFileId: contact.photoFileId },
+        after: { photoFileId: args.photoFileId },
+      },
+      description: buildAuditDescription({
+        action: "update",
+        entityType: "contact",
+        metadata: { name: `${contact.firstName || ""} ${contact.lastName || ""}`.trim() },
+        changes: { before: { photoFileId: contact.photoFileId }, after: { photoFileId: args.photoFileId } },
+      }),
+      severity: "low",
+      createdAt: now,
+    });
+
+    return null;
+  },
+});
+
 // Internal query for enrichment gaps
 export const internalGetContactEnrichmentGaps = internalQuery({
   args: { contactId: v.id("contacts") },
@@ -701,7 +771,7 @@ export const internalGetContactEnrichmentGaps = internalQuery({
 
     const allFields = [
       "firstName", "lastName", "email", "phone", "company", "title",
-      "whatsappNumber", "telegramUsername", "photoUrl", "bio",
+      "whatsappNumber", "telegramUsername", "bio",
       "linkedinUrl", "instagramUrl", "facebookUrl", "twitterUrl",
       "city", "state", "country",
       "industry", "companySize", "cnpj", "companyWebsite",

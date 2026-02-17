@@ -14,6 +14,7 @@ import { WeekView } from "./WeekView";
 import { DayView } from "./DayView";
 import { CalendarEventModal } from "./CalendarEventModal";
 import { EventDetailSlideOver } from "./EventDetailSlideOver";
+import { TaskDetailSlideOver } from "./TaskDetailSlideOver";
 import { EventBlock } from "./EventBlock";
 import { Spinner } from "../ui/Spinner";
 import { toast } from "sonner";
@@ -34,6 +35,7 @@ export function CalendarPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editEventId, setEditEventId] = useState<string | null>(null);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [selectedEventSource, setSelectedEventSource] = useState<"event" | "task" | null>(null);
   const [initialDate, setInitialDate] = useState<Date | undefined>();
   const [initialHour, setInitialHour] = useState<number | undefined>();
   const [initialMinute, setInitialMinute] = useState<number | undefined>();
@@ -86,6 +88,12 @@ export function CalendarPage() {
 
     if (!eventId) return;
 
+    // Prevent dragging tasks
+    if (eventData._source === "task") {
+      toast.error("Tarefas não podem ser arrastadas no calendário. Edite na página de Tarefas.");
+      return;
+    }
+
     // Handle drop on day cell (month view)
     if (over.id.toString().startsWith("day-")) {
       const targetDate = over.data.current?.date as Date;
@@ -129,8 +137,9 @@ export function CalendarPage() {
     }
   };
 
-  const handleEventClick = (eventId: string) => {
+  const handleEventClick = (eventId: string, source: "event" | "task") => {
     setSelectedEventId(eventId);
+    setSelectedEventSource(source);
   };
 
   const handleSlotClick = (date: Date, hour: number, minute: number) => {
@@ -255,12 +264,28 @@ export function CalendarPage() {
         initialMinute={initialMinute}
       />
 
-      <EventDetailSlideOver
-        open={selectedEventId !== null}
-        onClose={() => setSelectedEventId(null)}
-        eventId={selectedEventId}
-        onEdit={handleEditEvent}
-      />
+      {selectedEventSource === "event" && (
+        <EventDetailSlideOver
+          open={!!selectedEventId}
+          onClose={() => {
+            setSelectedEventId(null);
+            setSelectedEventSource(null);
+          }}
+          eventId={selectedEventId}
+          onEdit={handleEditEvent}
+        />
+      )}
+
+      {selectedEventSource === "task" && (
+        <TaskDetailSlideOver
+          open={!!selectedEventId}
+          onClose={() => {
+            setSelectedEventId(null);
+            setSelectedEventSource(null);
+          }}
+          taskId={selectedEventId}
+        />
+      )}
     </DndContext>
   );
 }

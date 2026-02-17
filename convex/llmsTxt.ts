@@ -306,6 +306,34 @@ A comment on a task.
 | content | string | Comment text |
 | mentionedUserIds | Id<teamMembers>[] | @mentioned team members |
 
+### File
+File metadata for uploaded files (attachments, photos, documents).
+
+| Field | Type | Description |
+|-------|------|-------------|
+| storageId | string | Convex storage ID |
+| name | string | File name |
+| mimeType | string | MIME type |
+| size | number | File size in bytes |
+| fileType | enum | message_attachment, contact_photo, member_avatar, lead_document, import_file, other |
+| messageId | Id<messages> | Linked message (if attachment) |
+| contactId | Id<contacts> | Linked contact (if photo) |
+| leadId | Id<leads> | Linked lead (if document) |
+| teamMemberId | Id<teamMembers> | Linked team member (if avatar) |
+| uploadedBy | Id<teamMembers> | Who uploaded the file |
+| metadata | Record<string, any> | Additional metadata |
+
+### Lead Document
+Join table for lead-document relationships.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| leadId | Id<leads> | Associated lead |
+| fileId | Id<files> | File record |
+| title | string | Document title (optional, defaults to filename) |
+| category | enum | contract, proposal, invoice, other |
+| uploadedBy | Id<teamMembers> | Who uploaded the document |
+
 ---
 
 ## REST API Endpoints
@@ -698,6 +726,57 @@ Reschedule a calendar event.
 Mark a calendar event as completed. If recurring, auto-generates next instance.
 
 **Body:** eventId (required)
+
+**Response:** \`{ success: true }\`
+
+### File Storage Endpoints
+
+#### POST /api/v1/files/upload-url
+Generate a presigned upload URL for file storage.
+
+**Response:** \`{ uploadUrl }\`
+
+**Flow:**
+1. Call this endpoint to get an upload URL
+2. POST the file directly to the returned URL
+3. Extract \`storageId\` from the response
+4. Call POST /api/v1/files to save metadata
+
+#### POST /api/v1/files
+Save file metadata after uploading to storage.
+
+**Body:**
+| Param | Type | Required | Description |
+|-------|------|----------|-------------|
+| storageId | string | yes | Storage ID from upload response |
+| name | string | yes | File name |
+| mimeType | string | yes | MIME type |
+| size | number | yes | File size in bytes |
+| fileType | string | yes | message_attachment, contact_photo, member_avatar, lead_document, import_file, other |
+| messageId | Id | no | Link to message (for attachments) |
+| contactId | Id | no | Link to contact (for photos) |
+| leadId | Id | no | Link to lead (for documents) |
+| metadata | object | no | Additional metadata |
+
+**Allowed file types:**
+- Images: jpeg, png, gif, webp (10MB max)
+- Documents: pdf, doc, docx, xls, xlsx (20MB max)
+- Text: txt, csv, json (10MB max)
+- Audio: mp3, wav, ogg (10MB max)
+
+**Quotas:**
+- Free tier: 1GB total storage, 100 uploads/day
+- Pro tier: 10GB total storage, 1000 uploads/day
+
+**Response:** \`{ success: true, fileId }\`
+
+#### GET /api/v1/files/:id/url
+Get download URL for a file.
+
+**Response:** \`{ url }\` (URL expires after a short time)
+
+#### DELETE /api/v1/files/:id
+Delete a file and its metadata.
 
 **Response:** \`{ success: true }\`
 
@@ -1110,4 +1189,10 @@ Webhook payloads include \`{ event, organizationId, payload, timestamp }\`. Each
 
 ### Audit Log Severity
 \`low\` | \`medium\` | \`high\` | \`critical\`
+
+### File Type
+\`message_attachment\` | \`contact_photo\` | \`member_avatar\` | \`lead_document\` | \`import_file\` | \`other\`
+
+### Lead Document Category
+\`contract\` | \`proposal\` | \`invoice\` | \`other\`
 `;

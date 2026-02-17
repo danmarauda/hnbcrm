@@ -17,7 +17,7 @@ interface WeekViewEvent {
 interface WeekViewProps {
   weekStart: Date;
   events: WeekViewEvent[];
-  onEventClick: (eventId: string) => void;
+  onEventClick: (eventId: string, source: "event" | "task") => void;
   onSlotClick: (date: Date, hour: number, minute: number) => void;
 }
 
@@ -105,7 +105,7 @@ export function WeekView({ weekStart, events, onEventClick, onSlotClick }: WeekV
                 {dayEvents.map((event) => (
                   <div
                     key={event._id}
-                    onClick={() => onEventClick(event._id)}
+                    onClick={() => onEventClick(event._id, event._source || "event")}
                     className="text-[10px] md:text-xs px-1 py-0.5 rounded bg-surface-overlay border border-border cursor-pointer hover:bg-surface-sunken transition-colors truncate"
                   >
                     {event.title}

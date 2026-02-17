@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
+import { AvatarUpload } from "@/components/ui/AvatarUpload";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { PermissionsEditor } from "./PermissionsEditor";
 import {
@@ -33,6 +34,8 @@ interface TeamMember {
   permissions?: Permissions | null;
   mustChangePassword?: boolean;
   invitedBy?: Id<"teamMembers"> | null;
+  avatarFileId?: Id<"files"> | null;
+  avatarUrl?: string | null;
   createdAt: number;
 }
 
@@ -86,6 +89,7 @@ export function MemberDetailSlideOver({
   const [revokeKeyId, setRevokeKeyId] = useState<Id<"apiKeys"> | null>(null);
 
   const updateMember = useMutation(api.teamMembers.updateTeamMember);
+  const updateMemberAvatar = useMutation(api.teamMembers.updateMemberAvatar);
   const removeMember = useMutation(api.teamMembers.removeTeamMember);
   const reactivateMember = useMutation(api.teamMembers.reactivateTeamMember);
   const createApiKeyAction = useAction(api.nodeActions.createApiKey);
@@ -246,11 +250,17 @@ export function MemberDetailSlideOver({
         <div className="p-4 md:p-6 space-y-6">
           {/* Member header */}
           <div className="flex items-center gap-4">
-            <Avatar
-              name={member.name}
-              type={member.type as "human" | "ai"}
+            <AvatarUpload
+              currentPhotoUrl={member.avatarUrl}
+              initials={member.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)}
+              organizationId={organizationId}
+              fileType="member_avatar"
+              teamMemberId={member._id}
+              onPhotoChange={(fileId) => {
+                updateMemberAvatar({ teamMemberId: member._id, avatarFileId: fileId });
+              }}
+              disabled={!canManage && currentMemberId !== member._id}
               size="lg"
-              status={member.status as "active" | "busy" | "inactive"}
             />
             <div className="flex-1 min-w-0">
               {isEditing ? (

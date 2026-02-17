@@ -136,22 +136,6 @@ export const getDashboardStats = query({
 
     const pendingHandoffs = handoffs.length;
 
-    // Recent activities (last 10) with actor names
-    const activities = await ctx.db
-      .query("activities")
-      .withIndex("by_organization", (q) => q.eq("organizationId", args.organizationId))
-      .order("desc")
-      .take(10);
-
-    const actorMap = await batchGet(ctx.db, activities.map(a => a.actorId));
-    const recentActivities = activities.map(activity => {
-      const actor = activity.actorId ? actorMap.get(activity.actorId) ?? null : null;
-      return {
-        ...activity,
-        actorName: actor?.name || (activity.actorType === "system" ? "System" : "Unknown"),
-      };
-    });
-
     // Task stats (no Date.now() — counts only, time-based filtering done client-side)
     const allTasks = await ctx.db
       .query("tasks")
@@ -175,7 +159,6 @@ export const getDashboardStats = query({
       leadsBySource,
       teamPerformance,
       pendingHandoffs,
-      recentActivities,
       tasks,
     };
   },
@@ -478,21 +461,6 @@ export const internalGetDashboardStats = internalQuery({
       )
       .take(100);
 
-    const activities = await ctx.db
-      .query("activities")
-      .withIndex("by_organization", (q) => q.eq("organizationId", args.organizationId))
-      .order("desc")
-      .take(10);
-
-    const actorMap = await batchGet(ctx.db, activities.map(a => a.actorId));
-    const recentActivities = activities.map(activity => {
-      const actor = activity.actorId ? actorMap.get(activity.actorId) ?? null : null;
-      return {
-        ...activity,
-        actorName: actor?.name || (activity.actorType === "system" ? "System" : "Unknown"),
-      };
-    });
-
     // Task stats (no Date.now() — counts only)
     const allTasks = await ctx.db
       .query("tasks")
@@ -516,7 +484,6 @@ export const internalGetDashboardStats = internalQuery({
       leadsBySource,
       teamPerformance,
       pendingHandoffs: handoffs.length,
-      recentActivities,
       tasks,
     };
   },

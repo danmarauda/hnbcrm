@@ -12,10 +12,11 @@ interface AvatarProps {
   type?: "human" | "ai";
   size?: keyof typeof sizes;
   status?: "active" | "busy" | "inactive";
+  imageUrl?: string | null;
   className?: string;
 }
 
-export function Avatar({ name, type = "human", size = "md", status, className }: AvatarProps) {
+export function Avatar({ name, type = "human", size = "md", status, imageUrl, className }: AvatarProps) {
   const initials = name
     .split(" ")
     .map((n) => n[0])
@@ -27,12 +28,16 @@ export function Avatar({ name, type = "human", size = "md", status, className }:
     <div className={cn("relative inline-flex shrink-0", className)}>
       <div
         className={cn(
-          "rounded-full flex items-center justify-center font-semibold text-white bg-brand-600",
+          "rounded-full flex items-center justify-center font-semibold text-white bg-brand-600 overflow-hidden",
           sizes[size]
         )}
         aria-label={`${name} (${type === "ai" ? "IA" : "Humano"})`}
       >
-        {initials}
+        {imageUrl ? (
+          <img src={imageUrl} alt="" className="w-full h-full object-cover" />
+        ) : (
+          initials
+        )}
       </div>
 
       {/* AI badge */}

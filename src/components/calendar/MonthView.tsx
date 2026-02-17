@@ -13,7 +13,7 @@ interface MonthViewEvent {
 interface MonthViewProps {
   currentDate: Date;
   events: MonthViewEvent[];
-  onEventClick: (eventId: string) => void;
+  onEventClick: (eventId: string, source: "event" | "task") => void;
   onSelectDay: (date: Date) => void;
 }
 

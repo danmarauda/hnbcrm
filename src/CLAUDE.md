@@ -91,6 +91,12 @@ if (data === undefined) return <Spinner size="lg" />;
 
 **Navigation:** URL-based via react-router v7. `src/lib/routes.ts` defines `TAB_ROUTES` (Tab → path) and `PATH_TO_TAB` (path → Tab). `Sidebar` and `BottomTabBar` derive active state from `useLocation()` and navigate via `useNavigate()`. The `Tab` type is exported from `BottomTabBar.tsx`.
 
+## React Anti-Patterns
+
+- **NEVER** call `Date.now()` or functions that return new values in useQuery args → use `useState(() => Date.now())` instead (prevents infinite loops)
+- **NEVER** pass `new Set()` / `new Map()` / `[]` / `{}` directly to useState → use initializer function: `useState(() => new Set())`
+- **NEVER** call setState in render body → use useEffect or event handlers only
+
 ## Styling
 
 - **Dark theme default** — CSS custom properties in `index.css` (`:root` = dark, `.light` = override)

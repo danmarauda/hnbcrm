@@ -12,6 +12,9 @@ import type { Tab } from "@/components/layout/BottomTabBar";
 import { TAB_ROUTES } from "@/lib/routes";
 import type { AppOutletContext } from "@/components/layout/AuthLayout";
 import { OnboardingChecklist } from "@/components/onboarding/OnboardingChecklist";
+import { RecentActivityWidget } from "@/components/RecentActivityWidget";
+import { UpcomingTasksWidget } from "@/components/UpcomingTasksWidget";
+import { UpcomingEventsWidget } from "@/components/UpcomingEventsWidget";
 import { toast } from "sonner";
 import {
   Handshake,
@@ -153,6 +156,12 @@ export function DashboardOverview() {
       {/* 4b. Minhas Tarefas */}
       <MyTasksWidget organizationId={organizationId} onTabChange={onTabChange} />
 
+      {/* 4c. Upcoming Tasks + Events Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <UpcomingTasksWidget organizationId={organizationId} />
+        <UpcomingEventsWidget organizationId={organizationId} />
+      </div>
+
       {/* 5. Feature Overview Grid */}
       <div>
         <h2 className="text-lg font-semibold text-text-primary mb-4">Plataforma HNBCRM</h2>
@@ -177,33 +186,7 @@ export function DashboardOverview() {
       </div>
 
       {/* 7. Recent Activity */}
-      <Card>
-        <h3 className="text-lg font-semibold text-text-primary mb-4">Atividade Recente</h3>
-        {stats.recentActivities.length === 0 ? (
-          <p className="text-text-muted">Nenhuma atividade recente.</p>
-        ) : (
-          <div className="space-y-3">
-            {stats.recentActivities.map((activity) => {
-              const badgeVariant = activityTypeBadges[activity.type] || "default";
-              const typeLabel = activityTypeLabels[activity.type] || activity.type.replace("_", " ");
-
-              return (
-                <div key={activity._id} className="flex items-start gap-3 text-sm">
-                  <Badge variant={badgeVariant} className="shrink-0">
-                    {typeLabel}
-                  </Badge>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-text-primary truncate">{activity.content || typeLabel}</p>
-                    <p className="text-text-muted text-xs">
-                      {activity.actorName} · {new Date(activity.createdAt).toLocaleString("pt-BR")}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </Card>
+      <RecentActivityWidget organizationId={organizationId} />
     </div>
   );
 }
@@ -226,8 +209,9 @@ function MyTasksWidget({
   organizationId: Id<"organizations">;
   onTabChange: (tab: Tab) => void;
 }) {
+  const [now] = useState(() => Date.now());
   const myTasks = useQuery(api.tasks.getMyTasks, { organizationId });
-  const taskCounts = useQuery(api.tasks.getTaskCounts, { organizationId, now: Date.now() });
+  const taskCounts = useQuery(api.tasks.getTaskCounts, { organizationId, now });
   const completeTask = useMutation(api.tasks.completeTask);
 
   const handleComplete = async (taskId: Id<"tasks">) => {
@@ -238,8 +222,6 @@ function MyTasksWidget({
       toast.error("Falha ao concluir tarefa");
     }
   };
-
-  const now = Date.now();
 
   return (
     <Card>
@@ -709,26 +691,6 @@ const comingSoonFeatures = [
     description: "Importação de CSV e exportação de dados em massa para planilhas",
   },
 ];
-
-const activityTypeLabels: Record<string, string> = {
-  created: "criado",
-  stage_change: "mudança de etapa",
-  assignment: "atribuição",
-  message_sent: "mensagem enviada",
-  handoff: "repasse",
-  qualification_update: "qualificação",
-  note: "nota",
-};
-
-const activityTypeBadges: Record<string, "success" | "brand" | "info" | "warning" | "default"> = {
-  created: "success",
-  stage_change: "brand",
-  assignment: "info",
-  message_sent: "info",
-  handoff: "warning",
-  qualification_update: "warning",
-  note: "default",
-};
 
 function formatCurrency(value: number): string {
   if (value >= 1_000_000) return `R$ ${(value / 1_000_000).toFixed(1)}M`;

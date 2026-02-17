@@ -386,7 +386,7 @@ http.route({
         whatsappNumber: body.whatsappNumber,
         telegramUsername: body.telegramUsername,
         tags: body.tags,
-        photoUrl: body.photoUrl,
+        photoFileId: body.photoFileId,
         bio: body.bio,
         linkedinUrl: body.linkedinUrl,
         instagramUrl: body.instagramUrl,
@@ -461,7 +461,7 @@ http.route({
         whatsappNumber: body.whatsappNumber,
         telegramUsername: body.telegramUsername,
         tags: body.tags,
-        photoUrl: body.photoUrl,
+        photoFileId: body.photoFileId,
         bio: body.bio,
         linkedinUrl: body.linkedinUrl,
         instagramUrl: body.instagramUrl,
@@ -704,6 +704,117 @@ http.route({
       await ctx.runMutation(internal.handoffs.internalRejectHandoff, {
         handoffId: body.handoffId as Id<"handoffs">,
         notes: body.notes,
+        teamMemberId: apiKeyRecord.teamMemberId,
+      });
+
+      return jsonResponse({ success: true });
+    } catch (error) {
+      return errorResponse(error instanceof Error ? error.message : "Internal server error");
+    }
+  }),
+});
+
+// ---- File Storage Endpoints ----
+
+// Generate upload URL
+http.route({
+  path: "/api/v1/files/upload-url",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    if (request.method === "OPTIONS") return handleOptions();
+    try {
+      const apiKeyRecord = await authenticateApiKey(ctx, request);
+
+      const uploadUrl = await ctx.runMutation(internal.files.internalGenerateUploadUrl, {
+        organizationId: apiKeyRecord.organizationId,
+        teamMemberId: apiKeyRecord.teamMemberId,
+      });
+
+      return jsonResponse({ uploadUrl });
+    } catch (error) {
+      return errorResponse(error instanceof Error ? error.message : "Internal server error");
+    }
+  }),
+});
+
+// Save file metadata after upload
+http.route({
+  path: "/api/v1/files",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    if (request.method === "OPTIONS") return handleOptions();
+    try {
+      const apiKeyRecord = await authenticateApiKey(ctx, request);
+      const body = await request.json();
+
+      if (!body.storageId || !body.name || !body.mimeType || !body.size || !body.fileType) {
+        return errorResponse("storageId, name, mimeType, size, and fileType are required", 400);
+      }
+
+      const fileId = await ctx.runMutation(internal.files.internalSaveFile, {
+        organizationId: apiKeyRecord.organizationId,
+        teamMemberId: apiKeyRecord.teamMemberId,
+        storageId: body.storageId,
+        name: body.name,
+        mimeType: body.mimeType,
+        size: body.size,
+        fileType: body.fileType,
+        messageId: body.messageId ? (body.messageId as Id<"messages">) : undefined,
+        contactId: body.contactId ? (body.contactId as Id<"contacts">) : undefined,
+        leadId: body.leadId ? (body.leadId as Id<"leads">) : undefined,
+        metadata: body.metadata,
+      });
+
+      return jsonResponse({ success: true, fileId }, 201);
+    } catch (error) {
+      return errorResponse(error instanceof Error ? error.message : "Internal server error");
+    }
+  }),
+});
+
+// Get file download URL
+http.route({
+  path: "/api/v1/files/:id/url",
+  method: "GET",
+  handler: httpAction(async (ctx, request) => {
+    if (request.method === "OPTIONS") return handleOptions();
+    try {
+      const apiKeyRecord = await authenticateApiKey(ctx, request);
+      const url = new URL(request.url);
+      const fileId = url.pathname.split("/")[4]; // Extract ID from path
+
+      if (!fileId) return errorResponse("File ID required", 400);
+
+      const fileUrl = await ctx.runQuery(internal.files.internalGetFileUrl, {
+        fileId: fileId as Id<"files">,
+        organizationId: apiKeyRecord.organizationId,
+      });
+
+      if (!fileUrl) return errorResponse("File not found", 404);
+
+      return jsonResponse({ url: fileUrl });
+    } catch (error) {
+      return errorResponse(error instanceof Error ? error.message : "Internal server error");
+    }
+  }),
+});
+
+// Delete file
+http.route({
+  path: "/api/v1/files/:id",
+  method: "DELETE",
+  handler: httpAction(async (ctx, request) => {
+    if (request.method === "OPTIONS") return handleOptions();
+    try {
+      const apiKeyRecord = await authenticateApiKey(ctx, request);
+      const url = new URL(request.url);
+      const fileId = url.pathname.split("/")[4]; // Extract ID from path
+
+      if (!fileId) return errorResponse("File ID required", 400);
+
+      await ctx.runMutation(internal.files.internalDeleteFile, {
+        fileId: fileId as Id<"files">,
+        organizationId: apiKeyRecord.organizationId,
         teamMemberId: apiKeyRecord.teamMemberId,
       });
 
@@ -1594,5 +1705,9 @@ http.route({ path: "/api/v1/calendar/events/update", method: "OPTIONS", handler:
 http.route({ path: "/api/v1/calendar/events/delete", method: "OPTIONS", handler: optionsHandler });
 http.route({ path: "/api/v1/calendar/events/reschedule", method: "OPTIONS", handler: optionsHandler });
 http.route({ path: "/api/v1/calendar/events/complete", method: "OPTIONS", handler: optionsHandler });
+http.route({ path: "/api/v1/files/upload-url", method: "OPTIONS", handler: optionsHandler });
+http.route({ path: "/api/v1/files", method: "OPTIONS", handler: optionsHandler });
+http.route({ path: "/api/v1/files/:id/url", method: "OPTIONS", handler: optionsHandler });
+http.route({ path: "/api/v1/files/:id", method: "OPTIONS", handler: optionsHandler });
 
 export default http;

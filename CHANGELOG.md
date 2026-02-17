@@ -2,6 +2,75 @@
 
 All notable changes to HNBCRM (formerly ClawCRM) will be documented in this file.
 
+## [0.17.1] - 2026-02-17
+
+### Dashboard Enhancements — Activity, Events & Tasks Widgets
+
+Improved dashboard with three new interactive widgets providing quick access to recent activity, upcoming events, and pending tasks.
+
+#### Frontend — Dashboard Widgets (`src/components/`)
+- **RecentActivityWidget.tsx** — Recent audit log activity with date/action filters (24h/7d/30d/all), expandable change diffs, actor avatars, entity icons
+- **UpcomingEventsWidget.tsx** — Upcoming calendar events with time range filters (Hoje/Amanhã/7d/30d), event type filters, assignee filters, day-grouped view
+- **UpcomingTasksWidget.tsx** — Upcoming tasks with smart filters (Hoje/Atrasadas/Esta Semana/Minhas Tarefas), priority filters, date-grouped buckets, overdue badges, one-click complete
+- **calendar/TaskDetailSlideOver.tsx** — Task detail slide-over with completion/cancellation actions, checklist progress, linked records
+- All widgets integrated into `DashboardOverview.tsx` with responsive grid layout
+
+#### Shared Utilities (`src/lib/auditUtils.ts`)
+- Extracted audit log utilities: entity icons, action labels, field labels, date grouping (`getDateGroup`), relative time formatting (`formatRelativeTime`), client-side description builder (`buildClientDescription`), diff value formatter (`formatDiffValue`)
+- Reused by both `AuditLogs.tsx` and `RecentActivityWidget.tsx` for consistency
+
+## [0.17.0] - 2026-02-17
+
+### File Storage System — Complete Upload and Management Infrastructure
+
+Major feature release adding Convex file storage with message attachments, contact photos, member avatars, and lead document management.
+
+#### Backend — File Storage (`convex/files.ts`)
+- **Core mutations** — `generateUploadUrl`, `saveFile`, `deleteFile` with full validation and quota checking
+- **Queries** — `getFileUrl`, `getFile`, `getLeadDocuments` with organization-scoped access control
+- **File validation** — MIME type whitelist (images: jpeg/png/gif/webp, documents: pdf/doc/docx/xls/xlsx, text: csv/txt/json, audio: mp3/wav/ogg)
+- **Size limits** — Images (10MB), Documents (20MB), Text (10MB), Audio (10MB)
+- **Quotas by tier** — Free (1GB storage, 100 uploads/day), Pro (10GB storage, 1000 uploads/day)
+- **Security** — Organization-scoped access, permission-gated uploads (requires `leads: edit_own`), file type whitelist
+- **Audit trail** — All file operations logged to `auditLogs` with actor tracking
+
+#### Schema — New Tables (`convex/schema.ts`)
+- **`files` table** — Central storage for file metadata (storageId, name, mimeType, size, fileType, relations to messages/contacts/leads/members)
+- **`leadDocuments` table** — Join table for lead ↔ document relationships with title and category (contract/proposal/invoice/other)
+- **Schema updates** — `messages.attachments` now array of file IDs, `contacts.photoFileId`, `teamMembers.avatarFileId`
+- **9 indexes** — `by_organization`, `by_organization_and_type`, `by_message`, `by_contact`, `by_lead`, `by_storage_id`
+
+#### HTTP API — File Endpoints (`convex/router.ts`)
+- **4 REST endpoints** at `/api/v1/files/*`:
+  - `POST /api/v1/files/upload-url` — Generate presigned upload URL
+  - `POST /api/v1/files` — Save file metadata after upload (validates, checks quota, creates record)
+  - `GET /api/v1/files/:id/url` — Get download URL for file
+  - `DELETE /api/v1/files/:id` — Delete file and metadata from storage
+
+#### Frontend — File Upload Components (`src/components/ui/`)
+- **FileUploadButton.tsx** — Reusable upload component with multi-file support (max 5), progress tracking, validation, staging area with remove buttons
+- **AttachmentPreview.tsx** — Image thumbnails (240x180px) with click-to-open + document rows with file icons, names, sizes, download buttons
+- **AvatarUpload.tsx** — Circular avatar with camera icon overlay, image-only (max 5MB), click-to-select with validation
+
+#### Message Attachments — Full Integration
+- **Backend** (`convex/conversations.ts`) — `sendMessage` accepts `attachments` array of file IDs, links files back to messages; `getMessages` batch-fetches attachment files and generates URLs
+- **Frontend** (`LeadDetailPanel.tsx` ConversationTab) — File upload button in composer, staged attachments with remove, inline attachment display in messages
+
+#### Contact/Member Photos
+- **Backend** — `updateContactPhoto` mutation in `contacts.ts`, `updateMemberAvatar` mutation in `teamMembers.ts` (both delete old file, update new, log audit)
+- **Queries** — `getContact`, `getContactWithLeads`, `getTeamMembers` all resolve file IDs to URLs
+- **Frontend** — `AvatarUpload` integrated into `ContactDetailPanel.tsx` and `MemberDetailSlideOver.tsx`
+
+#### Lead Documents
+- **Backend** (`convex/leads.ts`) — `addLeadDocument` mutation (creates join entry with category), `removeLeadDocument` mutation (deletes document + file from storage)
+- **Frontend** (`LeadDocuments.tsx`) — Document list with upload modal (title input, category select, file picker), download/delete buttons per document
+- **Integration** — Added to `LeadDetailPanel.tsx` DetailsTab below BANT qualification
+
+#### Documentation Updates
+- **`convex/llmsTxt.ts`** — Added File and LeadDocument data models, documented all file storage endpoints, added file type and category enums
+- **README.md** — Added "File Storage" to features list
+- **CHANGELOG.md** — This entry
+
 ## [0.16.0] - 2026-02-16
 
 ### Calendar System — Full Time-Based Event Management
