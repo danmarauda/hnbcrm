@@ -50,6 +50,11 @@ No backend changes — `createTeamMember` already accepts `type: "ai"` / `role: 
 
 - Removed `<link rel="preload">` for unused `orange_icon_logo_transparent_bg_full-700x700.png`
 
+#### Fix: Missing `@auth/core` Peer Dependency (`package.json`)
+
+- Explicitly added `@auth/core: ^0.37.0` to `dependencies`
+- Root cause: `.npmrc` sets `legacy-peer-deps=true` (required for react-helmet-async compatibility), which prevents npm from auto-installing peer dependencies — so `@auth/core` (a peer dep of `@convex-dev/auth`) was never installed, causing Convex bundler errors on every `convex dev` run
+
 ## [0.18.0] - 2026-02-17
 
 ### Bundle Optimization & SEO Enhancement
