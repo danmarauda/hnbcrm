@@ -359,11 +359,7 @@ export function DevelopersPage() {
               <h3 className="font-semibold text-text-primary">Instalacao</h3>
               <CodeBlock language="bash">{`npx hnbcrm-mcp`}</CodeBlock>
               <p className="text-sm text-text-muted">
-                Tambem disponivel no{" "}
-                <a href="https://smithery.ai/servers/hnbcrm-mcp" target="_blank" rel="noopener noreferrer" className="text-brand-400 hover:underline">
-                  Smithery.ai
-                </a>
-                {" "}e via{" "}
+                Disponivel via{" "}
                 <a href="https://www.npmjs.com/package/hnbcrm-mcp" target="_blank" rel="noopener noreferrer" className="text-brand-400 hover:underline">
                   npm
                 </a>.

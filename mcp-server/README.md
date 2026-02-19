@@ -1,7 +1,6 @@
 # HNBCRM MCP Server
 
 [![npm version](https://img.shields.io/npm/v/hnbcrm-mcp.svg)](https://www.npmjs.com/package/hnbcrm-mcp)
-[![smithery badge](https://smithery.ai/badge/hnbcrm-mcp)](https://smithery.ai/servers/hnbcrm-mcp)
 
 MCP (Model Context Protocol) server for [HNBCRM](https://github.com/hnbcrm/hnbcrm) — the CRM where humans and AI agents work together. Provides **44 tools across 8 categories** to manage leads, contacts, pipeline, tasks, and calendar via AI agents.
 

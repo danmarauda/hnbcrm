@@ -13,39 +13,44 @@ import { registerTaskTools } from "./tools/tasks.js";
 import { registerCalendarTools } from "./tools/calendar.js";
 import { registerResources } from "./resources.js";
 
-const HNBCRM_API_URL = process.env.HNBCRM_API_URL;
-const HNBCRM_API_KEY = process.env.HNBCRM_API_KEY;
+function createServer(apiUrl: string, apiKey: string) {
+  const server = new McpServer({
+    name: "hnbcrm",
+    version: "0.1.0",
+  });
 
-if (!HNBCRM_API_URL || !HNBCRM_API_KEY) {
-  console.error(
-    "Missing required environment variables: HNBCRM_API_URL and HNBCRM_API_KEY"
-  );
-  process.exit(1);
+  const client = new HnbCrmClient(apiUrl, apiKey);
+
+  registerLeadTools(server, client);
+  registerContactTools(server, client);
+  registerConversationTools(server, client);
+  registerHandoffTools(server, client);
+  registerPipelineTools(server, client);
+  registerActivityTools(server, client);
+  registerTaskTools(server, client);
+  registerCalendarTools(server, client);
+  registerResources(server, client);
+
+  return server;
 }
 
-const server = new McpServer({
-  name: "hnbcrm",
-  version: "0.1.0",
-});
-
-const client = new HnbCrmClient(HNBCRM_API_URL, HNBCRM_API_KEY);
-
-registerLeadTools(server, client);
-registerContactTools(server, client);
-registerConversationTools(server, client);
-registerHandoffTools(server, client);
-registerPipelineTools(server, client);
-registerActivityTools(server, client);
-registerTaskTools(server, client);
-registerCalendarTools(server, client);
-registerResources(server, client);
-
 async function main() {
+  if (!process.env.HNBCRM_API_URL || !process.env.HNBCRM_API_KEY) {
+    console.error(
+      "Missing required environment variables: HNBCRM_API_URL and HNBCRM_API_KEY"
+    );
+    process.exit(1);
+  }
+
+  const server = createServer(process.env.HNBCRM_API_URL, process.env.HNBCRM_API_KEY);
   const transport = new StdioServerTransport();
   await server.connect(transport);
 }
 
-main().catch((error) => {
-  console.error("Fatal error:", error);
-  process.exit(1);
-});
+// Run stdio transport when executed directly
+if (process.env.HNBCRM_API_URL) {
+  main().catch((error) => {
+    console.error("Fatal error:", error);
+    process.exit(1);
+  });
+}

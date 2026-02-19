@@ -83,6 +83,7 @@ Update lead properties.
 | tags | string[] | no | New tags |
 | customFields | object | no | Custom field values |
 | sourceId | string | no | New source ID |
+| qualification | object | no | BANT scoring: `{ budget, authority, need, timeline: boolean, score: number }` |
 
 **REST:** `POST /api/v1/leads/update` — Same body as MCP params
 
