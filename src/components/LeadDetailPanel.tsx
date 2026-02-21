@@ -255,7 +255,7 @@ function ConversationTab({
                     <p className="whitespace-pre-wrap">{msg.content}</p>
                   )}
                   {msg.attachmentFiles && msg.attachmentFiles.length > 0 && (
-                    <AttachmentPreview files={msg.attachmentFiles} />
+                    <AttachmentPreview files={msg.attachmentFiles.filter((f: any): f is NonNullable<typeof f> => f !== null)} />
                   )}
                   <div
                     className={cn(

@@ -23,7 +23,7 @@ export function SpotlightTooltip({
 
   // Don't render if: still loading, no progress record, already seen, or locally dismissed
   if (!progress || dismissed) return null;
-  if (progress.seenSpotlights?.includes(spotlightId)) return null;
+  if ((progress.seenSpotlights as string[] | undefined)?.includes(spotlightId)) return null;
 
   const config = SPOTLIGHTS.find((s) => s.id === spotlightId);
   if (!config) return null;

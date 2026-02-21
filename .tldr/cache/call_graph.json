@@ -1,0 +1,1052 @@
+{
+  "edges": [
+    {
+      "from_file": "src/components/TaskDetailSlideOver.tsx",
+      "from_func": "handleStatusChange",
+      "to_file": "src/components/TaskDetailSlideOver.tsx",
+      "to_func": "updateTask"
+    },
+    {
+      "from_file": "src/lib/auditUtils.ts",
+      "from_func": "groupLogsByDate",
+      "to_file": "src/lib/auditUtils.ts",
+      "to_func": "getDateGroup"
+    },
+    {
+      "from_file": "mcp-server/src/index.ts",
+      "from_func": "createServer",
+      "to_file": "mcp-server/src/tools/handoffs.ts",
+      "to_func": "registerHandoffTools"
+    },
+    {
+      "from_file": "mcp-server/src/tools/activities.ts",
+      "from_func": "registerActivityTools",
+      "to_file": "mcp-server/src/utils.ts",
+      "to_func": "successResult"
+    },
+    {
+      "from_file": "convex/auditLogs.ts",
+      "from_func": "queryAuditLogs",
+      "to_file": "convex/lib/cursor.ts",
+      "to_func": "parseCursor"
+    },
+    {
+      "from_file": "src/components/CreateLeadModal.tsx",
+      "from_func": "CreateLeadModal",
+      "to_file": "src/components/CreateLeadModal.tsx",
+      "to_func": "createContact"
+    },
+    {
+      "from_file": "src/components/ContactDetailPanel.tsx",
+      "from_func": "handleCancel",
+      "to_file": "src/components/ContactDetailPanel.tsx",
+      "to_func": "contactToForm"
+    },
+    {
+      "from_file": "src/components/HandoffQueue.tsx",
+      "from_func": "handleReject",
+      "to_file": "src/components/HandoffQueue.tsx",
+      "to_func": "rejectHandoff"
+    },
+    {
+      "from_file": "src/components/onboarding/ConfettiCanvas.tsx",
+      "from_func": "ConfettiCanvas",
+      "to_file": "src/components/onboarding/ConfettiCanvas.tsx",
+      "to_func": "resizeCanvas"
+    },
+    {
+      "from_file": "src/components/LeadDocuments.tsx",
+      "from_func": "handleUpload",
+      "to_file": "src/components/LeadDocuments.tsx",
+      "to_func": "addLeadDocument"
+    },
+    {
+      "from_file": "src/components/TasksPage.tsx",
+      "from_func": "handleBulkDelete",
+      "to_file": "src/components/TasksPage.tsx",
+      "to_func": "bulkUpdateTasks"
+    },
+    {
+      "from_file": "src/components/TaskDetailSlideOver.tsx",
+      "from_func": "handleAssigneeChange",
+      "to_file": "src/components/TaskDetailSlideOver.tsx",
+      "to_func": "assignTask"
+    },
+    {
+      "from_file": "src/components/calendar/CalendarEventModal.tsx",
+      "from_func": "handleSubmit",
+      "to_file": "src/components/calendar/CalendarEventModal.tsx",
+      "to_func": "updateEvent"
+    },
+    {
+      "from_file": "convex/auditLogs.ts",
+      "from_func": "queryAuditLogs",
+      "to_file": "convex/lib/cursor.ts",
+      "to_func": "buildCursorFromCreatedAt"
+    },
+    {
+      "from_file": "convex/lib/auth.ts",
+      "from_func": "requirePermission",
+      "to_file": "convex/lib/permissions.ts",
+      "to_func": "resolvePermissions"
+    },
+    {
+      "from_file": "src/components/ui/AvatarUpload.tsx",
+      "from_func": "handleFileSelect",
+      "to_file": "src/components/ui/AvatarUpload.tsx",
+      "to_func": "generateUploadUrl"
+    },
+    {
+      "from_file": "src/components/ViewSelector.tsx",
+      "from_func": "handleDeleteView",
+      "to_file": "src/components/ViewSelector.tsx",
+      "to_func": "handleSelectView"
+    },
+    {
+      "from_file": "src/components/team/InviteMemberModal.tsx",
+      "from_func": "handleSubmit",
+      "to_file": "src/components/team/InviteMemberModal.tsx",
+      "to_func": "createApiKey"
+    },
+    {
+      "from_file": "src/components/onboarding/ConfettiCanvas.tsx",
+      "from_func": "createParticle",
+      "to_file": "src/components/onboarding/ConfettiCanvas.tsx",
+      "to_func": "random"
+    },
+    {
+      "from_file": "src/components/TaskDetailSlideOver.tsx",
+      "from_func": "handleToggleChecklistItem",
+      "to_file": "src/components/TaskDetailSlideOver.tsx",
+      "to_func": "toggleChecklistItem"
+    },
+    {
+      "from_file": "src/components/LeadDetailPanel.tsx",
+      "from_func": "handleSend",
+      "to_file": "src/components/LeadDetailPanel.tsx",
+      "to_func": "createConversation"
+    },
+    {
+      "from_file": "src/components/developers/RequestBuilder.tsx",
+      "from_func": "handleCopyCurl",
+      "to_file": "src/components/developers/RequestBuilder.tsx",
+      "to_func": "buildCurlCommand"
+    },
+    {
+      "from_file": "src/components/ContactDetailPanel.tsx",
+      "from_func": "handleSave",
+      "to_file": "src/components/ContactDetailPanel.tsx",
+      "to_func": "updateContact"
+    },
+    {
+      "from_file": "mcp-server/src/tools/tasks.ts",
+      "from_func": "registerTaskTools",
+      "to_file": "mcp-server/src/utils.ts",
+      "to_func": "successResult"
+    },
+    {
+      "from_file": "src/components/UpcomingTasksWidget.tsx",
+      "from_func": "handleComplete",
+      "to_file": "src/components/UpcomingTasksWidget.tsx",
+      "to_func": "completeTask"
+    },
+    {
+      "from_file": "src/components/onboarding/OnboardingWizard.tsx",
+      "from_func": "handleNext",
+      "to_file": "src/lib/onboardingTemplates.ts",
+      "to_func": "getTemplateByIndustry"
+    },
+    {
+      "from_file": "src/hooks/usePermissions.ts",
+      "from_func": "can",
+      "to_file": "convex/lib/permissions.ts",
+      "to_func": "hasPermission"
+    },
+    {
+      "from_file": "src/components/CreateTaskModal.tsx",
+      "from_func": "handleSubmit",
+      "to_file": "src/components/CreateTaskModal.tsx",
+      "to_func": "resetForm"
+    },
+    {
+      "from_file": "src/components/team/MemberDetailSlideOver.tsx",
+      "from_func": "handleCreateApiKey",
+      "to_file": "src/components/team/MemberDetailSlideOver.tsx",
+      "to_func": "createApiKeyAction"
+    },
+    {
+      "from_file": "src/components/Settings.tsx",
+      "from_func": "handleSubmit",
+      "to_file": "src/components/Settings.tsx",
+      "to_func": "updateWebhook"
+    },
+    {
+      "from_file": "mcp-server/src/tools/calendar.ts",
+      "from_func": "registerCalendarTools",
+      "to_file": "mcp-server/src/utils.ts",
+      "to_func": "errorResult"
+    },
+    {
+      "from_file": "src/components/ErrorBoundary.tsx",
+      "from_func": "ErrorBoundary.render",
+      "to_file": "src/components/ErrorBoundary.tsx",
+      "to_func": "setState"
+    },
+    {
+      "from_file": "src/components/LeadDocuments.tsx",
+      "from_func": "handleClose",
+      "to_file": "src/components/LeadDocuments.tsx",
+      "to_func": "resetForm"
+    },
+    {
+      "from_file": "src/components/ui/AvatarUpload.tsx",
+      "from_func": "handleFileSelect",
+      "to_file": "src/components/ui/AvatarUpload.tsx",
+      "to_func": "saveFile"
+    },
+    {
+      "from_file": "src/components/onboarding/SpotlightTooltip.tsx",
+      "from_func": "SpotlightTooltip",
+      "to_file": "src/components/onboarding/SpotlightTooltip.tsx",
+      "to_func": "markSeen"
+    },
+    {
+      "from_file": "src/components/onboarding/OnboardingWizard.tsx",
+      "from_func": "handleNext",
+      "to_file": "src/components/onboarding/OnboardingWizard.tsx",
+      "to_func": "requestSampleData"
+    },
+    {
+      "from_file": "src/components/developers/RequestBuilder.tsx",
+      "from_func": "handleSend",
+      "to_file": "src/components/developers/RequestBuilder.tsx",
+      "to_func": "validateFields"
+    },
+    {
+      "from_file": "src/components/Settings.tsx",
+      "from_func": "handleSave",
+      "to_file": "src/components/Settings.tsx",
+      "to_func": "updateOrganization"
+    },
+    {
+      "from_file": "src/components/ViewSelector.tsx",
+      "from_func": "handleDeleteView",
+      "to_file": "src/components/ViewSelector.tsx",
+      "to_func": "deleteSavedView"
+    },
+    {
+      "from_file": "src/components/TasksPage.tsx",
+      "from_func": "handleDragEnd",
+      "to_file": "src/components/TasksPage.tsx",
+      "to_func": "updateTask"
+    },
+    {
+      "from_file": "convex/lib/fileValidation.ts",
+      "from_func": "validateFileUpload",
+      "to_file": "convex/lib/fileValidation.ts",
+      "to_func": "validateMimeType"
+    },
+    {
+      "from_file": "src/components/EditBoardModal.tsx",
+      "from_func": "handleSubmit",
+      "to_file": "src/components/EditBoardModal.tsx",
+      "to_func": "updateBoard"
+    },
+    {
+      "from_file": "src/components/team/ChangePasswordScreen.tsx",
+      "from_func": "ChangePasswordScreen",
+      "to_file": "src/components/team/ChangePasswordScreen.tsx",
+      "to_func": "changePassword"
+    },
+    {
+      "from_file": "src/components/AuditLogs.tsx",
+      "from_func": "clearAllFilters",
+      "to_file": "src/components/AuditLogs.tsx",
+      "to_func": "resetPagination"
+    },
+    {
+      "from_file": "src/components/TaskDetailSlideOver.tsx",
+      "from_func": "handleDelete",
+      "to_file": "src/components/TaskDetailSlideOver.tsx",
+      "to_func": "deleteTask"
+    },
+    {
+      "from_file": "src/components/calendar/EventDetailSlideOver.tsx",
+      "from_func": "handleComplete",
+      "to_file": "src/components/calendar/EventDetailSlideOver.tsx",
+      "to_func": "completeEvent"
+    },
+    {
+      "from_file": "convex/lib/fileQuotas.ts",
+      "from_func": "checkUploadQuota",
+      "to_file": "convex/lib/fileQuotas.ts",
+      "to_func": "getOrganizationTier"
+    },
+    {
+      "from_file": "src/components/developers/RequestBuilder.tsx",
+      "from_func": "renderFormField",
+      "to_file": "src/components/developers/RequestBuilder.tsx",
+      "to_func": "renderFormField"
+    },
+    {
+      "from_file": "src/App.tsx",
+      "from_func": "handleCreate",
+      "to_file": "src/App.tsx",
+      "to_func": "createOrganization"
+    },
+    {
+      "from_file": "src/components/team/MemberDetailSlideOver.tsx",
+      "from_func": "handleSave",
+      "to_file": "src/components/team/MemberDetailSlideOver.tsx",
+      "to_func": "updateMember"
+    },
+    {
+      "from_file": "src/components/TaskDetailSlideOver.tsx",
+      "from_func": "handleAddChecklistItemNoList",
+      "to_file": "src/components/TaskDetailSlideOver.tsx",
+      "to_func": "updateChecklist"
+    },
+    {
+      "from_file": "convex/lib/fileValidation.ts",
+      "from_func": "validateFileUpload",
+      "to_file": "convex/lib/fileValidation.ts",
+      "to_func": "formatFileSize"
+    },
+    {
+      "from_file": "src/components/calendar/CalendarEventModal.tsx",
+      "from_func": "handleSubmit",
+      "to_file": "src/components/calendar/CalendarEventModal.tsx",
+      "to_func": "createEvent"
+    },
+    {
+      "from_file": "src/components/developers/RequestBuilder.tsx",
+      "from_func": "handleSend",
+      "to_file": "src/components/developers/RequestBuilder.tsx",
+      "to_func": "buildRequestBody"
+    },
+    {
+      "from_file": "src/components/UpcomingEventsWidget.tsx",
+      "from_func": "groupEventsByDay",
+      "to_file": "src/components/UpcomingEventsWidget.tsx",
+      "to_func": "dateKey"
+    },
+    {
+      "from_file": "src/components/LeadDocuments.tsx",
+      "from_func": "handleUpload",
+      "to_file": "src/components/LeadDocuments.tsx",
+      "to_func": "handleClose"
+    },
+    {
+      "from_file": "src/components/LandingPage.tsx",
+      "from_func": "LandingPage",
+      "to_file": "src/components/LandingPage.tsx",
+      "to_func": "scrollToSection"
+    },
+    {
+      "from_file": "src/components/calendar/EventDetailSlideOver.tsx",
+      "from_func": "handleDelete",
+      "to_file": "src/components/calendar/EventDetailSlideOver.tsx",
+      "to_func": "deleteEvent"
+    },
+    {
+      "from_file": "src/components/onboarding/OnboardingWizard.tsx",
+      "from_func": "handleNext",
+      "to_file": "src/components/onboarding/OnboardingWizard.tsx",
+      "to_func": "validateStep"
+    },
+    {
+      "from_file": "convex/router.ts",
+      "from_func": "authenticateApiKey",
+      "to_file": "convex/lib/permissions.ts",
+      "to_func": "resolvePermissions"
+    },
+    {
+      "from_file": "src/components/developers/RequestBuilder.tsx",
+      "from_func": "handleSend",
+      "to_file": "src/components/developers/RequestBuilder.tsx",
+      "to_func": "buildUrl"
+    },
+    {
+      "from_file": "src/components/KanbanBoard.tsx",
+      "from_func": "handleSubmit",
+      "to_file": "src/components/KanbanBoard.tsx",
+      "to_func": "createLead"
+    },
+    {
+      "from_file": "src/components/TaskDetailSlideOver.tsx",
+      "from_func": "handleSaveDescription",
+      "to_file": "src/components/TaskDetailSlideOver.tsx",
+      "to_func": "updateTask"
+    },
+    {
+      "from_file": "src/components/guards/PermissionGate.tsx",
+      "from_func": "PermissionGate",
+      "to_file": "src/hooks/usePermissions.ts",
+      "to_func": "usePermissions"
+    },
+    {
+      "from_file": "src/components/CreateLeadModal.tsx",
+      "from_func": "handleSubmit",
+      "to_file": "src/components/CreateLeadModal.tsx",
+      "to_func": "createLead"
+    },
+    {
+      "from_file": "src/components/TaskDetailSlideOver.tsx",
+      "from_func": "handleAddComment",
+      "to_file": "src/components/TaskDetailSlideOver.tsx",
+      "to_func": "addComment"
+    },
+    {
+      "from_file": "src/components/TaskDetailSlideOver.tsx",
+      "from_func": "handleCancel",
+      "to_file": "src/components/TaskDetailSlideOver.tsx",
+      "to_func": "cancelTask"
+    },
+    {
+      "from_file": "convex/seed.ts",
+      "from_func": "createConvo",
+      "to_file": "convex/seed.ts",
+      "to_func": "daysAgo"
+    },
+    {
+      "from_file": "mcp-server/src/index.ts",
+      "from_func": "createServer",
+      "to_file": "mcp-server/src/tools/contacts.ts",
+      "to_func": "registerContactTools"
+    },
+    {
+      "from_file": "src/components/Settings.tsx",
+      "from_func": "handleDelete",
+      "to_file": "src/components/Settings.tsx",
+      "to_func": "deleteWebhook"
+    },
+    {
+      "from_file": "src/components/team/ChangePasswordScreen.tsx",
+      "from_func": "handleSubmit",
+      "to_file": "src/components/team/ChangePasswordScreen.tsx",
+      "to_func": "validate"
+    },
+    {
+      "from_file": "mcp-server/src/tools/calendar.ts",
+      "from_func": "registerCalendarTools",
+      "to_file": "mcp-server/src/utils.ts",
+      "to_func": "successResult"
+    },
+    {
+      "from_file": "src/components/TasksPage.tsx",
+      "from_func": "handleBulkComplete",
+      "to_file": "src/components/TasksPage.tsx",
+      "to_func": "bulkUpdateTasks"
+    },
+    {
+      "from_file": "src/components/TaskDetailSlideOver.tsx",
+      "from_func": "handleSnooze",
+      "to_file": "src/components/TaskDetailSlideOver.tsx",
+      "to_func": "snoozeTask"
+    },
+    {
+      "from_file": "mcp-server/src/index.ts",
+      "from_func": "createServer",
+      "to_file": "mcp-server/src/resources.ts",
+      "to_func": "registerResources"
+    },
+    {
+      "from_file": "mcp-server/src/index.ts",
+      "from_func": "createServer",
+      "to_file": "mcp-server/src/tools/pipeline.ts",
+      "to_func": "registerPipelineTools"
+    },
+    {
+      "from_file": "src/components/Settings.tsx",
+      "from_func": "handleSubmit",
+      "to_file": "src/components/Settings.tsx",
+      "to_func": "createWebhook"
+    },
+    {
+      "from_file": "mcp-server/src/index.ts",
+      "from_func": "main",
+      "to_file": "mcp-server/src/index.ts",
+      "to_func": "createServer"
+    },
+    {
+      "from_file": "src/components/Inbox.tsx",
+      "from_func": "handleSendMessage",
+      "to_file": "src/lib/mentions.ts",
+      "to_func": "extractMentionIds"
+    },
+    {
+      "from_file": "src/components/calendar/TaskDetailSlideOver.tsx",
+      "from_func": "handleComplete",
+      "to_file": "src/components/calendar/TaskDetailSlideOver.tsx",
+      "to_func": "updateTask"
+    },
+    {
+      "from_file": "src/components/onboarding/OnboardingWizard.tsx",
+      "from_func": "handleNext",
+      "to_file": "src/components/onboarding/OnboardingWizard.tsx",
+      "to_func": "createTeamMember"
+    },
+    {
+      "from_file": "src/components/onboarding/OnboardingWizard.tsx",
+      "from_func": "handleBack",
+      "to_file": "src/components/onboarding/OnboardingWizard.tsx",
+      "to_func": "persistState"
+    },
+    {
+      "from_file": "mcp-server/src/index.ts",
+      "from_func": "createServer",
+      "to_file": "mcp-server/src/tools/conversations.ts",
+      "to_func": "registerConversationTools"
+    },
+    {
+      "from_file": "src/components/ManageStagesModal.tsx",
+      "from_func": "handleUpdateStage",
+      "to_file": "src/components/ManageStagesModal.tsx",
+      "to_func": "updateStage"
+    },
+    {
+      "from_file": "src/components/Inbox.tsx",
+      "from_func": "handleSendMessage",
+      "to_file": "src/components/Inbox.tsx",
+      "to_func": "sendMessage"
+    },
+    {
+      "from_file": "convex/lib/fileQuotas.ts",
+      "from_func": "checkUploadQuota",
+      "to_file": "convex/lib/fileValidation.ts",
+      "to_func": "formatFileSize"
+    },
+    {
+      "from_file": "src/components/TaskDetailSlideOver.tsx",
+      "from_func": "handleComplete",
+      "to_file": "src/components/TaskDetailSlideOver.tsx",
+      "to_func": "completeTask"
+    },
+    {
+      "from_file": "convex/lib/auth.ts",
+      "from_func": "requirePermission",
+      "to_file": "convex/lib/permissions.ts",
+      "to_func": "hasPermission"
+    },
+    {
+      "from_file": "src/components/HandoffQueue.tsx",
+      "from_func": "handleAccept",
+      "to_file": "src/components/HandoffQueue.tsx",
+      "to_func": "acceptHandoff"
+    },
+    {
+      "from_file": "src/components/LeadDetailPanel.tsx",
+      "from_func": "handleMoveToStage",
+      "to_file": "src/components/LeadDetailPanel.tsx",
+      "to_func": "moveLeadToStageMutation"
+    },
+    {
+      "from_file": "src/components/team/MemberDetailSlideOver.tsx",
+      "from_func": "handleRemove",
+      "to_file": "src/components/team/MemberDetailSlideOver.tsx",
+      "to_func": "removeMember"
+    },
+    {
+      "from_file": "convex/onboardingSeed.ts",
+      "from_func": "createConvo",
+      "to_file": "convex/onboardingSeed.ts",
+      "to_func": "hoursAgo"
+    },
+    {
+      "from_file": "convex/lib/fileValidation.ts",
+      "from_func": "validateMimeType",
+      "to_file": "convex/lib/fileValidation.ts",
+      "to_func": "getAllAllowedMimeTypes"
+    },
+    {
+      "from_file": "src/components/calendar/EventDetailSlideOver.tsx",
+      "from_func": "handleCancel",
+      "to_file": "src/components/calendar/EventDetailSlideOver.tsx",
+      "to_func": "cancelEvent"
+    },
+    {
+      "from_file": "src/components/developers/RequestBuilder.tsx",
+      "from_func": "handleFieldChange",
+      "to_file": "src/components/developers/RequestBuilder.tsx",
+      "to_func": "clearFieldError"
+    },
+    {
+      "from_file": "src/components/DashboardOverview.tsx",
+      "from_func": "handleComplete",
+      "to_file": "src/components/DashboardOverview.tsx",
+      "to_func": "completeTask"
+    },
+    {
+      "from_file": "src/components/LeadDocuments.tsx",
+      "from_func": "handleDelete",
+      "to_file": "src/components/LeadDocuments.tsx",
+      "to_func": "removeDocument"
+    },
+    {
+      "from_file": "src/components/LeadDetailPanel.tsx",
+      "from_func": "handleUnlinkContact",
+      "to_file": "src/components/LeadDetailPanel.tsx",
+      "to_func": "linkContactMutation"
+    },
+    {
+      "from_file": "src/components/AuditLogs.tsx",
+      "from_func": "handlePresetClick",
+      "to_file": "src/components/AuditLogs.tsx",
+      "to_func": "resetPagination"
+    },
+    {
+      "from_file": "src/components/LeadDetailPanel.tsx",
+      "from_func": "handleComplete",
+      "to_file": "src/components/LeadDetailPanel.tsx",
+      "to_func": "completeTask"
+    },
+    {
+      "from_file": "src/components/developers/RequestBuilder.tsx",
+      "from_func": "renderFormField",
+      "to_file": "src/components/developers/RequestBuilder.tsx",
+      "to_func": "clearFieldError"
+    },
+    {
+      "from_file": "src/components/onboarding/OnboardingWizard.tsx",
+      "from_func": "handleNext",
+      "to_file": "src/components/onboarding/OnboardingWizard.tsx",
+      "to_func": "setupPipeline"
+    },
+    {
+      "from_file": "src/components/LeadDetailPanel.tsx",
+      "from_func": "handleAssignLead",
+      "to_file": "src/components/LeadDetailPanel.tsx",
+      "to_func": "assignLeadMutation"
+    },
+    {
+      "from_file": "src/components/calendar/CalendarPage.tsx",
+      "from_func": "handleDragEnd",
+      "to_file": "src/components/calendar/CalendarPage.tsx",
+      "to_func": "rescheduleEvent"
+    },
+    {
+      "from_file": "src/components/CreateViewModal.tsx",
+      "from_func": "handleSubmit",
+      "to_file": "src/components/CreateViewModal.tsx",
+      "to_func": "createSavedView"
+    },
+    {
+      "from_file": "src/components/ui/FileUploadButton.tsx",
+      "from_func": "handleFileChange",
+      "to_file": "src/components/ui/FileUploadButton.tsx",
+      "to_func": "saveFile"
+    },
+    {
+      "from_file": "src/components/ManageStagesModal.tsx",
+      "from_func": "handleSaveOrder",
+      "to_file": "src/components/ManageStagesModal.tsx",
+      "to_func": "reorderStages"
+    },
+    {
+      "from_file": "src/components/onboarding/OnboardingWizard.tsx",
+      "from_func": "persistState",
+      "to_file": "src/components/onboarding/OnboardingWizard.tsx",
+      "to_func": "updateStep"
+    },
+    {
+      "from_file": "src/components/LeadDetailPanel.tsx",
+      "from_func": "handleKeyDown",
+      "to_file": "src/components/LeadDetailPanel.tsx",
+      "to_func": "handleSend"
+    },
+    {
+      "from_file": "src/hooks/usePermissions.ts",
+      "from_func": "usePermissions",
+      "to_file": "convex/lib/permissions.ts",
+      "to_func": "resolvePermissions"
+    },
+    {
+      "from_file": "src/components/onboarding/OnboardingWizard.tsx",
+      "from_func": "handleNext",
+      "to_file": "src/components/onboarding/OnboardingWizard.tsx",
+      "to_func": "persistState"
+    },
+    {
+      "from_file": "src/components/CreateContactModal.tsx",
+      "from_func": "handleSubmit",
+      "to_file": "src/components/CreateContactModal.tsx",
+      "to_func": "createContact"
+    },
+    {
+      "from_file": "src/components/onboarding/SpotlightTooltip.tsx",
+      "from_func": "handleDismiss",
+      "to_file": "src/components/onboarding/SpotlightTooltip.tsx",
+      "to_func": "markSeen"
+    },
+    {
+      "from_file": "src/components/KanbanBoard.tsx",
+      "from_func": "handleDeleteBoard",
+      "to_file": "src/components/KanbanBoard.tsx",
+      "to_func": "deleteBoard"
+    },
+    {
+      "from_file": "src/components/CreateLeadModal.tsx",
+      "from_func": "CreateLeadModal",
+      "to_file": "src/components/CreateLeadModal.tsx",
+      "to_func": "createLead"
+    },
+    {
+      "from_file": "convex/auditLogs.ts",
+      "from_func": "queryAuditLogs",
+      "to_file": "convex/auditLogs.ts",
+      "to_func": "enrichLogs"
+    },
+    {
+      "from_file": "src/components/onboarding/OnboardingChecklist.tsx",
+      "from_func": "handleDismiss",
+      "to_file": "src/components/onboarding/OnboardingChecklist.tsx",
+      "to_func": "dismissChecklist"
+    },
+    {
+      "from_file": "src/components/AuditLogs.tsx",
+      "from_func": "clearFilter",
+      "to_file": "src/components/AuditLogs.tsx",
+      "to_func": "resetPagination"
+    },
+    {
+      "from_file": "mcp-server/src/index.ts",
+      "from_func": "createServer",
+      "to_file": "mcp-server/src/tools/tasks.ts",
+      "to_func": "registerTaskTools"
+    },
+    {
+      "from_file": "mcp-server/src/index.ts",
+      "from_func": "createServer",
+      "to_file": "mcp-server/src/tools/calendar.ts",
+      "to_func": "registerCalendarTools"
+    },
+    {
+      "from_file": "src/components/team/MemberDetailSlideOver.tsx",
+      "from_func": "handleReactivate",
+      "to_file": "src/components/team/MemberDetailSlideOver.tsx",
+      "to_func": "reactivateMember"
+    },
+    {
+      "from_file": "src/components/LeadDetailPanel.tsx",
+      "from_func": "handleSaveBant",
+      "to_file": "src/components/LeadDetailPanel.tsx",
+      "to_func": "updateQualification"
+    },
+    {
+      "from_file": "src/components/CloseReasonModal.tsx",
+      "from_func": "handleSubmit",
+      "to_file": "src/components/CloseReasonModal.tsx",
+      "to_func": "moveLeadToStage"
+    },
+    {
+      "from_file": "src/components/DashboardOverview.tsx",
+      "from_func": "onTabChange",
+      "to_file": "src/components/DashboardOverview.tsx",
+      "to_func": "navigate"
+    },
+    {
+      "from_file": "src/components/calendar/TaskDetailSlideOver.tsx",
+      "from_func": "handleCancel",
+      "to_file": "src/components/calendar/TaskDetailSlideOver.tsx",
+      "to_func": "updateTask"
+    },
+    {
+      "from_file": "mcp-server/src/tools/contacts.ts",
+      "from_func": "registerContactTools",
+      "to_file": "mcp-server/src/utils.ts",
+      "to_func": "errorResult"
+    },
+    {
+      "from_file": "mcp-server/src/index.ts",
+      "from_func": "createServer",
+      "to_file": "mcp-server/src/tools/activities.ts",
+      "to_func": "registerActivityTools"
+    },
+    {
+      "from_file": "src/components/onboarding/OnboardingWizard.tsx",
+      "from_func": "handleComplete",
+      "to_file": "src/components/onboarding/OnboardingWizard.tsx",
+      "to_func": "completeWizard"
+    },
+    {
+      "from_file": "src/components/team/InviteMemberModal.tsx",
+      "from_func": "handleSubmit",
+      "to_file": "src/components/team/InviteMemberModal.tsx",
+      "to_func": "createAiMember"
+    },
+    {
+      "from_file": "src/components/UpcomingEventsWidget.tsx",
+      "from_func": "groupEventsByDay",
+      "to_file": "src/components/UpcomingEventsWidget.tsx",
+      "to_func": "getDayGroupLabel"
+    },
+    {
+      "from_file": "src/components/ui/FileUploadButton.tsx",
+      "from_func": "handleFileChange",
+      "to_file": "src/components/ui/FileUploadButton.tsx",
+      "to_func": "generateUploadUrl"
+    },
+    {
+      "from_file": "convex/auditLogs.ts",
+      "from_func": "enrichLogs",
+      "to_file": "convex/lib/batchGet.ts",
+      "to_func": "batchGet"
+    },
+    {
+      "from_file": "src/components/developers/JsonHighlighter.tsx",
+      "from_func": "JsonHighlighter",
+      "to_file": "src/components/developers/JsonHighlighter.tsx",
+      "to_func": "highlightJson"
+    },
+    {
+      "from_file": "src/components/LeadDocuments.tsx",
+      "from_func": "handleUpload",
+      "to_file": "src/components/LeadDocuments.tsx",
+      "to_func": "saveFile"
+    },
+    {
+      "from_file": "src/components/LeadDetailPanel.tsx",
+      "from_func": "handleLinkContact",
+      "to_file": "src/components/LeadDetailPanel.tsx",
+      "to_func": "linkContactMutation"
+    },
+    {
+      "from_file": "src/components/CreateTaskModal.tsx",
+      "from_func": "handleSubmit",
+      "to_file": "src/components/CreateTaskModal.tsx",
+      "to_func": "createTask"
+    },
+    {
+      "from_file": "src/components/TaskDetailSlideOver.tsx",
+      "from_func": "handleSaveTitle",
+      "to_file": "src/components/TaskDetailSlideOver.tsx",
+      "to_func": "updateTask"
+    },
+    {
+      "from_file": "src/components/CreateLeadModal.tsx",
+      "from_func": "handleSubmit",
+      "to_file": "src/components/CreateLeadModal.tsx",
+      "to_func": "createContact"
+    },
+    {
+      "from_file": "convex/lib/fileQuotas.ts",
+      "from_func": "getStorageStats",
+      "to_file": "convex/lib/fileQuotas.ts",
+      "to_func": "getOrganizationTier"
+    },
+    {
+      "from_file": "src/components/LeadDetailPanel.tsx",
+      "from_func": "handleSend",
+      "to_file": "src/components/LeadDetailPanel.tsx",
+      "to_func": "sendMessage"
+    },
+    {
+      "from_file": "src/components/UpcomingEventsWidget.tsx",
+      "from_func": "handleEventClick",
+      "to_file": "src/components/UpcomingEventsWidget.tsx",
+      "to_func": "navigate"
+    },
+    {
+      "from_file": "src/components/onboarding/ConfettiCanvas.tsx",
+      "from_func": "ConfettiCanvas",
+      "to_file": "src/components/onboarding/ConfettiCanvas.tsx",
+      "to_func": "createParticle"
+    },
+    {
+      "from_file": "mcp-server/src/tools/activities.ts",
+      "from_func": "registerActivityTools",
+      "to_file": "mcp-server/src/utils.ts",
+      "to_func": "errorResult"
+    },
+    {
+      "from_file": "convex/lib/fileValidation.ts",
+      "from_func": "validateFileUpload",
+      "to_file": "convex/lib/fileValidation.ts",
+      "to_func": "getMaxFileSize"
+    },
+    {
+      "from_file": "src/components/team/ChangePasswordScreen.tsx",
+      "from_func": "handleSubmit",
+      "to_file": "src/components/team/ChangePasswordScreen.tsx",
+      "to_func": "changePassword"
+    },
+    {
+      "from_file": "src/components/ManageStagesModal.tsx",
+      "from_func": "handleDeleteStage",
+      "to_file": "src/components/ManageStagesModal.tsx",
+      "to_func": "deleteStage"
+    },
+    {
+      "from_file": "src/components/KanbanBoard.tsx",
+      "from_func": "handleDragEnd",
+      "to_file": "src/components/KanbanBoard.tsx",
+      "to_func": "moveLeadToStage"
+    },
+    {
+      "from_file": "src/components/ui/MentionTextarea.tsx",
+      "from_func": "handleKeyDown",
+      "to_file": "src/components/ui/MentionTextarea.tsx",
+      "to_func": "handleSelect"
+    },
+    {
+      "from_file": "src/components/calendar/TaskDetailSlideOver.tsx",
+      "from_func": "handleDelete",
+      "to_file": "src/components/calendar/TaskDetailSlideOver.tsx",
+      "to_func": "deleteTask"
+    },
+    {
+      "from_file": "mcp-server/src/index.ts",
+      "from_func": "createServer",
+      "to_file": "mcp-server/src/tools/leads.ts",
+      "to_func": "registerLeadTools"
+    },
+    {
+      "from_file": "src/components/team/MemberDetailSlideOver.tsx",
+      "from_func": "handleRevokeApiKey",
+      "to_file": "src/components/team/MemberDetailSlideOver.tsx",
+      "to_func": "revokeApiKeyMutation"
+    },
+    {
+      "from_file": "src/components/TasksPage.tsx",
+      "from_func": "handleCompleteTask",
+      "to_file": "src/components/TasksPage.tsx",
+      "to_func": "completeTask"
+    },
+    {
+      "from_file": "src/components/team/ChangePasswordScreen.tsx",
+      "from_func": "ChangePasswordScreen",
+      "to_file": "src/components/team/ChangePasswordScreen.tsx",
+      "to_func": "validate"
+    },
+    {
+      "from_file": "src/components/team/InviteMemberModal.tsx",
+      "from_func": "handleSubmit",
+      "to_file": "src/components/team/InviteMemberModal.tsx",
+      "to_func": "slugify"
+    },
+    {
+      "from_file": "src/components/developers/RequestBuilder.tsx",
+      "from_func": "buildCurlCommand",
+      "to_file": "src/components/developers/RequestBuilder.tsx",
+      "to_func": "buildRequestBody"
+    },
+    {
+      "from_file": "convex/lib/fileValidation.ts",
+      "from_func": "getMaxFileSize",
+      "to_file": "convex/lib/fileValidation.ts",
+      "to_func": "getAllAllowedMimeTypes"
+    },
+    {
+      "from_file": "src/components/team/InviteMemberModal.tsx",
+      "from_func": "handleSubmit",
+      "to_file": "src/components/team/InviteMemberModal.tsx",
+      "to_func": "inviteHuman"
+    },
+    {
+      "from_file": "mcp-server/src/tools/contacts.ts",
+      "from_func": "registerContactTools",
+      "to_file": "mcp-server/src/utils.ts",
+      "to_func": "successResult"
+    },
+    {
+      "from_file": "src/components/developers/RequestBuilder.tsx",
+      "from_func": "buildCurlCommand",
+      "to_file": "src/components/developers/RequestBuilder.tsx",
+      "to_func": "buildUrl"
+    },
+    {
+      "from_file": "src/components/LeadDetailPanel.tsx",
+      "from_func": "handleSend",
+      "to_file": "src/lib/mentions.ts",
+      "to_func": "extractMentionIds"
+    },
+    {
+      "from_file": "src/lib/mentions.ts",
+      "from_func": "filterMembers",
+      "to_file": "src/lib/mentions.ts",
+      "to_func": "normalize"
+    },
+    {
+      "from_file": "src/components/LeadDocuments.tsx",
+      "from_func": "handleUpload",
+      "to_file": "src/components/LeadDocuments.tsx",
+      "to_func": "generateUploadUrl"
+    },
+    {
+      "from_file": "convex/lib/auth.ts",
+      "from_func": "requirePermission",
+      "to_file": "convex/lib/auth.ts",
+      "to_func": "requireAuth"
+    },
+    {
+      "from_file": "src/components/KanbanBoard.tsx",
+      "from_func": "handleCreateBoard",
+      "to_file": "src/components/KanbanBoard.tsx",
+      "to_func": "createBoardWithStages"
+    },
+    {
+      "from_file": "mcp-server/src/tools/tasks.ts",
+      "from_func": "registerTaskTools",
+      "to_file": "mcp-server/src/utils.ts",
+      "to_func": "errorResult"
+    },
+    {
+      "from_file": "src/components/ContactDetailPanel.tsx",
+      "from_func": "handleDelete",
+      "to_file": "src/components/ContactDetailPanel.tsx",
+      "to_func": "deleteContact"
+    },
+    {
+      "from_file": "src/components/LeadDetailPanel.tsx",
+      "from_func": "handleSaveDetails",
+      "to_file": "src/components/LeadDetailPanel.tsx",
+      "to_func": "updateLead"
+    },
+    {
+      "from_file": "src/components/TaskDetailSlideOver.tsx",
+      "from_func": "handleRemoveChecklistItem",
+      "to_file": "src/components/TaskDetailSlideOver.tsx",
+      "to_func": "updateChecklist"
+    },
+    {
+      "from_file": "src/components/TaskDetailSlideOver.tsx",
+      "from_func": "handleAddChecklistItem",
+      "to_file": "src/components/TaskDetailSlideOver.tsx",
+      "to_func": "updateChecklist"
+    },
+    {
+      "from_file": "src/components/AuditLogs.tsx",
+      "from_func": "handleExportCsv",
+      "to_file": "src/lib/auditUtils.ts",
+      "to_func": "buildClientDescription"
+    },
+    {
+      "from_file": "src/lib/mentions.ts",
+      "from_func": "getMentionQuery",
+      "to_file": "src/lib/mentions.ts",
+      "to_func": "shouldTriggerMention"
+    },
+    {
+      "from_file": "src/components/ManageStagesModal.tsx",
+      "from_func": "handleCreateStage",
+      "to_file": "src/components/ManageStagesModal.tsx",
+      "to_func": "createStage"
+    },
+    {
+      "from_file": "src/components/TaskDetailSlideOver.tsx",
+      "from_func": "handlePriorityChange",
+      "to_file": "src/components/TaskDetailSlideOver.tsx",
+      "to_func": "updateTask"
+    },
+    {
+      "from_file": "src/hooks/usePermissions.ts",
+      "from_func": "usePermissions",
+      "to_file": "convex/lib/permissions.ts",
+      "to_func": "hasPermission"
+    }
+  ],
+  "languages": [
+    "typescript"
+  ],
+  "timestamp": 1771626097.3529222
+}

@@ -4,6 +4,12 @@ import { Password } from "@convex-dev/auth/providers/Password";
 import { Anonymous } from "@convex-dev/auth/providers/Anonymous";
 import { query } from "./_generated/server";
 
+// Workaround: Convex CLI truncates multiline env vars.
+// Decode base64-encoded JWT key if the direct value is invalid.
+if (process.env.JWT_PRIVATE_KEY === "-" && process.env.JWT_PRIVATE_KEY_B64) {
+  process.env.JWT_PRIVATE_KEY = atob(process.env.JWT_PRIVATE_KEY_B64);
+}
+
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
   providers: [Password, Anonymous],
   callbacks: {
@@ -36,7 +42,7 @@ export const loggedInUser = query({
     if (!userId) {
       return null;
     }
-    const user = await ctx.db.get("users", userId);
+    const user = await ctx.db.get(userId);
     if (!user) {
       return null;
     }

@@ -135,7 +135,7 @@ export function ContactDetailPanel({ contactId, onClose }: ContactDetailPanelPro
       telegramUsername: form.telegramUsername.trim() || undefined,
       tags: tagsArray,
       bio: form.bio.trim() || undefined,
-      photoUrl: form.photoUrl.trim() || undefined,
+      // photoUrl is resolved from photoFileId, not a direct field in updateContact
       linkedinUrl: form.linkedinUrl.trim() || undefined,
       instagramUrl: form.instagramUrl.trim() || undefined,
       facebookUrl: form.facebookUrl.trim() || undefined,
@@ -199,7 +199,7 @@ export function ContactDetailPanel({ contactId, onClose }: ContactDetailPanelPro
   const enrichMeta = contact.enrichmentMeta as Record<string, { source: string; updatedAt: number; confidence?: number }> | undefined;
 
   // Section field counts
-  const countFilled = (fields: (string | undefined)[]) => fields.filter(Boolean).length;
+  const countFilled = (fields: (string | null | undefined)[]) => fields.filter(Boolean).length;
 
   const identityFields = [contact.photoUrl, contact.firstName, contact.lastName, contact.bio];
   const contactFields = [contact.email, contact.phone, contact.whatsappNumber, contact.telegramUsername];

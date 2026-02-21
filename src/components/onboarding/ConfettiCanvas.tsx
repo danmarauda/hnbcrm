@@ -62,8 +62,8 @@ export function ConfettiCanvas({
 }: ConfettiCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Particle[]>([]);
-  const animationFrameRef = useRef<number>();
-  const startTimeRef = useRef<number>();
+  const animationFrameRef = useRef<number>(undefined);
+  const startTimeRef = useRef<number>(undefined);
 
   useEffect(() => {
     if (!active) {

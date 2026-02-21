@@ -182,7 +182,7 @@ export function EventDetailSlideOver({ open, onClose, eventId, onEdit }: EventDe
                     <User size={16} className="text-text-muted" />
                     <div>
                       <div className="text-xs text-text-muted">Lead</div>
-                      <div className="text-sm font-medium text-text-primary">{event.lead.name}</div>
+                      <div className="text-sm font-medium text-text-primary">{event.lead.title}</div>
                     </div>
                   </div>
                 )}
@@ -191,7 +191,7 @@ export function EventDetailSlideOver({ open, onClose, eventId, onEdit }: EventDe
                     <User size={16} className="text-text-muted" />
                     <div>
                       <div className="text-xs text-text-muted">Contato</div>
-                      <div className="text-sm font-medium text-text-primary">{event.contact.name}</div>
+                      <div className="text-sm font-medium text-text-primary">{[event.contact.firstName, event.contact.lastName].filter(Boolean).join(" ") || "Sem nome"}</div>
                     </div>
                   </div>
                 )}

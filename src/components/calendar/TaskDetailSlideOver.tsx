@@ -189,14 +189,14 @@ export function TaskDetailSlideOver({ open, onClose, taskId }: TaskDetailSlideOv
           )}
 
           {/* Checklist Progress */}
-          {task.checklistItems && task.checklistItems.length > 0 && (
+          {task.checklist && task.checklist.length > 0 && (
             <div>
               <h3 className="text-sm font-medium text-text-secondary mb-2 flex items-center gap-2">
                 <CheckCircle2 size={16} />
-                Checklist ({task.checklistItems.filter((i: any) => i.completed).length}/{task.checklistItems.length})
+                Checklist ({task.checklist.filter((i: any) => i.completed).length}/{task.checklist.length})
               </h3>
               <div className="space-y-2">
-                {task.checklistItems.map((item: any, idx: number) => (
+                {task.checklist.map((item: any, idx: number) => (
                   <div key={idx} className="flex items-center gap-2 text-sm">
                     <div className={item.completed ? "text-semantic-success" : "text-text-muted"}>
                       {item.completed ? <CheckCircle2 size={16} /> : <Clock size={16} />}
@@ -251,13 +251,13 @@ export function TaskDetailSlideOver({ open, onClose, taskId }: TaskDetailSlideOv
           )}
 
           {/* Notes */}
-          {task.notes && (
+          {(task as any).notes && (
             <div>
               <h3 className="text-sm font-medium text-text-secondary mb-2 flex items-center gap-2">
                 <FileText size={16} />
                 Notas
               </h3>
-              <p className="text-sm text-text-primary whitespace-pre-wrap">{task.notes}</p>
+              <p className="text-sm text-text-primary whitespace-pre-wrap">{(task as any).notes}</p>
             </div>
           )}
 

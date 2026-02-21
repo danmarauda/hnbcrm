@@ -101,7 +101,7 @@ export function LeadDocuments({ leadId, organizationId }: LeadDocumentsProps) {
         </div>
       ) : (
         <div className="space-y-1">
-          {documents.map((doc) => {
+          {documents.map((doc: typeof documents[number]) => {
             const Icon = getFileIcon(doc.mimeType);
             return (
               <div

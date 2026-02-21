@@ -82,7 +82,7 @@ export function OnboardingWizard({
 
   // Load saved progress (only once)
   useEffect(() => {
-    if (savedProgress && savedProgress.wizardData && !loadedRef.current) {
+    if (savedProgress && "wizardData" in savedProgress && savedProgress.wizardData && !loadedRef.current) {
       loadedRef.current = true;
       const data = savedProgress.wizardData as Record<string, any>;
 

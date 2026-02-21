@@ -49,7 +49,7 @@ export function CalendarPage() {
     endDate: dateRange.endDate,
     includeTasks: true,
     assignedTo: selectedMemberId ? (selectedMemberId as Id<"teamMembers">) : undefined,
-    eventType: selectedEventTypes.length > 0 ? selectedEventTypes[0] : undefined,
+    eventType: selectedEventTypes.length > 0 ? selectedEventTypes[0] as "call" | "meeting" | "follow_up" | "demo" | "task" | "reminder" | "other" : undefined,
   });
 
   const teamMembers = useQuery(api.teamMembers.getTeamMembers, { organizationId });
@@ -118,7 +118,7 @@ export function CalendarPage() {
 
     // Handle drop on time slot
     if (over.id.toString().startsWith("slot-")) {
-      const { date, hour, minute } = over.data.current;
+      const { date, hour, minute } = over.data.current as { date: Date; hour: number; minute: number };
       if (!date || hour === undefined || minute === undefined) return;
 
       const newStart = new Date(date);

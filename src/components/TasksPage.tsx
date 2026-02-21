@@ -362,7 +362,7 @@ export function TasksPage() {
         />
         <SmartPill
           label="Hoje"
-          count={taskCounts?.today}
+          count={taskCounts?.dueToday}
           active={smartFilter === "today"}
           onClick={() => setSmartFilter("today")}
         />

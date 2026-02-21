@@ -26,7 +26,7 @@ const AuditLogs = lazy(() => import("./components/AuditLogs").then(m => ({ defau
 const Settings = lazy(() => import("./components/Settings").then(m => ({ default: m.Settings })));
 
 // Wrapper component for Suspense boundaries
-function LazyRoute({ Component }: { Component: React.LazyExoticComponent<() => JSX.Element> }) {
+function LazyRoute({ Component }: { Component: React.LazyExoticComponent<() => React.JSX.Element> }) {
   return (
     <Suspense fallback={<div className="flex h-screen items-center justify-center"><Spinner size="lg" /></div>}>
       <Component />
