@@ -1,6 +1,8 @@
-import { useQuery } from "convex/react";
+;
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
+import { useQuery, useMutation, skipToken } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 import {
   resolvePermissions,
   hasPermission,
@@ -34,10 +36,8 @@ interface UsePermissionsResult {
 }
 
 export function usePermissions(organizationId: Id<"organizations">): UsePermissionsResult {
-  const member = useQuery(
-    api.teamMembers.getCurrentTeamMember,
-    organizationId ? { organizationId } : "skip"
-  );
+  const crpc = useCRPC();
+  const { data: member } = useQuery(crpc.teamMembers.getCurrentTeamMember.queryOptions(organizationId ? { organizationId } : skipToken));
 
   const isLoading = member === undefined;
 

@@ -1,5 +1,5 @@
-import { Authenticated, Unauthenticated, useQuery, useMutation } from "convex/react";
-import { useAuthActions } from "@convex-dev/auth/react";
+import { Authenticated, Unauthenticated } from "convex/react";
+import { authClient } from "@/lib/auth-client";
 import { api } from "../convex/_generated/api";
 import { Id } from "../convex/_generated/dataModel";
 import { SignInForm } from "./SignInForm";
@@ -15,6 +15,8 @@ import { Button } from "./components/ui/Button";
 import { Input } from "./components/ui/Input";
 import { Building2, Plus } from "lucide-react";
 import { OnboardingWizard } from "./components/onboarding/OnboardingWizard";
+import { useQuery, useMutation, skipToken } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 
 /**
  * @deprecated Legacy entry point — superseded by react-router + AuthLayout.
@@ -22,7 +24,7 @@ import { OnboardingWizard } from "./components/onboarding/OnboardingWizard";
  */
 export default function App() {
   const [selectedOrgId, setSelectedOrgId] = useState<Id<"organizations"> | null>(null);
-  const { signOut } = useAuthActions();
+  const signOut = () => authClient.signOut();
 
   return (
     <div className="min-h-screen bg-surface-base">
@@ -68,11 +70,9 @@ function Content({
   onSelectOrg: (orgId: Id<"organizations">) => void;
 }) {
   const [wizardDone, setWizardDone] = useState(false);
-  const loggedInUser = useQuery(api.auth.loggedInUser);
-  const onboardingProgress = useQuery(
-    api.onboarding.getOnboardingProgress,
-    selectedOrgId ? { organizationId: selectedOrgId } : "skip"
-  );
+  const crpc = useCRPC();
+  const { data: loggedInUser } = useQuery(crpc.auth.loggedInUser.queryOptions());
+  const { data: onboardingProgress } = useQuery(crpc.onboarding.getOnboardingProgress.queryOptions(selectedOrgId ? { organizationId: selectedOrgId } : skipToken));
 
   if (loggedInUser === undefined) {
     return (
@@ -109,9 +109,10 @@ function WelcomeScreen({ onSelectOrg }: { onSelectOrg: (orgId: Id<"organizations
   const [newOrgName, setNewOrgName] = useState("");
   const [newOrgSlug, setNewOrgSlug] = useState("");
   const [isCreating, setIsCreating] = useState(false);
+  const crpc = useCRPC();
 
-  const organizations = useQuery(api.organizations.getUserOrganizations);
-  const createOrganization = useMutation(api.organizations.createOrganization);
+  const { data: organizations } = useQuery(crpc.organizations.getUserOrganizations.queryOptions());
+  const { mutateAsync: createOrganization } = useMutation(crpc.organizations.createOrganization.mutationOptions());
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();

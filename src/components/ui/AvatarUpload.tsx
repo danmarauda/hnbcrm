@@ -1,10 +1,12 @@
 import { useRef, useState } from "react";
-import { useMutation } from "convex/react";
+;
 import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
 import { toast } from "sonner";
 import { Camera, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
@@ -43,8 +45,9 @@ export function AvatarUpload({
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const generateUploadUrl = useMutation(api.files.generateUploadUrl);
-  const saveFile = useMutation(api.files.saveFile);
+  const crpc = useCRPC();
+  const { mutateAsync: generateUploadUrl } = useMutation(crpc.files.generateUploadUrl.mutationOptions());
+  const { mutateAsync: saveFile } = useMutation(crpc.files.saveFile.mutationOptions());
 
   const sizeClasses = size === "lg" ? "w-20 h-20 text-2xl" : "w-14 h-14 text-lg";
   const iconSize = size === "lg" ? 20 : 16;

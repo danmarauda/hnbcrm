@@ -1,6 +1,6 @@
 import { v } from "convex/values";
+import { authComponent } from "./auth";
 import { query, mutation, internalQuery } from "./_generated/server";
-import { getAuthUserId } from "@convex-dev/auth/server";
 import { requireAuth } from "./lib/auth";
 import { buildAuditDescription } from "./lib/auditDescription";
 
@@ -9,8 +9,9 @@ export const getUserOrganizations = query({
   args: {},
   returns: v.any(),
   handler: async (ctx) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) return [];
+    const baUser = await authComponent.safeGetAuthUser(ctx);
+    if (!baUser) return [];
+    const userId = baUser._id;
 
     const teamMembers = await ctx.db
       .query("teamMembers")
@@ -36,11 +37,9 @@ export const createOrganization = mutation({
   },
   returns: v.id("organizations"),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
-
-    const user = await ctx.db.get(userId);
-    if (!user) throw new Error("User not found");
+    const baUser = await authComponent.safeGetAuthUser(ctx);
+    if (!baUser) throw new Error("Not authenticated");
+    const userId = baUser._id;
 
     // Check if slug is available
     const existing = await ctx.db
@@ -73,8 +72,8 @@ export const createOrganization = mutation({
     const teamMemberId = await ctx.db.insert("teamMembers", {
       organizationId: orgId,
       userId,
-      name: user.name || user.email || "Admin",
-      email: user.email,
+      name: baUser.name || baUser.email || "Admin",
+      email: baUser.email,
       role: "admin",
       type: "human",
       status: "active",
@@ -160,8 +159,9 @@ export const getOrganizationBySlug = query({
   args: { slug: v.string() },
   returns: v.any(),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    const baUser = await authComponent.safeGetAuthUser(ctx);
+    if (!baUser) throw new Error("Not authenticated");
+    const userId = baUser._id;
 
     const org = await ctx.db
       .query("organizations")

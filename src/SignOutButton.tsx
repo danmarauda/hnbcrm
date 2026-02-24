@@ -1,9 +1,8 @@
-import { useAuthActions } from "@convex-dev/auth/react";
+import { authClient } from "@/lib/auth-client";
 import { useConvexAuth } from "convex/react";
 
 export function SignOutButton() {
   const { isAuthenticated } = useConvexAuth();
-  const { signOut } = useAuthActions();
 
   if (!isAuthenticated) {
     return null;
@@ -12,7 +11,7 @@ export function SignOutButton() {
   return (
     <button
       className="px-4 py-2 rounded-lg bg-surface-overlay text-text-secondary border border-border font-semibold hover:bg-surface-raised hover:text-text-primary transition-colors shadow-sm hover:shadow"
-      onClick={() => void signOut()}
+      onClick={() => void authClient.signOut()}
     >
       Sair
     </button>

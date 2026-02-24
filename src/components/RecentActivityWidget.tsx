@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router";
-import { useQuery } from "convex/react";
+;
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Button } from "@/components/ui/Button";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 import {
   ENTITY_ICONS,
   ACTION_LABELS,
@@ -69,13 +71,14 @@ export function RecentActivityWidget({
     return { startTimestamp: 0, endTimestamp: 0 };
   }, [datePreset]);
 
-  const auditLogs = useQuery(api.auditLogs.getAuditLogs, {
+  const crpc = useCRPC();
+  const { data: auditLogs } = useQuery(crpc.auditLogs.getAuditLogs.queryOptions({
     organizationId,
     action: selectedAction !== "all" ? selectedAction : undefined,
     startDate: startTimestamp || undefined,
     endDate: endTimestamp || undefined,
     limit: 15,
-  });
+  }));
 
   const hasActiveFilters = selectedAction !== "all" || datePreset !== "7d";
 

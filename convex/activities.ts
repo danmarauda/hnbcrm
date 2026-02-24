@@ -1,6 +1,6 @@
 import { v } from "convex/values";
+import { authComponent } from "./auth";
 import { query, mutation, internalQuery, internalMutation } from "./_generated/server";
-import { getAuthUserId } from "@convex-dev/auth/server";
 import { Id } from "./_generated/dataModel";
 import { batchGet } from "./lib/batchGet";
 import { parseCursor, buildCursorFromCreationTime, paginateResults } from "./lib/cursor";
@@ -13,8 +13,9 @@ export const getActivities = query({
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    const baUser = await authComponent.safeGetAuthUser(ctx);
+    if (!baUser) throw new Error("Not authenticated");
+    const userId = baUser._id;
 
     const lead = await ctx.db.get(args.leadId);
     if (!lead) return [];
@@ -63,8 +64,9 @@ export const createActivity = mutation({
   },
   returns: v.id("activities"),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    const baUser = await authComponent.safeGetAuthUser(ctx);
+    if (!baUser) throw new Error("Not authenticated");
+    const userId = baUser._id;
 
     const lead = await ctx.db.get(args.leadId);
     if (!lead) throw new Error("Lead not found");

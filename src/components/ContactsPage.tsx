@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useOutletContext } from "react-router";
-import { useQuery } from "convex/react";
+;
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import type { AppOutletContext } from "@/components/layout/AuthLayout";
@@ -16,6 +16,8 @@ import { CreateContactModal } from "./CreateContactModal";
 import { SocialIcons } from "@/components/SocialIcons";
 import { cn } from "@/lib/utils";
 import { SpotlightTooltip } from "@/components/onboarding/SpotlightTooltip";
+import { useQuery, useMutation, skipToken } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 
 type ColumnKey = "contact" | "company" | "email" | "phone" | "tags" | "city" | "state" | "country" | "industry" | "social" | "companySize" | "acquisitionChannel" | string;
 
@@ -53,10 +55,8 @@ export function ContactsPage() {
   const columnSelectorRef = useRef<HTMLDivElement>(null);
 
   // Query field definitions for custom fields
-  const fieldDefinitions = useQuery(
-    api.fieldDefinitions.getFieldDefinitions,
-    { organizationId, entityType: "contact" }
-  );
+  const crpc = useCRPC();
+  const { data: fieldDefinitions } = useQuery(crpc.fieldDefinitions.getFieldDefinitions.queryOptions({ organizationId, entityType: "contact" }));
 
   // Build available columns with custom fields
   const allAvailableColumns: ColumnDefinition[] = [
@@ -125,15 +125,9 @@ export function ContactsPage() {
   }, [showColumnSelector]);
 
   // Use search query when search text is >= 2 chars, otherwise get all contacts
-  const searchResults = useQuery(
-    api.contacts.searchContacts,
-    debouncedSearch.length >= 2 ? { organizationId, searchText: debouncedSearch } : "skip"
-  );
+  const { data: searchResults } = useQuery(crpc.contacts.searchContacts.queryOptions(debouncedSearch.length >= 2 ? { organizationId, searchText: debouncedSearch } : skipToken));
 
-  const allContacts = useQuery(
-    api.contacts.getContacts,
-    debouncedSearch.length < 2 ? { organizationId } : "skip"
-  );
+  const { data: allContacts } = useQuery(crpc.contacts.getContacts.queryOptions(debouncedSearch.length < 2 ? { organizationId } : skipToken));
 
   const contacts = debouncedSearch.length >= 2 ? searchResults : allContacts;
 

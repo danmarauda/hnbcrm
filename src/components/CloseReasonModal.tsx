@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
-import { useMutation } from "convex/react";
+;
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { toast } from "sonner";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 
 interface CloseReasonModalProps {
   open: boolean;
@@ -27,7 +29,8 @@ export function CloseReasonModal({
   const [finalValue, setFinalValue] = useState(currentValue);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const moveLeadToStage = useMutation(api.leads.moveLeadToStage);
+  const crpc = useCRPC();
+  const { mutateAsync: moveLeadToStage } = useMutation(crpc.leads.moveLeadToStage.mutationOptions());
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

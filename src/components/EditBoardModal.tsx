@@ -1,10 +1,12 @@
 import { useState } from "react";
-import { useMutation } from "convex/react";
+;
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { toast } from "sonner";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 
 interface EditBoardModalProps {
   board: {
@@ -22,7 +24,8 @@ export function EditBoardModal({ board, onClose }: EditBoardModalProps) {
   const [color, setColor] = useState(board.color);
   const [submitting, setSubmitting] = useState(false);
 
-  const updateBoard = useMutation(api.boards.updateBoard);
+  const crpc = useCRPC();
+  const { mutateAsync: updateBoard } = useMutation(crpc.boards.updateBoard.mutationOptions());
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

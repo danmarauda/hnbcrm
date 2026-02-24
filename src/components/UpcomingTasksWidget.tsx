@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { useQuery, useMutation } from "convex/react";
+;
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/Badge";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Button } from "@/components/ui/Button";
 import { toast } from "sonner";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 import {
   ChevronRight,
   ChevronDown,
@@ -104,10 +106,11 @@ export function UpcomingTasksWidget({
   }, []);
 
   // Queries
-  const tasks = useQuery(api.tasks.getTasks, { organizationId });
-  const taskCounts = useQuery(api.tasks.getTaskCounts, { organizationId, now });
-  const currentMember = useQuery(api.teamMembers.getCurrentTeamMember, { organizationId });
-  const completeTask = useMutation(api.tasks.completeTask);
+  const crpc = useCRPC();
+  const { data: tasks } = useQuery(crpc.tasks.getTasks.queryOptions({ organizationId }));
+  const { data: taskCounts } = useQuery(crpc.tasks.getTaskCounts.queryOptions({ organizationId, now }));
+  const { data: currentMember } = useQuery(crpc.teamMembers.getCurrentTeamMember.queryOptions({ organizationId }));
+  const { mutateAsync: completeTask } = useMutation(crpc.tasks.completeTask.mutationOptions());
 
   const isLoading = tasks === undefined;
   const hasActiveFilters = smartFilter !== "today" || priorityFilter !== "all" || typeFilter !== "all";

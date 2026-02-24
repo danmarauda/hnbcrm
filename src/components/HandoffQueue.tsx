@@ -1,6 +1,6 @@
 import React from "react";
 import { useOutletContext } from "react-router";
-import { useQuery, useMutation } from "convex/react";
+;
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import type { AppOutletContext } from "@/components/layout/AuthLayout";
@@ -12,18 +12,21 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Spinner } from "@/components/ui/Spinner";
 import { Button } from "@/components/ui/Button";
 import { SpotlightTooltip } from "@/components/onboarding/SpotlightTooltip";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 
 export function HandoffQueue() {
   const { organizationId } = useOutletContext<AppOutletContext>();
   const { can } = usePermissions(organizationId);
 
-  const handoffs = useQuery(api.handoffs.getHandoffs, {
+  const crpc = useCRPC();
+  const { data: handoffs } = useQuery(crpc.handoffs.getHandoffs.queryOptions({
     organizationId,
     status: "pending",
-  });
+  }));
 
-  const acceptHandoff = useMutation(api.handoffs.acceptHandoff);
-  const rejectHandoff = useMutation(api.handoffs.rejectHandoff);
+  const { mutateAsync: acceptHandoff } = useMutation(crpc.handoffs.acceptHandoff.mutationOptions());
+  const { mutateAsync: rejectHandoff } = useMutation(crpc.handoffs.rejectHandoff.mutationOptions());
 
   if (!can("inbox", "view_own")) {
     return (

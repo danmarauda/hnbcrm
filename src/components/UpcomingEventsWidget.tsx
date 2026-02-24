@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router";
-import { useQuery } from "convex/react";
+;
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Button } from "@/components/ui/Button";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 import {
   EVENT_TYPE_COLORS,
   EVENT_TYPE_LABELS,
@@ -161,7 +163,8 @@ export function UpcomingEventsWidget({
   const { start, end } = useMemo(() => computeDateRange(timeRange), [timeRange]);
 
   // Queries
-  const rawEvents = useQuery(api.calendar.getEvents, {
+  const crpc = useCRPC();
+  const { data: rawEvents } = useQuery(crpc.calendar.getEvents.queryOptions({
     organizationId,
     startDate: start,
     endDate: end,
@@ -170,10 +173,10 @@ export function UpcomingEventsWidget({
       ? (assigneeFilter as Id<"teamMembers">)
       : undefined,
     includeTasks: true,
-  });
+  }));
 
-  const teamMembers = useQuery(api.teamMembers.getTeamMembers, { organizationId });
-  const currentMember = useQuery(api.teamMembers.getCurrentTeamMember, { organizationId });
+  const { data: teamMembers } = useQuery(crpc.teamMembers.getTeamMembers.queryOptions({ organizationId }));
+  const { data: currentMember } = useQuery(crpc.teamMembers.getCurrentTeamMember.queryOptions({ organizationId }));
 
   // Client-side filter for "Meus Eventos"
   const events = useMemo(() => {

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useQuery, useMutation } from "convex/react";
+;
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { toast } from "sonner";
@@ -14,6 +14,8 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { AvatarUpload } from "@/components/ui/AvatarUpload";
 import { Trash2, Bot } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useQuery, useMutation, skipToken } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 
 interface ContactDetailPanelProps {
   contactId: Id<"contacts">;
@@ -96,15 +98,13 @@ export function ContactDetailPanel({ contactId, onClose }: ContactDetailPanelPro
   const [initialized, setInitialized] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const contactData = useQuery(api.contacts.getContactWithLeads, { contactId });
-  const fieldDefs = useQuery(
-    api.fieldDefinitions.getFieldDefinitions,
-    contactData ? { organizationId: contactData.organizationId, entityType: "contact" as const } : "skip"
-  );
+  const crpc = useCRPC();
+  const { data: contactData } = useQuery(crpc.contacts.getContactWithLeads.queryOptions({ contactId }));
+  const { data: fieldDefs } = useQuery(crpc.fieldDefinitions.getFieldDefinitions.queryOptions(contactData ? { organizationId: contactData.organizationId, entityType: "contact" as const } : skipToken));
 
-  const updateContact = useMutation(api.contacts.updateContact);
-  const updateContactPhoto = useMutation(api.contacts.updateContactPhoto);
-  const deleteContact = useMutation(api.contacts.deleteContact);
+  const { mutateAsync: updateContact } = useMutation(crpc.contacts.updateContact.mutationOptions());
+  const { mutateAsync: updateContactPhoto } = useMutation(crpc.contacts.updateContactPhoto.mutationOptions());
+  const { mutateAsync: deleteContact } = useMutation(crpc.contacts.deleteContact.mutationOptions());
 
   // Initialize form when data first loads
   useEffect(() => {

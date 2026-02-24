@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useQuery, useMutation } from "convex/react";
+;
 import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
 import { Modal } from "../ui/Modal";
@@ -8,6 +8,8 @@ import { Button } from "../ui/Button";
 import { cn } from "@/lib/utils";
 import { EVENT_TYPE_LABELS, RECURRENCE_OPTIONS } from "./constants";
 import { toast } from "sonner";
+import { useQuery, useMutation, skipToken } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 
 interface CalendarEventModalProps {
   open: boolean;
@@ -30,17 +32,15 @@ export function CalendarEventModal({
 }: CalendarEventModalProps) {
   const isEdit = Boolean(eventId);
 
-  const existingEvent = useQuery(
-    api.calendar.getEvent,
-    eventId ? { eventId: eventId as Id<"calendarEvents"> } : "skip"
-  );
+  const crpc = useCRPC();
+  const { data: existingEvent } = useQuery(crpc.calendar.getEvent.queryOptions(eventId ? { eventId: eventId as Id<"calendarEvents"> } : skipToken));
 
-  const teamMembers = useQuery(api.teamMembers.getTeamMembers, { organizationId });
-  const leads = useQuery(api.leads.getLeads, { organizationId });
-  const contacts = useQuery(api.contacts.getContacts, { organizationId });
+  const { data: teamMembers } = useQuery(crpc.teamMembers.getTeamMembers.queryOptions({ organizationId }));
+  const { data: leads } = useQuery(crpc.leads.getLeads.queryOptions({ organizationId }));
+  const { data: contacts } = useQuery(crpc.contacts.getContacts.queryOptions({ organizationId }));
 
-  const createEvent = useMutation(api.calendar.createEvent);
-  const updateEvent = useMutation(api.calendar.updateEvent);
+  const { mutateAsync: createEvent } = useMutation(crpc.calendar.createEvent.mutationOptions());
+  const { mutateAsync: updateEvent } = useMutation(crpc.calendar.updateEvent.mutationOptions());
 
   // Form state
   const [title, setTitle] = useState("");

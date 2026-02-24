@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useOutletContext } from "react-router";
-import { useQuery, useMutation } from "convex/react";
+;
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import type { AppOutletContext } from "@/components/layout/AuthLayout";
@@ -49,6 +49,8 @@ import {
   useDroppable,
 } from "@dnd-kit/core";
 import { toast } from "sonner";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 
 // ============================================================================
 // Types & Constants
@@ -137,11 +139,12 @@ export function TasksPage() {
     const interval = setInterval(() => setNow(Date.now()), 60000);
     return () => clearInterval(interval);
   }, []);
-  const tasks = useQuery(api.tasks.getTasks, { organizationId });
-  const taskCounts = useQuery(api.tasks.getTaskCounts, { organizationId, now });
-  const teamMembers = useQuery(api.teamMembers.getTeamMembers, { organizationId });
-  const completeTask = useMutation(api.tasks.completeTask);
-  const bulkUpdateTasks = useMutation(api.tasks.bulkUpdateTasks);
+  const crpc = useCRPC();
+  const { data: tasks } = useQuery(crpc.tasks.getTasks.queryOptions({ organizationId }));
+  const { data: taskCounts } = useQuery(crpc.tasks.getTaskCounts.queryOptions({ organizationId, now }));
+  const { data: teamMembers } = useQuery(crpc.teamMembers.getTeamMembers.queryOptions({ organizationId }));
+  const { mutateAsync: completeTask } = useMutation(crpc.tasks.completeTask.mutationOptions());
+  const { mutateAsync: bulkUpdateTasks } = useMutation(crpc.tasks.bulkUpdateTasks.mutationOptions());
 
   // Build team member map for display
   const memberMap = useMemo(() => {
@@ -827,7 +830,8 @@ function BoardView({
   onOpenDetail: (id: Id<"tasks">) => void;
   now: number;
 }) {
-  const updateTask = useMutation(api.tasks.updateTask);
+  const crpc = useCRPC();
+  const { mutateAsync: updateTask } = useMutation(crpc.tasks.updateTask.mutationOptions());
   const [activeId, setActiveId] = useState<string | null>(null);
 
   const sensors = useSensors(

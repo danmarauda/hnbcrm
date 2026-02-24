@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { useAction } from "convex/react";
+;
 import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Lock } from "lucide-react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 
 interface ChangePasswordScreenProps {
   organizationId: Id<"organizations">;
@@ -22,7 +24,8 @@ export function ChangePasswordScreen({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const changePassword = useAction(api.nodeActions.changePassword);
+  const crpc = useCRPC();
+  const { mutateAsync: changePassword } = useMutation(crpc.nodeActions.changePassword.mutationOptions());
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};

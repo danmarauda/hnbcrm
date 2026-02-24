@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useQuery, useMutation } from "convex/react";
+;
 import { ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "../../../convex/_generated/api";
@@ -13,6 +13,8 @@ import { WizardStep3SampleData } from "./WizardStep3SampleData";
 import { WizardStep4TeamInvite } from "./WizardStep4TeamInvite";
 import { WizardStep5Complete } from "./WizardStep5Complete";
 import { getTemplateByIndustry } from "@/lib/onboardingTemplates";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 
 interface OnboardingWizardProps {
   organizationId: Id<"organizations">;
@@ -38,15 +40,16 @@ export function OnboardingWizard({
   onComplete,
 }: OnboardingWizardProps) {
   // Convex queries and mutations
-  const savedProgress = useQuery(api.onboarding.getOnboardingProgress, {
+  const crpc = useCRPC();
+  const { data: savedProgress } = useQuery(crpc.onboarding.getOnboardingProgress.queryOptions({
     organizationId,
-  });
-  const initProgress = useMutation(api.onboarding.initOnboardingProgress);
-  const updateStep = useMutation(api.onboarding.updateWizardStep);
-  const setupPipeline = useMutation(api.onboarding.setupPipelineFromWizard);
-  const requestSampleData = useMutation(api.onboarding.requestSampleData);
-  const createTeamMember = useMutation(api.teamMembers.createTeamMember);
-  const completeWizard = useMutation(api.onboarding.completeWizard);
+  }));
+  const { mutateAsync: initProgress } = useMutation(crpc.onboarding.initOnboardingProgress.mutationOptions());
+  const { mutateAsync: updateStep } = useMutation(crpc.onboarding.updateWizardStep.mutationOptions());
+  const { mutateAsync: setupPipeline } = useMutation(crpc.onboarding.setupPipelineFromWizard.mutationOptions());
+  const { mutateAsync: requestSampleData } = useMutation(crpc.onboarding.requestSampleData.mutationOptions());
+  const { mutateAsync: createTeamMember } = useMutation(crpc.teamMembers.createTeamMember.mutationOptions());
+  const { mutateAsync: completeWizard } = useMutation(crpc.onboarding.completeWizard.mutationOptions());
 
   // Local state
   const [currentStep, setCurrentStep] = useState(0);

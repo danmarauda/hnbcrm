@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useMutation, useQuery } from "convex/react";
+;
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { toast } from "sonner";
@@ -7,6 +7,8 @@ import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { CustomFieldsRenderer } from "@/components/CustomFieldsRenderer";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 
 interface CreateContactModalProps {
   organizationId: Id<"organizations">;
@@ -48,13 +50,11 @@ export function CreateContactModal({ organizationId, onClose }: CreateContactMod
   // Custom fields
   const [customFields, setCustomFields] = useState<Record<string, any>>({});
 
-  const createContact = useMutation(api.contacts.createContact);
+  const crpc = useCRPC();
+  const { mutateAsync: createContact } = useMutation(crpc.contacts.createContact.mutationOptions());
 
   // Query for required custom field definitions
-  const fieldDefinitions = useQuery(
-    api.fieldDefinitions.getFieldDefinitions,
-    { organizationId, entityType: "contact" }
-  );
+  const { data: fieldDefinitions } = useQuery(crpc.fieldDefinitions.getFieldDefinitions.queryOptions({ organizationId, entityType: "contact" }));
 
   const requiredFields = fieldDefinitions?.filter((f) => f.isRequired) || [];
 

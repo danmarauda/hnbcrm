@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { useQuery, useMutation } from "convex/react";
+;
 import { Lightbulb, X } from "lucide-react";
 import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
 import { SPOTLIGHTS } from "@/lib/celebrations";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 
 interface SpotlightTooltipProps {
   spotlightId: string;
@@ -16,10 +18,11 @@ export function SpotlightTooltip({
 }: SpotlightTooltipProps) {
   const [dismissed, setDismissed] = useState(false);
 
-  const progress = useQuery(api.onboarding.getOnboardingProgress, {
+  const crpc = useCRPC();
+  const { data: progress } = useQuery(crpc.onboarding.getOnboardingProgress.queryOptions({
     organizationId,
-  });
-  const markSeen = useMutation(api.onboarding.markSpotlightSeen);
+  }));
+  const { mutateAsync: markSeen } = useMutation(crpc.onboarding.markSpotlightSeen.mutationOptions());
 
   // Don't render if: still loading, no progress record, already seen, or locally dismissed
   if (!progress || dismissed) return null;

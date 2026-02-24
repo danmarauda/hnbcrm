@@ -1,6 +1,6 @@
 import { v } from "convex/values";
+import { authComponent } from "./auth";
 import { query, mutation, internalQuery } from "./_generated/server";
-import { getAuthUserId } from "@convex-dev/auth/server";
 import { buildAuditDescription } from "./lib/auditDescription";
 
 // Get lead sources for organization
@@ -8,8 +8,9 @@ export const getLeadSources = query({
   args: { organizationId: v.id("organizations") },
   returns: v.any(),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    const baUser = await authComponent.safeGetAuthUser(ctx);
+    if (!baUser) throw new Error("Not authenticated");
+    const userId = baUser._id;
 
     // Verify user is part of organization
     const userMember = await ctx.db
@@ -45,8 +46,9 @@ export const createLeadSource = mutation({
   },
   returns: v.id("leadSources"),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    const baUser = await authComponent.safeGetAuthUser(ctx);
+    if (!baUser) throw new Error("Not authenticated");
+    const userId = baUser._id;
 
     // Verify user is part of organization
     const userMember = await ctx.db
@@ -106,8 +108,9 @@ export const updateLeadSource = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    const baUser = await authComponent.safeGetAuthUser(ctx);
+    if (!baUser) throw new Error("Not authenticated");
+    const userId = baUser._id;
 
     const leadSource = await ctx.db.get(args.leadSourceId);
     if (!leadSource) throw new Error("Lead source not found");
@@ -166,8 +169,9 @@ export const deleteLeadSource = mutation({
   args: { leadSourceId: v.id("leadSources") },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    const baUser = await authComponent.safeGetAuthUser(ctx);
+    if (!baUser) throw new Error("Not authenticated");
+    const userId = baUser._id;
 
     const leadSource = await ctx.db.get(args.leadSourceId);
     if (!leadSource) throw new Error("Lead source not found");

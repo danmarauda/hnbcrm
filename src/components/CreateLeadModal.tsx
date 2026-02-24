@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import { useQuery, useMutation } from "convex/react";
+;
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { toast } from "sonner";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 
 interface CreateLeadModalProps {
   organizationId: Id<"organizations">;
@@ -33,17 +35,18 @@ export function CreateLeadModal({ organizationId, boardId, onClose }: CreateLead
   const [company, setCompany] = useState("");
 
   // Queries
-  const contacts = useQuery(api.contacts.getContacts, {
+  const crpc = useCRPC();
+  const { data: contacts } = useQuery(crpc.contacts.getContacts.queryOptions({
     organizationId,
-  });
+  }));
 
-  const teamMembers = useQuery(api.teamMembers.getTeamMembers, {
+  const { data: teamMembers } = useQuery(crpc.teamMembers.getTeamMembers.queryOptions({
     organizationId,
-  });
+  }));
 
   // Mutations
-  const createContact = useMutation(api.contacts.createContact);
-  const createLead = useMutation(api.leads.createLead);
+  const { mutateAsync: createContact } = useMutation(crpc.contacts.createContact.mutationOptions());
+  const { mutateAsync: createLead } = useMutation(crpc.leads.createLead.mutationOptions());
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

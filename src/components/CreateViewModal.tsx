@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery, useMutation } from "convex/react";
+;
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { Modal } from "@/components/ui/Modal";
@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/Spinner";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useQuery, useMutation, skipToken } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 
 interface CreateViewModalProps {
   organizationId: Id<"organizations">;
@@ -47,20 +49,18 @@ export function CreateViewModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch boards for pipeline filter
-  const boards = useQuery(api.boards.getBoards, { organizationId });
+  const crpc = useCRPC();
+  const { data: boards } = useQuery(crpc.boards.getBoards.queryOptions({ organizationId }));
 
   // Fetch stages if a board is selected
-  const stages = useQuery(
-    api.boards.getStages,
-    selectedBoardId ? { boardId: selectedBoardId } : "skip"
-  );
+  const { data: stages } = useQuery(crpc.boards.getStages.queryOptions(selectedBoardId ? { boardId: selectedBoardId } : skipToken));
 
   // Fetch team members for assignee filter
-  const teamMembers = useQuery(api.teamMembers.getTeamMembers, {
+  const { data: teamMembers } = useQuery(crpc.teamMembers.getTeamMembers.queryOptions({
     organizationId,
-  });
+  }));
 
-  const createSavedView = useMutation(api.savedViews.createSavedView);
+  const { mutateAsync: createSavedView } = useMutation(crpc.savedViews.createSavedView.mutationOptions());
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

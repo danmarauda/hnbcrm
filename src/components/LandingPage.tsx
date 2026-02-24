@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { Link } from "react-router";
+import { Link, Navigate } from "react-router";
+import { useConvexAuth } from "convex/react";
 import {
   Kanban,
   Contact2,
@@ -64,6 +65,7 @@ function useInView(options = {}) {
 }
 
 export function LandingPage() {
+  const { isAuthenticated, isLoading } = useConvexAuth();
   const [showFloatingCta, setShowFloatingCta] = useState(false);
   const heroRef = useRef<HTMLElement>(null);
 
@@ -86,6 +88,11 @@ export function LandingPage() {
       }
     };
   }, []);
+
+  // Redirect authenticated users to the app
+  if (!isLoading && isAuthenticated) {
+    return <Navigate to="/app" replace />;
+  }
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);

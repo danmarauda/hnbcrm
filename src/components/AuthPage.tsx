@@ -6,6 +6,7 @@ import { ArrowLeft } from "lucide-react";
 import { SEO } from "@/components/SEO";
 
 export function AuthPage() {
+  // useConvexAuth reflects the Convex auth state (set by ConvexBetterAuthProvider)
   const { isAuthenticated, isLoading } = useConvexAuth();
 
   if (isLoading) {

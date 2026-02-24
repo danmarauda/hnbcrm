@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useOutletContext } from "react-router";
-import { useQuery } from "convex/react";
+;
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import type { AppOutletContext } from "@/components/layout/AuthLayout";
@@ -15,6 +15,8 @@ import { InviteMemberModal } from "@/components/team/InviteMemberModal";
 import { MemberDetailSlideOver } from "@/components/team/MemberDetailSlideOver";
 import { usePermissions } from "@/hooks/usePermissions";
 import { cn } from "@/lib/utils";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 import {
   Search,
   UserPlus,
@@ -54,9 +56,10 @@ export function TeamPage() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [showFilters, setShowFilters] = useState(false);
 
-  const teamMembers = useQuery(api.teamMembers.getTeamMembers, {
+  const crpc = useCRPC();
+  const { data: teamMembers } = useQuery(crpc.teamMembers.getTeamMembers.queryOptions({
     organizationId,
-  });
+  }));
 
   const filteredMembers = useMemo(() => {
     if (!teamMembers) return [];

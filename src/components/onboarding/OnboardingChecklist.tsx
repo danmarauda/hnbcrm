@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { useQuery, useMutation } from "convex/react";
+;
 import { Check, X, ChevronDown, ChevronUp, ArrowRight } from "lucide-react";
 import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
@@ -8,6 +8,8 @@ import { Card } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
 import type { Tab } from "@/components/layout/BottomTabBar";
 import { TAB_ROUTES } from "@/lib/routes";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 
 interface OnboardingChecklistProps {
   organizationId: Id<"organizations">;
@@ -28,10 +30,11 @@ export function OnboardingChecklist({
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState(true);
 
-  const checklist = useQuery(api.onboarding.getOnboardingChecklist, {
+  const crpc = useCRPC();
+  const { data: checklist } = useQuery(crpc.onboarding.getOnboardingChecklist.queryOptions({
     organizationId,
-  });
-  const dismissChecklist = useMutation(api.onboarding.dismissChecklist);
+  }));
+  const { mutateAsync: dismissChecklist } = useMutation(crpc.onboarding.dismissChecklist.mutationOptions());
 
   if (!checklist || checklist.dismissed) return null;
 

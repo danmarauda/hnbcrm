@@ -1,6 +1,6 @@
 import { v } from "convex/values";
+import { authComponent } from "./auth";
 import { query, mutation, internalQuery, internalMutation } from "./_generated/server";
-import { getAuthUserId } from "@convex-dev/auth/server";
 import { requirePermission } from "./lib/auth";
 import { buildAuditDescription } from "./lib/auditDescription";
 import { batchGet } from "./lib/batchGet";
@@ -138,8 +138,9 @@ export const verifyAdmin = internalQuery({
   args: { organizationId: v.id("organizations") },
   returns: v.any(),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) return null;
+    const baUser = await authComponent.safeGetAuthUser(ctx);
+    if (!baUser) return null;
+    const userId = baUser._id;
 
     const userMember = await ctx.db
       .query("teamMembers")

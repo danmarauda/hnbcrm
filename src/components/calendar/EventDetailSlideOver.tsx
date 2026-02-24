@@ -1,4 +1,4 @@
-import { useQuery, useMutation } from "convex/react";
+;
 import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
 import { SlideOver } from "../ui/SlideOver";
@@ -24,6 +24,8 @@ import {
 } from "lucide-react";
 import { EVENT_TYPE_LABELS, EVENT_STATUS_LABELS } from "./constants";
 import { toast } from "sonner";
+import { useQuery, useMutation, skipToken } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 
 interface EventDetailSlideOverProps {
   open: boolean;
@@ -35,14 +37,12 @@ interface EventDetailSlideOverProps {
 export function EventDetailSlideOver({ open, onClose, eventId, onEdit }: EventDetailSlideOverProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const event = useQuery(
-    api.calendar.getEvent,
-    eventId ? { eventId: eventId as Id<"calendarEvents"> } : "skip"
-  );
+  const crpc = useCRPC();
+  const { data: event } = useQuery(crpc.calendar.getEvent.queryOptions(eventId ? { eventId: eventId as Id<"calendarEvents"> } : skipToken));
 
-  const completeEvent = useMutation(api.calendar.completeEvent);
-  const cancelEvent = useMutation(api.calendar.cancelEvent);
-  const deleteEvent = useMutation(api.calendar.deleteEvent);
+  const { mutateAsync: completeEvent } = useMutation(crpc.calendar.completeEvent.mutationOptions());
+  const { mutateAsync: cancelEvent } = useMutation(crpc.calendar.cancelEvent.mutationOptions());
+  const { mutateAsync: deleteEvent } = useMutation(crpc.calendar.deleteEvent.mutationOptions());
 
   const handleComplete = async () => {
     if (!eventId) return;

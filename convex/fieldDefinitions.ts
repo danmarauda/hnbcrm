@@ -1,6 +1,6 @@
 import { v } from "convex/values";
+import { authComponent } from "./auth";
 import { query, mutation, internalQuery } from "./_generated/server";
-import { getAuthUserId } from "@convex-dev/auth/server";
 import { buildAuditDescription } from "./lib/auditDescription";
 
 // Get field definitions for organization
@@ -11,8 +11,9 @@ export const getFieldDefinitions = query({
   },
   returns: v.any(),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    const baUser = await authComponent.safeGetAuthUser(ctx);
+    if (!baUser) throw new Error("Not authenticated");
+    const userId = baUser._id;
 
     const userMember = await ctx.db
       .query("teamMembers")
@@ -61,8 +62,9 @@ export const createFieldDefinition = mutation({
   },
   returns: v.id("fieldDefinitions"),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    const baUser = await authComponent.safeGetAuthUser(ctx);
+    if (!baUser) throw new Error("Not authenticated");
+    const userId = baUser._id;
 
     const userMember = await ctx.db
       .query("teamMembers")
@@ -154,8 +156,9 @@ export const updateFieldDefinition = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    const baUser = await authComponent.safeGetAuthUser(ctx);
+    if (!baUser) throw new Error("Not authenticated");
+    const userId = baUser._id;
 
     const fieldDef = await ctx.db.get(args.fieldDefinitionId);
     if (!fieldDef) throw new Error("Field definition not found");
@@ -222,8 +225,9 @@ export const deleteFieldDefinition = mutation({
   args: { fieldDefinitionId: v.id("fieldDefinitions") },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    const baUser = await authComponent.safeGetAuthUser(ctx);
+    if (!baUser) throw new Error("Not authenticated");
+    const userId = baUser._id;
 
     const fieldDef = await ctx.db.get(args.fieldDefinitionId);
     if (!fieldDef) throw new Error("Field definition not found");

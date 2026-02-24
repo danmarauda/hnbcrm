@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { useQuery, useMutation } from "convex/react";
+;
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { Button } from "@/components/ui/Button";
@@ -7,6 +7,8 @@ import { Modal } from "@/components/ui/Modal";
 import { Spinner } from "@/components/ui/Spinner";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 import {
   FileText,
   Download,
@@ -46,8 +48,9 @@ function getFileIcon(mimeType: string) {
 
 export function LeadDocuments({ leadId, organizationId }: LeadDocumentsProps) {
   const [showUploadModal, setShowUploadModal] = useState(false);
-  const documents = useQuery(api.files.getLeadDocuments, { leadId });
-  const removeDocument = useMutation(api.leads.removeLeadDocument);
+  const crpc = useCRPC();
+  const { data: documents } = useQuery(crpc.files.getLeadDocuments.queryOptions({ leadId }));
+  const { mutateAsync: removeDocument } = useMutation(crpc.leads.removeLeadDocument.mutationOptions());
 
   const handleDelete = async (documentId: Id<"leadDocuments">, name: string) => {
     if (!confirm(`Remover o documento "${name}"?`)) return;
@@ -175,15 +178,16 @@ function UploadDocumentModal({
   leadId: Id<"leads">;
   organizationId: Id<"organizations">;
 }) {
+  const crpc = useCRPC();
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState<"contract" | "proposal" | "invoice" | "other" | "">("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const generateUploadUrl = useMutation(api.files.generateUploadUrl);
-  const saveFile = useMutation(api.files.saveFile);
-  const addLeadDocument = useMutation(api.leads.addLeadDocument);
+  const { mutateAsync: generateUploadUrl } = useMutation(crpc.files.generateUploadUrl.mutationOptions());
+  const { mutateAsync: saveFile } = useMutation(crpc.files.saveFile.mutationOptions());
+  const { mutateAsync: addLeadDocument } = useMutation(crpc.leads.addLeadDocument.mutationOptions());
 
   const resetForm = () => {
     setTitle("");

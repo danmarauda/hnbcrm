@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Navigate, Outlet, ScrollRestoration } from "react-router";
-import { useConvexAuth, useQuery, useMutation } from "convex/react";
-import { useAuthActions } from "@convex-dev/auth/react";
+import { useConvexAuth } from "convex/react";
+import { authClient } from "@/lib/auth-client";
 import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
 import { AppShell } from "./AppShell";
@@ -17,6 +17,8 @@ import { toast } from "sonner";
 import { OnboardingWizard } from "../onboarding/OnboardingWizard";
 import { ErrorBoundary } from "../ErrorBoundary";
 import { ChangePasswordScreen } from "../team/ChangePasswordScreen";
+import { useQuery, useMutation, skipToken } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 
 export type AppOutletContext = {
   organizationId: Id<"organizations">;
@@ -26,20 +28,12 @@ export function AuthLayout() {
   const { isAuthenticated, isLoading } = useConvexAuth();
   const [selectedOrgId, setSelectedOrgId] = useState<Id<"organizations"> | null>(null);
   const [wizardDone, setWizardDone] = useState(false);
-  const { signOut } = useAuthActions();
+  const signOut = () => authClient.signOut();
 
-  const loggedInUser = useQuery(
-    api.auth.loggedInUser,
-    isAuthenticated ? undefined : "skip"
-  );
-  const onboardingProgress = useQuery(
-    api.onboarding.getOnboardingProgress,
-    selectedOrgId ? { organizationId: selectedOrgId } : "skip"
-  );
-  const currentMember = useQuery(
-    api.teamMembers.getCurrentTeamMember,
-    selectedOrgId ? { organizationId: selectedOrgId } : "skip"
-  );
+  const crpc = useCRPC();
+  const { data: loggedInUser } = useQuery(crpc.auth.loggedInUser.queryOptions(isAuthenticated ? undefined : skipToken));
+  const { data: onboardingProgress } = useQuery(crpc.onboarding.getOnboardingProgress.queryOptions(selectedOrgId ? { organizationId: selectedOrgId } : skipToken));
+  const { data: currentMember } = useQuery(crpc.teamMembers.getCurrentTeamMember.queryOptions(selectedOrgId ? { organizationId: selectedOrgId } : skipToken));
 
   if (isLoading) {
     return (
@@ -125,9 +119,10 @@ function WelcomeScreen({ onSelectOrg }: { onSelectOrg: (orgId: Id<"organizations
   const [newOrgName, setNewOrgName] = useState("");
   const [newOrgSlug, setNewOrgSlug] = useState("");
   const [isCreating, setIsCreating] = useState(false);
+  const crpc = useCRPC();
 
-  const organizations = useQuery(api.organizations.getUserOrganizations);
-  const createOrganization = useMutation(api.organizations.createOrganization);
+  const { data: organizations } = useQuery(crpc.organizations.getUserOrganizations.queryOptions());
+  const { mutateAsync: createOrganization } = useMutation(crpc.organizations.createOrganization.mutationOptions());
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();

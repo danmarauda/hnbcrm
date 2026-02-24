@@ -1,8 +1,8 @@
 import { v } from "convex/values";
 import { query, mutation, internalQuery, internalMutation } from "./_generated/server";
-import { getAuthUserId } from "@convex-dev/auth/server";
 import { internal } from "./_generated/api";
 import { requireAuth, requirePermission } from "./lib/auth";
+import { authComponent } from "./auth";
 import { buildAuditDescription } from "./lib/auditDescription";
 import { permissionsValidator } from "./schema";
 import { resolvePermissions, hasPermission, type Role } from "./lib/permissions";
@@ -42,13 +42,13 @@ export const getCurrentTeamMember = query({
   args: { organizationId: v.id("organizations") },
   returns: v.any(),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) return null;
+    const baUser = await authComponent.safeGetAuthUser(ctx);
+    if (!baUser) return null;
 
     return await ctx.db
       .query("teamMembers")
       .withIndex("by_organization_and_user", (q) =>
-        q.eq("organizationId", args.organizationId).eq("userId", userId)
+        q.eq("organizationId", args.organizationId).eq("userId", baUser._id)
       )
       .first();
   },
@@ -72,14 +72,15 @@ export const searchUserByEmail = query({
 
     const isOrgMember = existingMember?.organizationId === args.organizationId;
 
-    // Check if a user account exists with this email
-    const existingUsers = await ctx.db
-      .query("users")
-      .filter((q) => q.eq(q.field("email"), args.email))
-      .take(1);
+    // Check if any team member with this email already has a BA user linked (meaning they have an account)
+    const linkedMember = await ctx.db
+      .query("teamMembers")
+      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .filter((q) => q.neq(q.field("userId"), undefined))
+      .first();
 
     return {
-      userExists: existingUsers.length > 0,
+      userExists: linkedMember !== null,
       isOrgMember,
       existingMember: isOrgMember ? existingMember : null,
     };
@@ -103,15 +104,16 @@ export const createTeamMember = mutation({
 
     const now = Date.now();
 
-    // For human members with email, try to link to existing user immediately
-    let userId = undefined as any;
+    // For human members with email, try to link to existing BA user immediately
+    let userId = undefined as string | undefined;
     if (args.type === "human" && args.email) {
-      const existingUsers = await ctx.db
-        .query("users")
-        .filter((q) => q.eq(q.field("email"), args.email))
-        .take(1);
-      if (existingUsers.length > 0) {
-        userId = existingUsers[0]._id;
+      const linkedMember = await ctx.db
+        .query("teamMembers")
+        .withIndex("by_email", (q) => q.eq("email", args.email))
+        .filter((q) => q.neq(q.field("userId"), undefined))
+        .first();
+      if (linkedMember?.userId) {
+        userId = linkedMember.userId;
       }
     }
 
@@ -466,7 +468,7 @@ export const internalGetTeamMembers = internalQuery({
 export const internalCreateInvitedMember = internalMutation({
   args: {
     organizationId: v.id("organizations"),
-    userId: v.optional(v.id("users")),
+    userId: v.optional(v.string()), // Better Auth user ID
     name: v.string(),
     email: v.string(),
     role: v.union(v.literal("admin"), v.literal("manager"), v.literal("agent")),
@@ -516,13 +518,13 @@ export const internalVerifyTeamManager = internalQuery({
   args: { organizationId: v.id("organizations") },
   returns: v.any(),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) return null;
+    const baUser = await authComponent.safeGetAuthUser(ctx);
+    if (!baUser) return null;
 
     const userMember = await ctx.db
       .query("teamMembers")
       .withIndex("by_organization_and_user", (q) =>
-        q.eq("organizationId", args.organizationId).eq("userId", userId)
+        q.eq("organizationId", args.organizationId).eq("userId", baUser._id)
       )
       .first();
 
@@ -548,11 +550,11 @@ export const internalClearMustChangePassword = internalMutation({
   },
 });
 
-// Internal: Find team member by user ID in org
+// Internal: Find team member by Better Auth user ID in org
 export const internalGetMemberByUserId = internalQuery({
   args: {
     organizationId: v.id("organizations"),
-    userId: v.id("users"),
+    userId: v.string(), // Better Auth user ID
   },
   returns: v.any(),
   handler: async (ctx, args) => {
@@ -562,5 +564,32 @@ export const internalGetMemberByUserId = internalQuery({
         q.eq("organizationId", args.organizationId).eq("userId", args.userId)
       )
       .first();
+  },
+});
+
+// Internal: Find team member by email in org
+export const internalGetMemberByEmail = internalQuery({
+  args: { organizationId: v.id("organizations"), email: v.string() },
+  returns: v.any(),
+  handler: async (ctx, args) => {
+    const members = await ctx.db
+      .query("teamMembers")
+      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .collect();
+    return members.find((m) => m.organizationId === args.organizationId) ?? null;
+  },
+});
+
+// Internal: Find an existing Better Auth user ID linked to an email (across all orgs)
+export const internalGetBaUserIdByEmail = internalQuery({
+  args: { email: v.string() },
+  returns: v.union(v.string(), v.null()),
+  handler: async (ctx, args) => {
+    const member = await ctx.db
+      .query("teamMembers")
+      .withIndex("by_email", (q) => q.eq("email", args.email))
+      .filter((q) => q.neq(q.field("userId"), undefined))
+      .first();
+    return member?.userId ?? null;
   },
 });

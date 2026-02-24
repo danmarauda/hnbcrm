@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAction, useMutation, useQuery } from "convex/react";
+;
 import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
 import { toast } from "sonner";
@@ -18,6 +18,8 @@ import {
   resolvePermissions,
 } from "../../../convex/lib/permissions";
 import { cn } from "@/lib/utils";
+import { useQuery, useMutation, skipToken } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 import {
   Pencil, Trash2, RotateCcw, Save, X,
   Key, Plus, Copy, Check, Eye, EyeOff, ShieldAlert, Ban, RefreshCw,
@@ -88,20 +90,18 @@ export function MemberDetailSlideOver({
   const [keyRevealed, setKeyRevealed] = useState(false);
   const [revokeKeyId, setRevokeKeyId] = useState<Id<"apiKeys"> | null>(null);
 
-  const updateMember = useMutation(api.teamMembers.updateTeamMember);
-  const updateMemberAvatar = useMutation(api.teamMembers.updateMemberAvatar);
-  const removeMember = useMutation(api.teamMembers.removeTeamMember);
-  const reactivateMember = useMutation(api.teamMembers.reactivateTeamMember);
-  const createApiKeyAction = useAction(api.nodeActions.createApiKey);
-  const revokeApiKeyMutation = useMutation(api.apiKeys.revokeApiKey);
+  const crpc = useCRPC();
+  const { mutateAsync: updateMember } = useMutation(crpc.teamMembers.updateTeamMember.mutationOptions());
+  const { mutateAsync: updateMemberAvatar } = useMutation(crpc.teamMembers.updateMemberAvatar.mutationOptions());
+  const { mutateAsync: removeMember } = useMutation(crpc.teamMembers.removeTeamMember.mutationOptions());
+  const { mutateAsync: reactivateMember } = useMutation(crpc.teamMembers.reactivateTeamMember.mutationOptions());
+  const { mutateAsync: createApiKeyAction } = useMutation(crpc.nodeActions.createApiKey.mutationOptions());
+  const { mutateAsync: revokeApiKeyMutation } = useMutation(crpc.apiKeys.revokeApiKey.mutationOptions());
 
   // Fetch API keys for AI agents
-  const apiKeys = useQuery(
-    api.apiKeys.getApiKeysForMember,
-    member && member.type === "ai"
+  const { data: apiKeys } = useQuery(crpc.apiKeys.getApiKeysForMember.queryOptions(member && member.type === "ai"
       ? { organizationId, teamMemberId: member._id }
-      : "skip"
-  );
+      : skipToken));
 
   if (!member) return null;
 

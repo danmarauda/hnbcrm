@@ -1,10 +1,12 @@
 import React, { useRef, useState } from "react";
-import { useMutation } from "convex/react";
+;
 import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
 import { Paperclip, X, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 
 const ACCEPTED_TYPES = [
   "image/jpeg",
@@ -54,8 +56,9 @@ export function FileUploadButton({
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  const generateUploadUrl = useMutation(api.files.generateUploadUrl);
-  const saveFile = useMutation(api.files.saveFile);
+  const crpc = useCRPC();
+  const { mutateAsync: generateUploadUrl } = useMutation(crpc.files.generateUploadUrl.mutationOptions());
+  const { mutateAsync: saveFile } = useMutation(crpc.files.saveFile.mutationOptions());
 
   const handleClick = () => {
     if (disabled || uploading) return;

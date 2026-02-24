@@ -1,10 +1,10 @@
 import { useState, useMemo } from "react";
 import { useOutletContext } from "react-router";
-import { useQuery } from "convex/react";
+;
 import { api } from "../../../convex/_generated/api";
 import type { AppOutletContext } from "../layout/AuthLayout";
 import { DndContext, DragOverlay, PointerSensor, TouchSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core";
-import { useMutation } from "convex/react";
+;
 import { Id } from "../../../convex/_generated/dataModel";
 import { Plus } from "lucide-react";
 import { useCalendarState } from "./useCalendarState";
@@ -18,6 +18,8 @@ import { TaskDetailSlideOver } from "./TaskDetailSlideOver";
 import { EventBlock } from "./EventBlock";
 import { Spinner } from "../ui/Spinner";
 import { toast } from "sonner";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 
 export function CalendarPage() {
   const { organizationId } = useOutletContext<AppOutletContext>();
@@ -43,18 +45,19 @@ export function CalendarPage() {
   const [selectedEventTypes, setSelectedEventTypes] = useState<string[]>([]);
   const [activeEvent, setActiveEvent] = useState<any>(null);
 
-  const events = useQuery(api.calendar.getEvents, {
+  const crpc = useCRPC();
+  const { data: events } = useQuery(crpc.calendar.getEvents.queryOptions({
     organizationId,
     startDate: dateRange.startDate,
     endDate: dateRange.endDate,
     includeTasks: true,
     assignedTo: selectedMemberId ? (selectedMemberId as Id<"teamMembers">) : undefined,
     eventType: selectedEventTypes.length > 0 ? selectedEventTypes[0] as "call" | "meeting" | "follow_up" | "demo" | "task" | "reminder" | "other" : undefined,
-  });
+  }));
 
-  const teamMembers = useQuery(api.teamMembers.getTeamMembers, { organizationId });
+  const { data: teamMembers } = useQuery(crpc.teamMembers.getTeamMembers.queryOptions({ organizationId }));
 
-  const rescheduleEvent = useMutation(api.calendar.rescheduleEvent);
+  const { mutateAsync: rescheduleEvent } = useMutation(crpc.calendar.rescheduleEvent.mutationOptions());
 
   // DnD sensors
   const sensors = useSensors(

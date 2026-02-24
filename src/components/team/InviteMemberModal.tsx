@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAction, useMutation } from "convex/react";
+;
 import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
 import { toast } from "sonner";
@@ -14,6 +14,8 @@ import {
   DEFAULT_PERMISSIONS,
 } from "../../../convex/lib/permissions";
 import { cn } from "@/lib/utils";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 import {
   User,
   Bot,
@@ -74,9 +76,10 @@ export function InviteMemberModal({
   // AI agent fields
   const [generateApiKey, setGenerateApiKey] = useState(true);
 
-  const inviteHuman = useAction(api.nodeActions.inviteHumanMember);
-  const createAiMember = useMutation(api.teamMembers.createTeamMember);
-  const createApiKey = useAction(api.nodeActions.createApiKey);
+  const crpc = useCRPC();
+  const { mutateAsync: inviteHuman } = useMutation(crpc.nodeActions.inviteHumanMember.mutationOptions());
+  const { mutateAsync: createAiMember } = useMutation(crpc.teamMembers.createTeamMember.mutationOptions());
+  const { mutateAsync: createApiKey } = useMutation(crpc.nodeActions.createApiKey.mutationOptions());
 
   const handleRoleChange = (newRole: Role) => {
     setRole(newRole);

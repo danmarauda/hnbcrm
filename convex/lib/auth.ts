@@ -1,4 +1,4 @@
-import { getAuthUserId } from "@convex-dev/auth/server";
+import { authComponent } from "../auth";
 import { QueryCtx, MutationCtx } from "../_generated/server";
 import { Id } from "../_generated/dataModel";
 import {
@@ -9,15 +9,21 @@ import {
   type Permissions,
 } from "./permissions";
 
-export async function requireAuth(ctx: QueryCtx | MutationCtx, organizationId: Id<"organizations">) {
-  const userId = await getAuthUserId(ctx);
-  if (!userId) throw new Error("Not authenticated");
+export async function requireAuth(
+  ctx: QueryCtx | MutationCtx,
+  organizationId: Id<"organizations">
+) {
+  const baUser = await authComponent.safeGetAuthUser(ctx);
+  if (!baUser) throw new Error("Not authenticated");
+
+  // Look up the team member for this org/user combo
   const userMember = await ctx.db
     .query("teamMembers")
     .withIndex("by_organization_and_user", (q) =>
-      q.eq("organizationId", organizationId).eq("userId", userId)
+      q.eq("organizationId", organizationId).eq("userId", baUser._id)
     )
     .first();
+
   if (!userMember) throw new Error("Not authorized");
   return userMember;
 }

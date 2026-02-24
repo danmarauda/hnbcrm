@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery, useMutation } from "convex/react";
+;
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { Modal } from "@/components/ui/Modal";
@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { ChevronUp, ChevronDown, X, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 
 interface ManageStagesModalProps {
   boardId: Id<"boards">;
@@ -26,17 +28,18 @@ interface LocalStage {
 }
 
 export function ManageStagesModal({ boardId, organizationId, onClose }: ManageStagesModalProps) {
-  const stages = useQuery(api.boards.getStages, { boardId });
+  const crpc = useCRPC();
+  const { data: stages } = useQuery(crpc.boards.getStages.queryOptions({ boardId }));
   const [localStages, setLocalStages] = useState<LocalStage[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [newStageName, setNewStageName] = useState("");
   const [newStageColor, setNewStageColor] = useState("#3B82F6");
   const [confirmDeleteStageId, setConfirmDeleteStageId] = useState<Id<"stages"> | null>(null);
 
-  const updateStage = useMutation(api.boards.updateStage);
-  const deleteStage = useMutation(api.boards.deleteStage);
-  const createStage = useMutation(api.boards.createStage);
-  const reorderStages = useMutation(api.boards.reorderStages);
+  const { mutateAsync: updateStage } = useMutation(crpc.boards.updateStage.mutationOptions());
+  const { mutateAsync: deleteStage } = useMutation(crpc.boards.deleteStage.mutationOptions());
+  const { mutateAsync: createStage } = useMutation(crpc.boards.createStage.mutationOptions());
+  const { mutateAsync: reorderStages } = useMutation(crpc.boards.reorderStages.mutationOptions());
 
   // Initialize local stages when query loads
   useState(() => {

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useOutletContext } from "react-router";
-import { useQuery, useMutation } from "convex/react";
+;
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import type { AppOutletContext } from "@/components/layout/AuthLayout";
@@ -16,6 +16,8 @@ import { MentionTextarea } from "@/components/ui/MentionTextarea";
 import { MentionRenderer } from "@/components/ui/MentionRenderer";
 import { extractMentionIds } from "@/lib/mentions";
 import { SpotlightTooltip } from "@/components/onboarding/SpotlightTooltip";
+import { useQuery, useMutation, skipToken } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 
 export function Inbox() {
   const { organizationId } = useOutletContext<AppOutletContext>();
@@ -25,18 +27,16 @@ export function Inbox() {
   const [isInternal, setIsInternal] = useState(false);
   const [showMessages, setShowMessages] = useState(false);
 
-  const teamMembers = useQuery(api.teamMembers.getTeamMembers, { organizationId });
+  const crpc = useCRPC();
+  const { data: teamMembers } = useQuery(crpc.teamMembers.getTeamMembers.queryOptions({ organizationId }));
 
-  const conversations = useQuery(api.conversations.getConversations, {
+  const { data: conversations } = useQuery(crpc.conversations.getConversations.queryOptions({
     organizationId,
-  });
+  }));
 
-  const messages = useQuery(
-    api.conversations.getMessages,
-    selectedConversation ? { conversationId: selectedConversation as Id<"conversations"> } : "skip"
-  );
+  const { data: messages } = useQuery(crpc.conversations.getMessages.queryOptions(selectedConversation ? { conversationId: selectedConversation as Id<"conversations"> } : skipToken));
 
-  const sendMessage = useMutation(api.conversations.sendMessage);
+  const { mutateAsync: sendMessage } = useMutation(crpc.conversations.sendMessage.mutationOptions());
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();

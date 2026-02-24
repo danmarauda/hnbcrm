@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useOutletContext, useNavigate } from "react-router";
-import { useQuery, useMutation } from "convex/react";
+;
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
@@ -16,6 +16,8 @@ import { RecentActivityWidget } from "@/components/RecentActivityWidget";
 import { UpcomingTasksWidget } from "@/components/UpcomingTasksWidget";
 import { UpcomingEventsWidget } from "@/components/UpcomingEventsWidget";
 import { toast } from "sonner";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 import {
   Handshake,
   DollarSign,
@@ -45,8 +47,9 @@ export function DashboardOverview() {
   const { organizationId } = useOutletContext<AppOutletContext>();
   const navigate = useNavigate();
   const onTabChange = (tab: Tab) => navigate(TAB_ROUTES[tab]);
-  const stats = useQuery(api.dashboard.getDashboardStats, { organizationId });
-  const currentMember = useQuery(api.teamMembers.getCurrentTeamMember, { organizationId });
+  const crpc = useCRPC();
+  const { data: stats } = useQuery(crpc.dashboard.getDashboardStats.queryOptions({ organizationId }));
+  const { data: currentMember } = useQuery(crpc.teamMembers.getCurrentTeamMember.queryOptions({ organizationId }));
 
   if (!stats || !currentMember) {
     return <LoadingSkeleton />;
@@ -209,10 +212,11 @@ function MyTasksWidget({
   organizationId: Id<"organizations">;
   onTabChange: (tab: Tab) => void;
 }) {
+  const crpc = useCRPC();
   const [now] = useState(() => Date.now());
-  const myTasks = useQuery(api.tasks.getMyTasks, { organizationId });
-  const taskCounts = useQuery(api.tasks.getTaskCounts, { organizationId, now });
-  const completeTask = useMutation(api.tasks.completeTask);
+  const { data: myTasks } = useQuery(crpc.tasks.getMyTasks.queryOptions({ organizationId }));
+  const { data: taskCounts } = useQuery(crpc.tasks.getTaskCounts.queryOptions({ organizationId, now }));
+  const { mutateAsync: completeTask } = useMutation(crpc.tasks.completeTask.mutationOptions());
 
   const handleComplete = async (taskId: Id<"tasks">) => {
     try {

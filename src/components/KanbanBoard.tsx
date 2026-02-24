@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { useOutletContext } from "react-router";
-import { useQuery, useMutation } from "convex/react";
+;
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import type { AppOutletContext } from "@/components/layout/AuthLayout";
@@ -32,6 +32,8 @@ import {
   useDroppable,
 } from "@dnd-kit/core";
 import { toast } from "sonner";
+import { useQuery, useMutation, skipToken } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 
 interface Lead {
   _id: Id<"leads">;
@@ -278,7 +280,8 @@ function QuickAddForm({
 }) {
   const [title, setTitle] = useState("");
   const [value, setValue] = useState(0);
-  const createLead = useMutation(api.leads.createLead);
+  const crpc = useCRPC();
+  const { mutateAsync: createLead } = useMutation(crpc.leads.createLead.mutationOptions());
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -583,6 +586,7 @@ function AddStageColumn({
 
 export function KanbanBoard() {
   const { organizationId } = useOutletContext<AppOutletContext>();
+  const crpc = useCRPC();
   const { can } = usePermissions(organizationId);
   const [selectedBoardId, setSelectedBoardId] = useState<Id<"boards"> | null>(null);
   const [selectedLeadId, setSelectedLeadId] = useState<Id<"leads"> | null>(null);
@@ -610,24 +614,18 @@ export function KanbanBoard() {
   const [temperatureFilter, setTemperatureFilter] = useState<string>("all");
   const [assigneeFilter, setAssigneeFilter] = useState<string>("all");
 
-  const boards = useQuery(api.boards.getBoards, { organizationId });
-  const stages = useQuery(
-    api.boards.getStages,
-    selectedBoardId ? { boardId: selectedBoardId } : "skip"
-  );
-  const leads = useQuery(
-    api.leads.getLeads,
-    selectedBoardId ? { organizationId, boardId: selectedBoardId } : "skip"
-  );
-  const teamMembers = useQuery(api.teamMembers.getTeamMembers, { organizationId });
+  const { data: boards } = useQuery(crpc.boards.getBoards.queryOptions({ organizationId }));
+  const { data: stages } = useQuery(crpc.boards.getStages.queryOptions(selectedBoardId ? { boardId: selectedBoardId } : skipToken));
+  const { data: leads } = useQuery(crpc.leads.getLeads.queryOptions(selectedBoardId ? { organizationId, boardId: selectedBoardId } : skipToken));
+  const { data: teamMembers } = useQuery(crpc.teamMembers.getTeamMembers.queryOptions({ organizationId }));
 
-  const moveLeadToStage = useMutation(api.leads.moveLeadToStage);
-  const deleteBoard = useMutation(api.boards.deleteBoard);
-  const createBoard = useMutation(api.boards.createBoard);
-  const createBoardWithStages = useMutation(api.boards.createBoardWithStages);
-  const updateStage = useMutation(api.boards.updateStage);
-  const deleteStage = useMutation(api.boards.deleteStage);
-  const createStage = useMutation(api.boards.createStage);
+  const { mutateAsync: moveLeadToStage } = useMutation(crpc.leads.moveLeadToStage.mutationOptions());
+  const { mutateAsync: deleteBoard } = useMutation(crpc.boards.deleteBoard.mutationOptions());
+  const { mutateAsync: createBoard } = useMutation(crpc.boards.createBoard.mutationOptions());
+  const { mutateAsync: createBoardWithStages } = useMutation(crpc.boards.createBoardWithStages.mutationOptions());
+  const { mutateAsync: updateStage } = useMutation(crpc.boards.updateStage.mutationOptions());
+  const { mutateAsync: deleteStage } = useMutation(crpc.boards.deleteStage.mutationOptions());
+  const { mutateAsync: createStage } = useMutation(crpc.boards.createStage.mutationOptions());
 
   // DnD Sensors
   const sensors = useSensors(

@@ -6,6 +6,7 @@ import { internalAction, action } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
 import { permissionsValidator } from "./schema";
+import { authComponent, createAuth } from "./auth";
 
 function sha256(input: string): string {
   return crypto.createHash("sha256").update(input).digest("hex");
@@ -16,7 +17,6 @@ function hmacSha256(payload: string, secret: string): string {
 }
 
 function generateTempPassword(): string {
-  // 12-char alphanumeric password
   return crypto.randomBytes(9).toString("base64url");
 }
 
@@ -29,7 +29,7 @@ export const hashString = internalAction({
   },
 });
 
-// Create API key with secure hashing (replaces old plaintext mutation)
+// Create API key with secure hashing
 export const createApiKey = action({
   args: {
     organizationId: v.id("organizations"),
@@ -39,17 +39,14 @@ export const createApiKey = action({
   },
   returns: v.object({ apiKeyId: v.id("apiKeys"), apiKey: v.string() }),
   handler: async (ctx, args): Promise<{ apiKeyId: Id<"apiKeys">; apiKey: string }> => {
-    // Auth check via internal query (auth context propagates from action)
     const admin: any = await ctx.runQuery(internal.apiKeys.verifyAdmin, {
       organizationId: args.organizationId,
     });
     if (!admin) throw new Error("Not authorized — admin role required");
 
-    // Generate cryptographically secure API key
     const apiKey = `hnbcrm_${crypto.randomBytes(24).toString("base64url")}`;
     const keyHash = sha256(apiKey);
 
-    // Store only the hash
     const apiKeyId = await ctx.runMutation(internal.apiKeys.insertApiKey, {
       organizationId: args.organizationId,
       teamMemberId: args.teamMemberId,
@@ -63,7 +60,7 @@ export const createApiKey = action({
   },
 });
 
-// Invite a human team member — creates auth account with temp password if user is new
+// Invite a human team member — creates a Better Auth account with temp password if new
 export const inviteHumanMember = action({
   args: {
     organizationId: v.id("organizations"),
@@ -82,76 +79,78 @@ export const inviteHumanMember = action({
     isNewUser: boolean;
     tempPassword?: string;
   }> => {
-    // Verify caller has team:manage
+    // Verify caller has team:manage permission
     const callerMember: any = await ctx.runQuery(
       internal.teamMembers.internalVerifyTeamManager,
       { organizationId: args.organizationId }
     );
     if (!callerMember) throw new Error("Permissão insuficiente");
 
-    let isNewUser = false;
-    let userId: Id<"users"> | undefined;
-    let tempPassword: string | undefined;
+    // Check if the email is already a member of this org
+    const existingMemberInOrg: any = await ctx.runQuery(
+      internal.teamMembers.internalGetMemberByEmail,
+      { organizationId: args.organizationId, email: args.email }
+    );
+    if (existingMemberInOrg) {
+      throw new Error("Este usuário já é membro desta organização");
+    }
 
-    const { Scrypt } = await import("lucia");
-    const scrypt = new Scrypt();
-
-    // Look for existing user in the auth system
-    const existingUser: any = await ctx.runQuery(
-      internal.authHelpers.queryUserByEmail,
+    // Check if the user already has a BA account (linked to any teamMember)
+    const existingBaUserId: string | null = await ctx.runQuery(
+      internal.teamMembers.internalGetBaUserIdByEmail,
       { email: args.email }
     );
 
-    if (existingUser) {
-      userId = existingUser._id;
-      isNewUser = false;
+    let isNewUser = false;
+    let tempPassword: string | undefined;
 
-      // Check if already a member of this org
-      const existingMember: any = await ctx.runQuery(
-        internal.teamMembers.internalGetMemberByUserId,
-        { organizationId: args.organizationId, userId: userId! }
+    if (existingBaUserId) {
+      // Existing BA user — just create the team member record linked to them
+      const teamMemberId = await ctx.runMutation(
+        internal.teamMembers.internalCreateInvitedMember,
+        {
+          organizationId: args.organizationId,
+          userId: existingBaUserId,
+          name: args.name,
+          email: args.email,
+          role: args.role,
+          invitedBy: callerMember._id,
+          mustChangePassword: false,
+          permissions: args.permissions,
+        }
       );
-      if (existingMember) {
-        throw new Error("Este usuário já é membro desta organização");
-      }
-    } else {
-      // Create new user + auth account with temp password
-      isNewUser = true;
-      tempPassword = generateTempPassword();
-      const passwordHash = await scrypt.hash(tempPassword);
-
-      // Create user record + auth account
-      userId = await ctx.runMutation(internal.authHelpers.insertUserAndAuthAccount, {
-        email: args.email,
-        name: args.name,
-        passwordHash,
-      });
+      return { teamMemberId, isNewUser: false };
     }
 
-    // Create the team member record
+    // New user — create teamMember first (trigger will link after BA user is created)
+    isNewUser = true;
+    tempPassword = generateTempPassword();
+
     const teamMemberId = await ctx.runMutation(
       internal.teamMembers.internalCreateInvitedMember,
       {
         organizationId: args.organizationId,
-        userId,
+        userId: undefined,
         name: args.name,
         email: args.email,
         role: args.role,
         invitedBy: callerMember._id,
-        mustChangePassword: isNewUser,
+        mustChangePassword: true,
         permissions: args.permissions,
       }
     );
 
-    return {
-      teamMemberId,
-      isNewUser,
-      tempPassword: isNewUser ? tempPassword : undefined,
-    };
+    // Create the Better Auth user account (triggers will link userId to teamMember)
+    const auth = createAuth(ctx as any);
+    await auth.api.signUpEmail({
+      body: { email: args.email, name: args.name, password: tempPassword },
+    });
+
+    return { teamMemberId, isNewUser, tempPassword };
   },
 });
 
-// Change password — validates current password first
+// Change password via Better Auth's changePassword endpoint
 export const changePassword = action({
   args: {
     organizationId: v.id("organizations"),
@@ -160,40 +159,21 @@ export const changePassword = action({
   },
   returns: v.object({ success: v.boolean() }),
   handler: async (ctx, args): Promise<{ success: boolean }> => {
-    const { Scrypt } = await import("lucia");
-    const scrypt = new Scrypt();
+    const { auth, headers } = await authComponent.getAuth(createAuth as any, ctx as any);
 
-    // Get auth account for the current authenticated user
-    const authAccount: any = await ctx.runQuery(
-      internal.authHelpers.queryAuthAccountForCurrentUser,
-      {}
-    );
-
-    if (!authAccount) throw new Error("Conta não encontrada");
-
-    // Verify current password
-    const valid = await scrypt.verify(authAccount.secret, args.currentPassword);
-    if (!valid) throw new Error("Senha atual incorreta");
-
-    // Hash new password and update
-    const newHash = await scrypt.hash(args.newPassword);
-    await ctx.runMutation(internal.authHelpers.patchAuthAccountSecret, {
-      authAccountId: authAccount._id,
-      newSecret: newHash,
+    // Better Auth handles verification and hashing internally
+    await auth.api.changePassword({
+      headers,
+      body: { currentPassword: args.currentPassword, newPassword: args.newPassword },
     });
 
-    // Clear mustChangePassword flag if set on any team member
-    if (authAccount.userId) {
-      const member: any = await ctx.runQuery(
-        internal.teamMembers.internalGetMemberByUserId,
-        { organizationId: args.organizationId, userId: authAccount.userId }
-      );
-      if (member?.mustChangePassword) {
-        await ctx.runMutation(
-          internal.teamMembers.internalClearMustChangePassword,
-          { teamMemberId: member._id }
-        );
-      }
+    // Clear mustChangePassword flag for this user in this org
+    const baUser = await authComponent.safeGetAuthUser(ctx as any);
+    if (baUser?._id) {
+      await ctx.runMutation(internal.authHelpers.clearMustChangePasswordByUserId, {
+        baUserId: baUser._id,
+        organizationId: args.organizationId,
+      });
     }
 
     return { success: true };

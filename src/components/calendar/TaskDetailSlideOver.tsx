@@ -1,4 +1,4 @@
-import { useQuery, useMutation } from "convex/react";
+;
 import { api } from "../../../convex/_generated/api";
 import { Id } from "../../../convex/_generated/dataModel";
 import { SlideOver } from "../ui/SlideOver";
@@ -19,6 +19,8 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useQuery, useMutation, skipToken } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 
 interface TaskDetailSlideOverProps {
   open: boolean;
@@ -68,13 +70,11 @@ const ACTIVITY_TYPE_LABELS: Record<string, string> = {
 export function TaskDetailSlideOver({ open, onClose, taskId }: TaskDetailSlideOverProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  const task = useQuery(
-    api.tasks.getTask,
-    taskId ? { taskId: taskId as Id<"tasks"> } : "skip"
-  );
+  const crpc = useCRPC();
+  const { data: task } = useQuery(crpc.tasks.getTask.queryOptions(taskId ? { taskId: taskId as Id<"tasks"> } : skipToken));
 
-  const updateTask = useMutation(api.tasks.updateTask);
-  const deleteTask = useMutation(api.tasks.deleteTask);
+  const { mutateAsync: updateTask } = useMutation(crpc.tasks.updateTask.mutationOptions());
+  const { mutateAsync: deleteTask } = useMutation(crpc.tasks.deleteTask.mutationOptions());
 
   const handleComplete = async () => {
     if (!taskId) return;

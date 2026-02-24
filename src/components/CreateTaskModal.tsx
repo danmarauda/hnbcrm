@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { useQuery, useMutation } from "convex/react";
+;
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { toast } from "sonner";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 import {
   Plus,
   X,
@@ -74,9 +76,10 @@ export function CreateTaskModal({
   const [submitting, setSubmitting] = useState(false);
   const [leadSearch, setLeadSearch] = useState("");
 
-  const teamMembers = useQuery(api.teamMembers.getTeamMembers, { organizationId });
-  const contacts = useQuery(api.contacts.getContacts, { organizationId });
-  const createTask = useMutation(api.tasks.createTask);
+  const crpc = useCRPC();
+  const { data: teamMembers } = useQuery(crpc.teamMembers.getTeamMembers.queryOptions({ organizationId }));
+  const { data: contacts } = useQuery(crpc.contacts.getContacts.queryOptions({ organizationId }));
+  const { mutateAsync: createTask } = useMutation(crpc.tasks.createTask.mutationOptions());
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

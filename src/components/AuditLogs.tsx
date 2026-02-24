@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useOutletContext } from "react-router";
-import { useQuery } from "convex/react";
+;
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import type { AppOutletContext } from "@/components/layout/AuthLayout";
@@ -12,6 +12,8 @@ import { Badge } from "@/components/ui/Badge";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { Avatar } from "@/components/ui/Avatar";
 import { cn } from "@/lib/utils";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 import {
   Shield,
   Download,
@@ -76,7 +78,8 @@ export function AuditLogs() {
   }, [datePreset, startDate, endDate]);
 
   // Queries
-  const auditLogs = useQuery(api.auditLogs.getAuditLogs, {
+  const crpc = useCRPC();
+  const { data: auditLogs } = useQuery(crpc.auditLogs.getAuditLogs.queryOptions({
     organizationId,
     severity:
       selectedSeverity !== "all"
@@ -100,11 +103,11 @@ export function AuditLogs() {
     startDate: startTimestamp || undefined,
     endDate: endTimestamp || undefined,
     cursor: cursorStack[currentPage] ?? undefined,
-  });
+  }));
 
-  const filters = useQuery(api.auditLogs.getAuditLogFilters, {
+  const { data: filters } = useQuery(crpc.auditLogs.getAuditLogFilters.queryOptions({
     organizationId,
-  });
+  }));
 
   // Active filters tracking
   const activeFilters = useMemo(() => {

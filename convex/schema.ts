@@ -1,6 +1,5 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
-import { authTables } from "@convex-dev/auth/server";
 
 // Shared permissions validator — used by teamMembers and apiKeys
 const permissionsValidator = v.object({
@@ -44,7 +43,7 @@ const applicationTables = {
   // Team Members (humans and AI agents)
   teamMembers: defineTable({
     organizationId: v.id("organizations"),
-    userId: v.optional(v.id("users")), // null for AI agents
+    userId: v.optional(v.string()), // Better Auth user ID (string) for humans; null for AI agents
     name: v.string(),
     email: v.optional(v.string()),
     role: v.union(v.literal("admin"), v.literal("manager"), v.literal("agent"), v.literal("ai")),
@@ -646,6 +645,5 @@ const applicationTables = {
 };
 
 export default defineSchema({
-  ...authTables,
   ...applicationTables,
 });

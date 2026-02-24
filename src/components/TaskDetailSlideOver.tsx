@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useQuery, useMutation } from "convex/react";
+;
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { SlideOver } from "@/components/ui/SlideOver";
@@ -10,6 +10,8 @@ import { Spinner } from "@/components/ui/Spinner";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 import {
   Check,
   Clock,
@@ -115,19 +117,20 @@ export function TaskDetailSlideOver({
   const [snoozeDate, setSnoozeDate] = useState("");
   const [snoozeTime, setSnoozeTime] = useState("");
 
-  const task = useQuery(api.tasks.getTask, { taskId });
-  const teamMembers = useQuery(api.teamMembers.getTeamMembers, { organizationId });
-  const comments = useQuery(api.taskComments.getComments, { taskId });
+  const crpc = useCRPC();
+  const { data: task } = useQuery(crpc.tasks.getTask.queryOptions({ taskId }));
+  const { data: teamMembers } = useQuery(crpc.teamMembers.getTeamMembers.queryOptions({ organizationId }));
+  const { data: comments } = useQuery(crpc.taskComments.getComments.queryOptions({ taskId }));
 
-  const updateTask = useMutation(api.tasks.updateTask);
-  const completeTask = useMutation(api.tasks.completeTask);
-  const cancelTask = useMutation(api.tasks.cancelTask);
-  const deleteTask = useMutation(api.tasks.deleteTask);
-  const snoozeTask = useMutation(api.tasks.snoozeTask);
-  const assignTask = useMutation(api.tasks.assignTask);
-  const toggleChecklistItem = useMutation(api.tasks.toggleChecklistItem);
-  const updateChecklist = useMutation(api.tasks.updateChecklist);
-  const addComment = useMutation(api.taskComments.addComment);
+  const { mutateAsync: updateTask } = useMutation(crpc.tasks.updateTask.mutationOptions());
+  const { mutateAsync: completeTask } = useMutation(crpc.tasks.completeTask.mutationOptions());
+  const { mutateAsync: cancelTask } = useMutation(crpc.tasks.cancelTask.mutationOptions());
+  const { mutateAsync: deleteTask } = useMutation(crpc.tasks.deleteTask.mutationOptions());
+  const { mutateAsync: snoozeTask } = useMutation(crpc.tasks.snoozeTask.mutationOptions());
+  const { mutateAsync: assignTask } = useMutation(crpc.tasks.assignTask.mutationOptions());
+  const { mutateAsync: toggleChecklistItem } = useMutation(crpc.tasks.toggleChecklistItem.mutationOptions());
+  const { mutateAsync: updateChecklist } = useMutation(crpc.tasks.updateChecklist.mutationOptions());
+  const { mutateAsync: addComment } = useMutation(crpc.taskComments.addComment.mutationOptions());
 
   const memberMap = useMemo(() => {
     const map = new Map<string, { name: string; type: "human" | "ai"; role: string }>();

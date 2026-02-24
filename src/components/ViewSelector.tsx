@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useQuery, useMutation } from "convex/react";
+;
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
@@ -44,16 +44,17 @@ export function ViewSelector({
   const [showCreateModal, setShowCreateModal] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const savedViews = useQuery(api.savedViews.getSavedViews, {
+  const crpc = useCRPC();
+  const { data: savedViews } = useQuery(crpc.savedViews.getSavedViews.queryOptions({
     organizationId,
     entityType,
-  });
+  }));
 
-  const currentTeamMember = useQuery(api.teamMembers.getCurrentTeamMember, {
+  const { data: currentTeamMember } = useQuery(crpc.teamMembers.getCurrentTeamMember.queryOptions({
     organizationId,
-  });
+  }));
 
-  const deleteSavedView = useMutation(api.savedViews.deleteSavedView);
+  const { mutateAsync: deleteSavedView } = useMutation(crpc.savedViews.deleteSavedView.mutationOptions());
 
   // Define default views based on entity type
   const defaultViews: DefaultView[] =
@@ -298,3 +299,5 @@ export function ViewSelector({
 
 // Import CreateViewModal - will be defined next
 import { CreateViewModal } from "./CreateViewModal";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";

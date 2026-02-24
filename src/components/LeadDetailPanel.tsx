@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useQuery, useMutation } from "convex/react";
+;
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { usePermissions } from "@/hooks/usePermissions";
@@ -35,6 +35,8 @@ import { CreateTaskModal } from "./CreateTaskModal";
 import { LeadDocuments } from "./LeadDocuments";
 import { FileUploadButton, UploadedFile } from "@/components/ui/FileUploadButton";
 import { AttachmentPreview } from "@/components/ui/AttachmentPreview";
+import { useQuery, useMutation, skipToken } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 
 interface LeadDetailPanelProps {
   leadId: Id<"leads">;
@@ -113,22 +115,20 @@ function ConversationTab({
   const [stagedFiles, setStagedFiles] = useState<UploadedFile[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const teamMembers = useQuery(api.teamMembers.getTeamMembers, { organizationId });
+  const crpc = useCRPC();
+  const { data: teamMembers } = useQuery(crpc.teamMembers.getTeamMembers.queryOptions({ organizationId }));
 
-  const conversations = useQuery(api.conversations.getConversations, {
+  const { data: conversations } = useQuery(crpc.conversations.getConversations.queryOptions({
     organizationId,
     leadId,
-  });
+  }));
 
   const firstConversation = conversations && conversations.length > 0 ? conversations[0] : null;
 
-  const messages = useQuery(
-    api.conversations.getMessages,
-    firstConversation ? { conversationId: firstConversation._id } : "skip"
-  );
+  const { data: messages } = useQuery(crpc.conversations.getMessages.queryOptions(firstConversation ? { conversationId: firstConversation._id } : skipToken));
 
-  const sendMessage = useMutation(api.conversations.sendMessage);
-  const createConversation = useMutation(api.conversations.createConversation);
+  const { mutateAsync: sendMessage } = useMutation(crpc.conversations.sendMessage.mutationOptions());
+  const { mutateAsync: createConversation } = useMutation(crpc.conversations.createConversation.mutationOptions());
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -441,31 +441,29 @@ function BantInfoContent() {
 /* ------------------------------------------------------------------ */
 
 function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizationId: Id<"organizations"> }) {
+  const crpc = useCRPC();
   const { can } = usePermissions(organizationId);
-  const lead = useQuery(api.leads.getLead, { leadId });
-  const updateLead = useMutation(api.leads.updateLead);
-  const updateQualification = useMutation(api.leads.updateLeadQualification);
-  const linkContactMutation = useMutation(api.leads.linkContact);
-  const assignLeadMutation = useMutation(api.leads.assignLead);
-  const moveLeadToStageMutation = useMutation(api.leads.moveLeadToStage);
+  const { data: lead } = useQuery(crpc.leads.getLead.queryOptions({ leadId }));
+  const { mutateAsync: updateLead } = useMutation(crpc.leads.updateLead.mutationOptions());
+  const { mutateAsync: updateQualification } = useMutation(crpc.leads.updateLeadQualification.mutationOptions());
+  const { mutateAsync: linkContactMutation } = useMutation(crpc.leads.linkContact.mutationOptions());
+  const { mutateAsync: assignLeadMutation } = useMutation(crpc.leads.assignLead.mutationOptions());
+  const { mutateAsync: moveLeadToStageMutation } = useMutation(crpc.leads.moveLeadToStage.mutationOptions());
 
   // Contact picker state
   const [showContactPicker, setShowContactPicker] = useState(false);
   const [contactSearchText, setContactSearchText] = useState("");
-  const contacts = useQuery(api.contacts.getContacts, { organizationId });
+  const { data: contacts } = useQuery(crpc.contacts.getContacts.queryOptions({ organizationId }));
 
   // Assignee picker state
   const [showAssigneePicker, setShowAssigneePicker] = useState(false);
-  const teamMembers = useQuery(api.teamMembers.getTeamMembers, { organizationId });
+  const { data: teamMembers } = useQuery(crpc.teamMembers.getTeamMembers.queryOptions({ organizationId }));
 
   // Stage picker state
   const [showStagePicker, setShowStagePicker] = useState(false);
-  const boards = useQuery(api.boards.getBoards, { organizationId });
+  const { data: boards } = useQuery(crpc.boards.getBoards.queryOptions({ organizationId }));
   const [selectedBoardId, setSelectedBoardId] = useState<Id<"boards"> | null>(null);
-  const stages = useQuery(
-    api.boards.getStages,
-    selectedBoardId ? { boardId: selectedBoardId } : "skip"
-  );
+  const { data: stages } = useQuery(crpc.boards.getStages.queryOptions(selectedBoardId ? { boardId: selectedBoardId } : skipToken));
 
   const [title, setTitle] = useState("");
   const [value, setValue] = useState(0);
@@ -1092,11 +1090,12 @@ function TasksTab({
   leadId: Id<"leads">;
   organizationId: Id<"organizations">;
 }) {
+  const crpc = useCRPC();
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const leadTasks = useQuery(api.tasks.getTasksByLead, { leadId });
-  const teamMembers = useQuery(api.teamMembers.getTeamMembers, { organizationId });
-  const lead = useQuery(api.leads.getLead, { leadId });
-  const completeTask = useMutation(api.tasks.completeTask);
+  const { data: leadTasks } = useQuery(crpc.tasks.getTasksByLead.queryOptions({ leadId }));
+  const { data: teamMembers } = useQuery(crpc.teamMembers.getTeamMembers.queryOptions({ organizationId }));
+  const { data: lead } = useQuery(crpc.leads.getLead.queryOptions({ leadId }));
+  const { mutateAsync: completeTask } = useMutation(crpc.tasks.completeTask.mutationOptions());
 
   const memberMap = new Map<string, { name: string; type: "human" | "ai" }>();
   teamMembers?.forEach((m) => memberMap.set(m._id, { name: m.name, type: m.type }));
@@ -1237,9 +1236,10 @@ const activityTypeConfig: Record<string, { color: string; letter: string }> = {
 };
 
 function ActivityTab({ leadId }: { leadId: Id<"leads"> }) {
-  const activities = useQuery(api.activities.getActivities, {
+  const crpc = useCRPC();
+  const { data: activities } = useQuery(crpc.activities.getActivities.queryOptions({
     leadId,
-  });
+  }));
 
   if (!activities) {
     return (

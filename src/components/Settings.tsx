@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useOutletContext } from "react-router";
-import { useQuery, useMutation, useAction } from "convex/react";
+;
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import type { AppOutletContext } from "@/components/layout/AuthLayout";
@@ -16,6 +16,8 @@ import { ApiKeyRevealModal } from "@/components/ui/ApiKeyRevealModal";
 import { Spinner } from "@/components/ui/Spinner";
 import { cn } from "@/lib/utils";
 import { ShieldAlert } from "lucide-react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 
 type SettingsSection = "general" | "apikeys" | "fields" | "sources" | "webhooks";
 
@@ -74,8 +76,9 @@ export function Settings() {
 
 // --- General / Org Profile Section ---
 function OrgProfileSection({ organizationId }: { organizationId: Id<"organizations"> }) {
-  const orgs = useQuery(api.organizations.getUserOrganizations);
-  const updateOrganization = useMutation(api.organizations.updateOrganization);
+  const crpc = useCRPC();
+  const { data: orgs } = useQuery(crpc.organizations.getUserOrganizations.queryOptions());
+  const { mutateAsync: updateOrganization } = useMutation(crpc.organizations.updateOrganization.mutationOptions());
   const org = orgs?.find((o) => o?._id === organizationId);
 
   const [name, setName] = useState("");
@@ -170,6 +173,7 @@ function OrgProfileSection({ organizationId }: { organizationId: Id<"organizatio
 
 // --- API Keys Section ---
 function ApiKeysSection({ organizationId }: { organizationId: Id<"organizations"> }) {
+  const crpc = useCRPC();
   const [showCreateApiKey, setShowCreateApiKey] = useState(false);
   const [newApiKeyName, setNewApiKeyName] = useState("");
   const [selectedAgentId, setSelectedAgentId] = useState<string>("");
@@ -177,16 +181,16 @@ function ApiKeysSection({ organizationId }: { organizationId: Id<"organizations"
   const [revealedApiKey, setRevealedApiKey] = useState<string | null>(null);
   const [confirmRevokeId, setConfirmRevokeId] = useState<string | null>(null);
 
-  const apiKeys = useQuery(api.apiKeys.listApiKeysWithMembers, {
+  const { data: apiKeys } = useQuery(crpc.apiKeys.listApiKeysWithMembers.queryOptions({
     organizationId,
-  });
+  }));
 
-  const teamMembers = useQuery(api.teamMembers.getTeamMembers, {
+  const { data: teamMembers } = useQuery(crpc.teamMembers.getTeamMembers.queryOptions({
     organizationId,
-  });
+  }));
 
-  const createApiKey = useAction(api.nodeActions.createApiKey);
-  const revokeApiKey = useMutation(api.apiKeys.revokeApiKey);
+  const { mutateAsync: createApiKey } = useMutation(crpc.nodeActions.createApiKey.mutationOptions());
+  const { mutateAsync: revokeApiKey } = useMutation(crpc.apiKeys.revokeApiKey.mutationOptions());
 
   const aiAgents = teamMembers?.filter(m => m.type === "ai") ?? [];
 
@@ -370,19 +374,20 @@ function ApiKeysSection({ organizationId }: { organizationId: Id<"organizations"
 
 // --- Custom Fields Section ---
 function CustomFieldsSection({ organizationId }: { organizationId: Id<"organizations"> }) {
+  const crpc = useCRPC();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({ name: "", key: "", type: "text" as string, options: "", isRequired: false });
   const [entityTab, setEntityTab] = useState<"lead" | "contact">("lead");
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
-  const fieldDefs = useQuery(api.fieldDefinitions.getFieldDefinitions, {
+  const { data: fieldDefs } = useQuery(crpc.fieldDefinitions.getFieldDefinitions.queryOptions({
     organizationId,
     entityType: entityTab,
-  });
-  const createField = useMutation(api.fieldDefinitions.createFieldDefinition);
-  const updateField = useMutation(api.fieldDefinitions.updateFieldDefinition);
-  const deleteField = useMutation(api.fieldDefinitions.deleteFieldDefinition);
+  }));
+  const { mutateAsync: createField } = useMutation(crpc.fieldDefinitions.createFieldDefinition.mutationOptions());
+  const { mutateAsync: updateField } = useMutation(crpc.fieldDefinitions.updateFieldDefinition.mutationOptions());
+  const { mutateAsync: deleteField } = useMutation(crpc.fieldDefinitions.deleteFieldDefinition.mutationOptions());
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -574,17 +579,18 @@ function CustomFieldsSection({ organizationId }: { organizationId: Id<"organizat
 
 // --- Lead Sources Section ---
 function LeadSourcesSection({ organizationId }: { organizationId: Id<"organizations"> }) {
+  const crpc = useCRPC();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({ name: "", type: "website" as string });
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
-  const sources = useQuery(api.leadSources.getLeadSources, {
+  const { data: sources } = useQuery(crpc.leadSources.getLeadSources.queryOptions({
     organizationId,
-  });
-  const createSource = useMutation(api.leadSources.createLeadSource);
-  const updateSource = useMutation(api.leadSources.updateLeadSource);
-  const deleteSource = useMutation(api.leadSources.deleteLeadSource);
+  }));
+  const { mutateAsync: createSource } = useMutation(crpc.leadSources.createLeadSource.mutationOptions());
+  const { mutateAsync: updateSource } = useMutation(crpc.leadSources.updateLeadSource.mutationOptions());
+  const { mutateAsync: deleteSource } = useMutation(crpc.leadSources.deleteLeadSource.mutationOptions());
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -712,17 +718,18 @@ function LeadSourcesSection({ organizationId }: { organizationId: Id<"organizati
 
 // --- Webhooks Section ---
 function WebhooksSection({ organizationId }: { organizationId: Id<"organizations"> }) {
+  const crpc = useCRPC();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({ name: "", url: "", events: "", secret: "" });
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
-  const webhooks = useQuery(api.webhooks.getWebhooks, {
+  const { data: webhooks } = useQuery(crpc.webhooks.getWebhooks.queryOptions({
     organizationId,
-  });
-  const createWebhook = useMutation(api.webhooks.createWebhook);
-  const updateWebhook = useMutation(api.webhooks.updateWebhook);
-  const deleteWebhook = useMutation(api.webhooks.deleteWebhook);
+  }));
+  const { mutateAsync: createWebhook } = useMutation(crpc.webhooks.createWebhook.mutationOptions());
+  const { mutateAsync: updateWebhook } = useMutation(crpc.webhooks.updateWebhook.mutationOptions());
+  const { mutateAsync: deleteWebhook } = useMutation(crpc.webhooks.deleteWebhook.mutationOptions());
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

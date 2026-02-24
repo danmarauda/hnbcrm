@@ -1,8 +1,10 @@
-import { useQuery } from "convex/react";
+;
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import { Spinner } from "@/components/ui/Spinner";
 import { cn } from "@/lib/utils";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useCRPC } from "@/lib/crpc";
 
 interface OrganizationSelectorProps {
   selectedOrgId: Id<"organizations"> | null;
@@ -10,7 +12,8 @@ interface OrganizationSelectorProps {
 }
 
 export function OrganizationSelector({ selectedOrgId, onSelectOrg }: OrganizationSelectorProps) {
-  const organizations = useQuery(api.organizations.getUserOrganizations);
+  const crpc = useCRPC();
+  const { data: organizations } = useQuery(crpc.organizations.getUserOrganizations.queryOptions());
 
   if (!organizations) {
     return (

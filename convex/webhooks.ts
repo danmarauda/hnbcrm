@@ -1,6 +1,6 @@
 import { v } from "convex/values";
+import { authComponent } from "./auth";
 import { query, mutation } from "./_generated/server";
-import { getAuthUserId } from "@convex-dev/auth/server";
 import { buildAuditDescription } from "./lib/auditDescription";
 
 // Get webhooks for organization (admin only)
@@ -8,8 +8,9 @@ export const getWebhooks = query({
   args: { organizationId: v.id("organizations") },
   returns: v.any(),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    const baUser = await authComponent.safeGetAuthUser(ctx);
+    if (!baUser) throw new Error("Not authenticated");
+    const userId = baUser._id;
 
     // Verify user is admin
     const userMember = await ctx.db
@@ -41,8 +42,9 @@ export const createWebhook = mutation({
   },
   returns: v.id("webhooks"),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    const baUser = await authComponent.safeGetAuthUser(ctx);
+    if (!baUser) throw new Error("Not authenticated");
+    const userId = baUser._id;
 
     // Verify user is admin
     const userMember = await ctx.db
@@ -97,8 +99,9 @@ export const updateWebhook = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    const baUser = await authComponent.safeGetAuthUser(ctx);
+    if (!baUser) throw new Error("Not authenticated");
+    const userId = baUser._id;
 
     const webhook = await ctx.db.get(args.webhookId);
     if (!webhook) throw new Error("Webhook not found");
@@ -163,8 +166,9 @@ export const deleteWebhook = mutation({
   args: { webhookId: v.id("webhooks") },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    const baUser = await authComponent.safeGetAuthUser(ctx);
+    if (!baUser) throw new Error("Not authenticated");
+    const userId = baUser._id;
 
     const webhook = await ctx.db.get(args.webhookId);
     if (!webhook) throw new Error("Webhook not found");
