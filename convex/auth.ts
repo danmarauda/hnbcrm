@@ -17,6 +17,14 @@ const authBaseUrl =
   process.env.VITE_CONVEX_SITE_URL ??
   siteUrl;
 
+// Allow common Vite dev ports so CORS works even when 5173 is occupied
+const devOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "http://localhost:5175",
+  "http://localhost:5176",
+];
+
 // Explicit AuthFunctions type annotation breaks the circular initializer reference.
 const authFunctions: AuthFunctions = internal.auth;
 
@@ -46,7 +54,7 @@ export const createAuth = (ctx: GenericCtx<DataModel>) =>
   betterAuth({
     baseURL: authBaseUrl,
     basePath: "/api/auth",
-    trustedOrigins: [siteUrl],
+    trustedOrigins: [...new Set([siteUrl, ...devOrigins])],
     database: authComponent.adapter(ctx),
     emailAndPassword: {
       enabled: true,
