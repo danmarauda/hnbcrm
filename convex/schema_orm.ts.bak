@@ -1,0 +1,62 @@
+import { convexTable, defineSchema, defineRelations, text, number, boolean, id, index, record, any, object, array, union, literal, optional } from "better-convex/orm";
+
+export const organizations = convexTable("organizations", {
+  name: text().notNull(),
+  slug: text().notNull(),
+  settings: object({
+    timezone: text().notNull(),
+    currency: text().notNull(),
+    aiConfig: optional(object({
+      enabled: boolean().notNull(),
+      autoAssign: boolean().notNull(),
+      handoffThreshold: number().notNull(),
+    })),
+  }).notNull(),
+  onboardingMeta: optional(object({
+    industry: optional(text()),
+    companySize: optional(text()),
+    mainGoal: optional(text()),
+    wizardCompletedAt: optional(number()),
+  })),
+  createdAt: number().notNull(),
+  updatedAt: number().notNull(),
+}, (t) => [index("by_slug").on(t.slug)]);
+
+export const teamMembers = convexTable("teamMembers", {
+  organizationId: id("organizations").notNull(),
+  userId: optional(text()),
+  name: text().notNull(),
+  email: optional(text()),
+  role: union(literal("admin"), literal("manager"), literal("agent"), literal("ai")).notNull(),
+  type: union(literal("human"), literal("ai")).notNull(),
+  status: union(literal("active"), literal("inactive"), literal("busy")).notNull(),
+  avatarFileId: optional(id("files")),
+  capabilities: optional(array(text())),
+  permissions: optional(any()), // Simplifying for test
+  mustChangePassword: optional(boolean()),
+  invitedBy: optional(id("teamMembers")),
+  createdAt: number().notNull(),
+  updatedAt: number().notNull(),
+}, (t) => [
+  index("by_organization").on(t.organizationId),
+  index("by_user").on(t.userId),
+  index("by_email").on(t.email),
+  index("by_organization_and_type").on(t.organizationId, t.type),
+  index("by_organization_and_user").on(t.organizationId, t.userId),
+]);
+
+export const tables = {
+  organizations,
+  teamMembers,
+};
+
+export default defineSchema(tables, { strict: false });
+
+export const relations = defineRelations(tables, (r) => ({
+  teamMembers: {
+    organization: r.one.organizations({
+      from: r.teamMembers.organizationId,
+      to: r.organizations.id,
+    }),
+  },
+}));
