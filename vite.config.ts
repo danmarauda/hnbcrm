@@ -60,6 +60,9 @@ window.addEventListener('message', async (message) => {
           // Convex backend client
           'convex-vendor': ['convex/react', '@convex-dev/auth/react'],
 
+          // Animation library (framer-motion)
+          'animation-vendor': ['framer-motion'],
+
           // Utility libraries
           'utils-vendor': ['clsx', 'tailwind-merge', 'sonner'],
 

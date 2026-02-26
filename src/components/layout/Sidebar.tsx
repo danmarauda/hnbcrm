@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useLocation, useNavigate } from "react-router";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { usePermissions } from "@/hooks/usePermissions";
 import { Id } from "../../../convex/_generated/dataModel";
@@ -24,21 +25,20 @@ interface NavItem {
   id: Tab;
   label: string;
   icon: React.ElementType;
-  /** Permission category + minimum level required to see this nav item */
   permission?: { category: PermissionCategory; level: string };
 }
 
 const navItems: NavItem[] = [
-  { id: "dashboard", label: "Painel", icon: LayoutDashboard },
+  { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { id: "board", label: "Pipeline", icon: Kanban, permission: { category: "leads", level: "view_own" } },
-  { id: "contacts", label: "Contatos", icon: Contact2, permission: { category: "contacts", level: "view" } },
-  { id: "inbox", label: "Caixa de Entrada", icon: MessageSquare, permission: { category: "inbox", level: "view_own" } },
-  { id: "handoffs", label: "Repasses", icon: ArrowRightLeft, permission: { category: "inbox", level: "view_own" } },
-  { id: "tasks", label: "Tarefas", icon: CheckSquare, permission: { category: "tasks", level: "view_own" } },
-  { id: "calendar", label: "Calendario", icon: CalendarDays, permission: { category: "tasks", level: "view_own" } },
-  { id: "team", label: "Equipe", icon: Users, permission: { category: "team", level: "view" } },
-  { id: "audit", label: "Auditoria", icon: ScrollText, permission: { category: "auditLogs", level: "view" } },
-  { id: "settings", label: "Configurações", icon: Settings, permission: { category: "settings", level: "view" } },
+  { id: "contacts", label: "Contacts", icon: Contact2, permission: { category: "contacts", level: "view" } },
+  { id: "inbox", label: "Inbox", icon: MessageSquare, permission: { category: "inbox", level: "view_own" } },
+  { id: "handoffs", label: "Handoffs", icon: ArrowRightLeft, permission: { category: "inbox", level: "view_own" } },
+  { id: "tasks", label: "Tasks", icon: CheckSquare, permission: { category: "tasks", level: "view_own" } },
+  { id: "calendar", label: "Calendar", icon: CalendarDays, permission: { category: "tasks", level: "view_own" } },
+  { id: "team", label: "Team", icon: Users, permission: { category: "team", level: "view" } },
+  { id: "audit", label: "Audit", icon: ScrollText, permission: { category: "auditLogs", level: "view" } },
+  { id: "settings", label: "Settings", icon: Settings, permission: { category: "settings", level: "view" } },
 ];
 
 interface SidebarProps {
@@ -61,60 +61,55 @@ export function Sidebar({ onSignOut, organizationId, orgSelector }: SidebarProps
   }, [can]);
 
   return (
-    <aside className="hidden md:flex fixed left-0 top-0 bottom-0 z-20 flex-col bg-surface-raised border-r border-border w-16 lg:w-56 transition-all duration-200">
+    <aside className="hidden md:flex fixed left-0 top-0 bottom-0 z-20 flex-col glass glass-lg border-r border-glass-border w-16 lg:w-56 transition-all duration-200">
       {/* Logo */}
-      <div className="flex items-center gap-3 px-4 h-16 border-b border-border shrink-0">
-        <img
-          src="/orange_icon_logo_transparent-bg-528x488.png"
-          alt="HNBCRM"
-          className="h-8 w-8 object-contain shrink-0"
-        />
-        <span className="hidden lg:block text-lg font-bold text-text-primary tracking-tight">
-          HNBCRM
-        </span>
+      <div className="flex items-center gap-3 px-4 h-16 border-b border-glass-border shrink-0">
+        <img src="/orange_icon_logo_transparent-bg-528x488.png" alt="HNBCRM" className="h-8 w-8 object-contain shrink-0" />
+        <span className="hidden lg:block text-lg font-bold text-text-primary tracking-tight font-display">HNBCRM</span>
       </div>
 
       {/* Nav items */}
-      <nav className="flex-1 py-3 px-2 space-y-1 overflow-y-auto">
+      <nav className="flex-1 py-3 px-2 space-y-1 overflow-y-auto glass-scrollbar">
         {visibleItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
           return (
-            <button
+            <motion.button
               key={item.id}
               onClick={() => navigate(TAB_ROUTES[item.id])}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               className={cn(
-                "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
-                "min-h-[44px]",
+                "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
+                "min-h-[44px] relative overflow-hidden",
                 isActive
-                  ? "bg-brand-500/10 text-brand-500"
-                  : "text-text-secondary hover:text-text-primary hover:bg-surface-overlay"
+                  ? "bg-white/5 text-white border border-white/10"
+                  : "text-text-secondary hover:text-text-primary hover:bg-white/[0.03] border border-transparent hover:border-glass-border"
               )}
               aria-current={isActive ? "page" : undefined}
               title={item.label}
             >
-              <Icon size={20} className="shrink-0" />
-              <span className="hidden lg:block truncate">{item.label}</span>
-            </button>
+              {isActive && <motion.div layoutId="sidebar-active-glow" className="absolute inset-0 bg-white/[0.02] rounded-lg" transition={{ type: "spring", stiffness: 350, damping: 30 }} />}
+              <Icon size={20} className="shrink-0 relative z-10" />
+              <span className="hidden lg:block truncate relative z-10">{item.label}</span>
+            </motion.button>
           );
         })}
       </nav>
 
       {/* Bottom section */}
-      <div className="border-t border-border p-2 space-y-1 shrink-0">
-        {orgSelector && (
-          <div className="px-1 py-2">
-            {orgSelector}
-          </div>
-        )}
-        <button
+      <div className="border-t border-glass-border p-2 space-y-1 shrink-0">
+        {orgSelector && <div className="px-1 py-2">{orgSelector}</div>}
+        <motion.button
           onClick={onSignOut}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-text-muted hover:text-semantic-error hover:bg-semantic-error/10 transition-colors min-h-[44px]"
-          title="Sair"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-text-muted hover:text-semantic-error hover:bg-semantic-error/5 border border-transparent hover:border-semantic-error/20 transition-all duration-200 min-h-[44px]"
+          title="Sign Out"
         >
           <LogOut size={20} className="shrink-0" />
-          <span className="hidden lg:block">Sair</span>
-        </button>
+          <span className="hidden lg:block">Sign Out</span>
+        </motion.button>
       </div>
     </aside>
   );

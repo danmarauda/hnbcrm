@@ -2,20 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
-/* === Dark Mode (Default) === */
+/* === Dark Mode (Default) - Portfolio Style === */
 :root {
-  --surface-base:    #0F0F11;
-  --surface-raised:  #18181B;
-  --surface-overlay: #1F1F23;
-  --surface-sunken:  #09090B;
+  /* Surfaces - very dark */
+  --surface-base:    #050505;
+  --surface-raised:  #0f0f0f;
+  --surface-overlay: #141414;
+  --surface-sunken:  #0a0a0a;
 
-  --border-default: #27272A;
-  --border-subtle:  #1E1E22;
-  --border-strong:  #3F3F46;
+  /* Borders */
+  --border-default:  rgba(255, 255, 255, 0.06);
+  --border-subtle:   rgba(255, 255, 255, 0.04);
+  --border-strong:   rgba(255, 255, 255, 0.12);
 
-  --text-primary:   #FAFAFA;
-  --text-secondary: #A1A1AA;
-  --text-muted:     #71717A;
+  /* Text */
+  --text-primary:    #e5e5e5;
+  --text-secondary:  #888888;
+  --text-muted:      #444444;
+
+  /* Glass effect tokens */
+  --glass-bg:         rgba(255, 255, 255, 0.03);
+  --glass-bg-hover:   rgba(255, 255, 255, 0.06);
+  --glass-border:     rgba(255, 255, 255, 0.06);
+  --glass-border-hover: rgba(255, 255, 255, 0.12);
+  --glass-blur:       12px;
+  --glass-blur-lg:    40px;
+
+  /* Glow effects - white based */
+  --glow-brand:      0 0 40px rgba(255, 255, 255, 0.04);
+  --glow-brand-sm:   0 0 20px rgba(255, 255, 255, 0.02);
+  --glow-brand-lg:   0 0 60px rgba(255, 255, 255, 0.06);
+  --glow-white:      0 0 40px rgba(255, 255, 255, 0.03);
+  --glow-inset:      inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+
+  /* Ambient gradients */
+  --ambient-gradient: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(255, 255, 255, 0.03), transparent);
 }
 
 /* === Light Mode Override === */
@@ -32,6 +53,16 @@
   --text-primary:   #18181B;
   --text-secondary: #52525B;
   --text-muted:     #A1A1AA;
+
+  /* Glass tokens for light mode */
+  --glass-bg:         rgba(0, 0, 0, 0.02);
+  --glass-bg-hover:   rgba(0, 0, 0, 0.04);
+  --glass-border:     rgba(0, 0, 0, 0.06);
+  --glass-border-hover: rgba(0, 0, 0, 0.1);
+
+  --glow-brand:      0 0 40px rgba(0, 0, 0, 0.02);
+  --glow-white:      0 0 40px rgba(0, 0, 0, 0.01);
+  --ambient-gradient: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 0, 0, 0.02), transparent);
 }
 
 /* === Prevent double-tap zoom on mobile === */
@@ -64,20 +95,143 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* === Glass Surface === */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+}
+
+.glass-hover:hover {
+  background: var(--glass-bg-hover);
+  border-color: var(--glass-border-hover);
+}
+
+.glass-lg {
+  backdrop-filter: blur(var(--glass-blur-lg));
+  -webkit-backdrop-filter: blur(var(--glass-blur-lg));
+}
+
+/* === Bento Glow === */
+.bento-glow {
+  box-shadow:
+    var(--glow-inset),
+    0 0 0 1px var(--glass-border);
+}
+
+.bento-glow:hover {
+  box-shadow:
+    var(--glow-inset),
+    0 0 0 1px var(--glass-border-hover),
+    var(--glow-white);
+}
+
+.bento-glow-brand:hover {
+  box-shadow:
+    var(--glow-inset),
+    0 0 0 1px var(--glass-border-hover),
+    var(--glow-brand-sm);
+}
+
+/* === Glow Effects === */
+.glow-brand {
+  box-shadow: var(--glow-brand);
+}
+
+.glow-brand-sm {
+  box-shadow: var(--glow-brand-sm);
+}
+
+.glow-brand-lg {
+  box-shadow: var(--glow-brand-lg);
+}
+
+/* === Ambient Background === */
+.ambient-bg {
+  background: var(--ambient-gradient);
+}
+
+/* === Grid Overlay Pattern === */
+.grid-overlay {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+.grid-overlay-fine {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* === Paper Texture (subtle noise) === */
+.paper-texture {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.02;
+}
+
+/* === Floating Gradient Orbs === */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.orb-brand {
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+}
+
+.orb-white {
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+}
+
+/* === Bento Grid Layout === */
+.bento-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.bento-span-2 {
+  grid-column: span 2;
+}
+
+.bento-span-row-2 {
+  grid-row: span 2;
+}
+
+@media (max-width: 768px) {
+  .bento-span-2,
+  .bento-span-row-2 {
+    grid-column: span 1;
+    grid-row: span 1;
+  }
+}
+
+/* === Strategic header style (Abel font) === */
+.strategic-header {
+  letter-spacing: 0.2em;
+}
+
 /* === Auth screen inputs (underline style) === */
 .auth-input-field {
   @apply w-full bg-transparent border-0 border-b border-border-strong text-text-primary
          py-3 text-base outline-none transition-colors
          placeholder:text-text-muted
-         focus:border-brand-500;
+         focus:border-white/30;
 }
 
 /* === Auth screen buttons === */
 .auth-button {
-  @apply w-full px-6 py-3 rounded-full bg-brand-600 text-white font-semibold
-         hover:bg-brand-700 transition-colors
+  @apply w-full px-6 py-3 rounded-full bg-white text-black font-semibold
+         hover:bg-white/90 transition-colors
          disabled:opacity-50 disabled:cursor-not-allowed
-         focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 focus:ring-offset-surface-base;
+         focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-surface-base;
 }
 
 /* === Skeleton shimmer === */
@@ -109,6 +263,20 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--border-strong);
+}
+
+/* === Glass scrollbar === */
+.glass-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.glass-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.glass-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
 }
 
 /* === Safe area utility === */
