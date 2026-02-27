@@ -66,7 +66,7 @@ export function CreateViewModal({
     e.preventDefault();
 
     if (!name.trim()) {
-      toast.error("Digite um nome para a visão");
+      toast.error("Enter a name for the view");
       return;
     }
 
@@ -102,10 +102,10 @@ export function CreateViewModal({
         sortOrder,
       });
 
-      toast.success("Visão criada com sucesso");
+      toast.success("View created successfully");
       onCreated?.(viewId);
     } catch (error: any) {
-      toast.error(error.message || "Erro ao criar visão");
+      toast.error(error.message || "Failed to create view");
     } finally {
       setIsSubmitting(false);
     }
@@ -120,14 +120,14 @@ export function CreateViewModal({
   };
 
   return (
-    <Modal open={true} onClose={onClose} title="Criar Nova Visão">
+    <Modal open={true} onClose={onClose} title="Create New View">
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Name */}
         <Input
-          label="Nome da Visão"
+          label="View Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Ex: Leads Urgentes do Pipeline A"
+          placeholder="e.g.: Leads Urgents do Pipeline A"
           required
           style={{ fontSize: "16px" }}
         />
@@ -135,7 +135,7 @@ export function CreateViewModal({
         {/* Share Toggle */}
         <div className="flex items-center justify-between">
           <label className="text-sm font-medium text-text-primary">
-            Compartilhar com equipe?
+            Share with team?
           </label>
           <button
             type="button"
@@ -144,7 +144,7 @@ export function CreateViewModal({
               "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
               isShared ? "bg-brand-600" : "bg-surface-overlay"
             )}
-            aria-label="Toggle compartilhamento"
+            aria-label="Toggle sharing"
           >
             <span
               className={cn(
@@ -157,7 +157,7 @@ export function CreateViewModal({
 
         {/* Filters Section */}
         <div className="space-y-4">
-          <h3 className="text-sm font-semibold text-text-primary">Filtros</h3>
+          <h3 className="text-sm font-semibold text-text-primary">Filters</h3>
 
           {/* Pipeline (Leads only) */}
           {entityType === "leads" && (
@@ -182,7 +182,7 @@ export function CreateViewModal({
                   )}
                   style={{ fontSize: "16px" }}
                 >
-                  <option value="">Todos os pipelines</option>
+                  <option value="">All pipelines</option>
                   {boards?.map((board) => (
                     <option key={board._id} value={board._id}>
                       {board.name}
@@ -195,7 +195,7 @@ export function CreateViewModal({
               {selectedBoardId && stages && stages.length > 0 && (
                 <div>
                   <label className="block text-[13px] font-medium text-text-secondary mb-1.5">
-                    Estágios
+                    Stages
                   </label>
                   <div className="space-y-2 max-h-40 overflow-y-auto p-2 bg-surface-raised border border-border-strong rounded-field">
                     {stages.map((stage) => (
@@ -221,7 +221,7 @@ export function CreateViewModal({
               {/* Assignee */}
               <div>
                 <label className="block text-[13px] font-medium text-text-secondary mb-1.5">
-                  Atribuído a
+                  Assigned to
                 </label>
                 <select
                   value={selectedAssignee || ""}
@@ -238,7 +238,7 @@ export function CreateViewModal({
                   )}
                   style={{ fontSize: "16px" }}
                 >
-                  <option value="">Qualquer pessoa</option>
+                  <option value="">Anyone</option>
                   {teamMembers
                     ?.filter((m) => m.type === "human")
                     .map((member) => (
@@ -269,11 +269,11 @@ export function CreateViewModal({
                   )}
                   style={{ fontSize: "16px" }}
                 >
-                  <option value="">Qualquer prioridade</option>
-                  <option value="low">Baixa</option>
-                  <option value="medium">Média</option>
-                  <option value="high">Alta</option>
-                  <option value="urgent">Urgente</option>
+                  <option value="">Any priority</option>
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                  <option value="urgent">Urgent</option>
                 </select>
               </div>
 
@@ -297,7 +297,7 @@ export function CreateViewModal({
                   )}
                   style={{ fontSize: "16px" }}
                 >
-                  <option value="">Qualquer temperatura</option>
+                  <option value="">Any temperature</option>
                   <option value="cold">Frio</option>
                   <option value="warm">Morno</option>
                   <option value="hot">Quente</option>
@@ -307,7 +307,7 @@ export function CreateViewModal({
               {/* Value Range */}
               <div className="grid grid-cols-2 gap-3">
                 <Input
-                  label="Valor Mínimo"
+                  label="Minimum Value"
                   type="number"
                   value={minValue}
                   onChange={(e) => setMinValue(e.target.value)}
@@ -315,7 +315,7 @@ export function CreateViewModal({
                   style={{ fontSize: "16px" }}
                 />
                 <Input
-                  label="Valor Máximo"
+                  label="Maximum Value"
                   type="number"
                   value={maxValue}
                   onChange={(e) => setMaxValue(e.target.value)}
@@ -327,7 +327,7 @@ export function CreateViewModal({
               {/* Has Contact Toggle */}
               <div className="flex items-center justify-between">
                 <label className="text-sm font-medium text-text-primary">
-                  Tem contato vinculado?
+                  Has linked contact?
                 </label>
                 <div className="flex gap-2">
                   <button
@@ -342,7 +342,7 @@ export function CreateViewModal({
                         : "bg-surface-overlay text-text-secondary hover:bg-surface-raised"
                     )}
                   >
-                    Sim
+                    Yes
                   </button>
                   <button
                     type="button"
@@ -356,7 +356,7 @@ export function CreateViewModal({
                         : "bg-surface-overlay text-text-secondary hover:bg-surface-raised"
                     )}
                   >
-                    Não
+                    No
                   </button>
                 </div>
               </div>
@@ -369,7 +369,7 @@ export function CreateViewModal({
               label="Empresa"
               value={company}
               onChange={(e) => setCompany(e.target.value)}
-              placeholder="Nome da empresa"
+              placeholder="Company name"
               style={{ fontSize: "16px" }}
             />
           )}
@@ -387,7 +387,7 @@ export function CreateViewModal({
         {/* Sort Options */}
         <div className="space-y-4">
           <h3 className="text-sm font-semibold text-text-primary">
-            Ordenação
+            Sorting
           </h3>
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -405,19 +405,19 @@ export function CreateViewModal({
                 )}
                 style={{ fontSize: "16px" }}
               >
-                <option value="createdAt">Data de Criação</option>
-                <option value="updatedAt">Última Atualização</option>
+                <option value="createdAt">Creation Date</option>
+                <option value="updatedAt">Last Updated</option>
                 {entityType === "leads" && (
                   <>
                     <option value="value">Valor</option>
-                    <option value="title">Título</option>
+                    <option value="title">Title</option>
                   </>
                 )}
               </select>
             </div>
             <div>
               <label className="block text-[13px] font-medium text-text-secondary mb-1.5">
-                Direção
+                Direction
               </label>
               <select
                 value={sortOrder}
@@ -446,7 +446,7 @@ export function CreateViewModal({
             disabled={isSubmitting}
             className="flex-1"
           >
-            Cancelar
+            Cancel
           </Button>
           <Button
             type="submit"
@@ -454,7 +454,7 @@ export function CreateViewModal({
             disabled={isSubmitting || !name.trim()}
             className="flex-1"
           >
-            {isSubmitting ? <Spinner size="sm" /> : "Criar Visão"}
+            {isSubmitting ? <Spinner size="sm" /> : "Create View"}
           </Button>
         </div>
       </form>

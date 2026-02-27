@@ -34,9 +34,9 @@ export function WizardStep5Complete({
         </div>
 
         <div className="space-y-2 animate-scale-in" style={{ animationDelay: "100ms" }}>
-          <h2 className="text-3xl font-bold text-text-primary">Tudo Pronto!</h2>
+          <h2 className="text-3xl font-bold text-text-primary">All Pronto!</h2>
           <p className="text-text-secondary">
-            Seu CRM está configurado e pronto para usar
+            Your CRM is configured and ready to use
           </p>
         </div>
 
@@ -50,7 +50,7 @@ export function WizardStep5Complete({
             </div>
             <p className="text-sm text-text-primary text-left">
               Pipeline <span className="font-semibold">"{pipelineName}"</span> com{" "}
-              {stageCount} etapa{stageCount !== 1 ? "s" : ""}
+              {stageCount} stage{stageCount !== 1 ? "s" : ""}
             </p>
           </div>
 
@@ -63,8 +63,7 @@ export function WizardStep5Complete({
                 <Users size={20} className="text-brand-500" />
               </div>
               <p className="text-sm text-text-primary text-left">
-                {inviteCount} membro{inviteCount !== 1 ? "s" : ""} convidado
-                {inviteCount !== 1 ? "s" : ""}
+                {inviteCount} member{inviteCount !== 1 ? "s" : ""} invited
               </p>
             </div>
           )}
@@ -78,7 +77,7 @@ export function WizardStep5Complete({
                 <Database size={20} className="text-brand-500" />
               </div>
               <p className="text-sm text-text-primary text-left">
-                Dados de exemplo gerados
+                Sample data generated
               </p>
             </div>
           )}
@@ -94,7 +93,7 @@ export function WizardStep5Complete({
             onClick={onGoToDashboard}
             className="w-full md:w-auto"
           >
-            Ir ao Painel
+            Go to Dashboard
           </Button>
         </div>
       </div>

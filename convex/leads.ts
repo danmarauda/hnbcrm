@@ -608,14 +608,14 @@ export const addLeadDocument = mutation({
   returns: v.id("leadDocuments"),
   handler: async (ctx, args) => {
     const lead = await ctx.db.get(args.leadId);
-    if (!lead) throw new Error("Lead não encontrado");
+    if (!lead) throw new Error("Lead not found");
 
     const userMember = await requirePermission(ctx, lead.organizationId, "leads", "edit_own");
 
     const now = Date.now();
 
     const file = await ctx.db.get(args.fileId);
-    if (!file) throw new Error("Arquivo não encontrado");
+    if (!file) throw new Error("File not found");
 
     const docId = await ctx.db.insert("leadDocuments", {
       organizationId: lead.organizationId,
@@ -674,17 +674,17 @@ export const removeLeadDocument = mutation({
   returns: v.null(),
   handler: async (ctx, args) => {
     const doc = await ctx.db.get(args.documentId);
-    if (!doc) throw new Error("Documento não encontrado");
+    if (!doc) throw new Error("Document not found");
 
     const lead = await ctx.db.get(doc.leadId);
-    if (!lead) throw new Error("Lead não encontrado");
+    if (!lead) throw new Error("Lead not found");
 
     const userMember = await requirePermission(ctx, lead.organizationId, "leads", "edit_own");
 
     const now = Date.now();
 
     const file = await ctx.db.get(doc.fileId);
-    const fileName = file?.name || "arquivo desconhecido";
+    const fileName = file?.name || "unknown file";
 
     // Delete file from storage
     if (file) {

@@ -160,13 +160,13 @@ export function OnboardingWizard({
     switch (currentStep) {
       case 0:
         if (!industry) {
-          toast.error("Por favor, selecione um setor");
+          toast.error("Please select an industry");
           return false;
         }
         return true;
       case 1:
         if (!boardName || stages.length === 0) {
-          toast.error("Configure o pipeline antes de continuar");
+          toast.error("Set up the pipeline before continuing");
           return false;
         }
         return true;
@@ -203,9 +203,9 @@ export function OnboardingWizard({
         if (sampleDataEnabled && !sampleDataGenerated) {
           setIsGeneratingSample(true);
           const animSteps = [
-            "Criando contatos...",
-            "Gerando leads...",
-            "Configurando conversas...",
+            "Creating contacts...",
+            "Generating leads...",
+            "Configuring conversations...",
             "Finalizando...",
           ];
 
@@ -253,7 +253,7 @@ export function OnboardingWizard({
 
         if (validInvites.length > 0) {
           toast.success(
-            `${validInvites.length} membro${validInvites.length !== 1 ? "s" : ""} convidado${validInvites.length !== 1 ? "s" : ""}`
+            `${validInvites.length} member${validInvites.length !== 1 ? "s" : ""} invited`
           );
         }
 
@@ -262,7 +262,7 @@ export function OnboardingWizard({
       }
     } catch (error) {
       console.error("Navigation error:", error);
-      toast.error("Erro ao avançar. Tente novamente.");
+      toast.error("Failed to continue. Try again.");
     } finally {
       setIsNavigating(false);
     }
@@ -282,7 +282,7 @@ export function OnboardingWizard({
       onComplete();
     } catch (error) {
       console.error("Failed to complete wizard:", error);
-      toast.error("Erro ao finalizar configuração");
+      toast.error("Failed to complete setup");
     }
   };
 
@@ -386,7 +386,7 @@ export function OnboardingWizard({
                 className="flex-shrink-0"
               >
                 <ChevronLeft size={18} />
-                Voltar
+                Back
               </Button>
             ) : (
               <div />
@@ -398,7 +398,7 @@ export function OnboardingWizard({
               disabled={isNavigating}
               className="flex-shrink-0 ml-auto"
             >
-              {isNavigating ? <Spinner size="sm" /> : currentStep === 3 ? "Finalizar" : "Próximo"}
+              {isNavigating ? <Spinner size="sm" /> : currentStep === 3 ? "Finalizar" : "Next"}
             </Button>
           </div>
         </footer>

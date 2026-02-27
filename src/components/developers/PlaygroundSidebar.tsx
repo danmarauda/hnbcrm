@@ -50,7 +50,7 @@ export function PlaygroundSidebar({
     <div className="h-full flex flex-col bg-surface-raised border-r border-border">
       <div className="p-3 border-b border-border">
         <Input
-          placeholder="Buscar endpoints..."
+          placeholder="Search endpoints..."
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           icon={<Search size={16} />}
@@ -60,7 +60,7 @@ export function PlaygroundSidebar({
       <div className="flex-1 overflow-y-auto">
         {endpointsByCategory.length === 0 ? (
           <div className="p-4 text-center text-text-muted text-sm">
-            Nenhum endpoint encontrado
+            No endpoints found
           </div>
         ) : (
           <div className="p-1.5">

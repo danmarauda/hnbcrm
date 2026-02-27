@@ -19,12 +19,12 @@ export function ApiKeyRevealModal({ open, onClose, apiKey }: ApiKeyRevealModalPr
   const handleCopy = async () => {
     await navigator.clipboard.writeText(apiKey);
     setCopied(true);
-    toast.success("Chave copiada!");
+    toast.success("Key copiada!");
     setTimeout(() => setCopied(false), 2000);
   };
 
   return (
-    <Modal open={open} onClose={onClose} title="Chave API Criada">
+    <Modal open={open} onClose={onClose} title="API Key Criada">
       <div className="space-y-5">
         {/* Key display */}
         <div className="relative">
@@ -35,7 +35,7 @@ export function ApiKeyRevealModal({ open, onClose, apiKey }: ApiKeyRevealModalPr
             <button
               onClick={() => setRevealed(!revealed)}
               className="flex-shrink-0 p-1.5 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-raised transition-colors"
-              aria-label={revealed ? "Ocultar chave" : "Revelar chave"}
+              aria-label={revealed ? "Hide key" : "Reveal key"}
             >
               {revealed ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
@@ -50,14 +50,14 @@ export function ApiKeyRevealModal({ open, onClose, apiKey }: ApiKeyRevealModalPr
           className="w-full"
         >
           {copied ? <Check size={18} /> : <Copy size={18} />}
-          {copied ? "Copiada!" : "Copiar Chave"}
+          {copied ? "Copied!" : "Copy Key"}
         </Button>
 
         {/* Security warning */}
         <div className="flex gap-3 bg-semantic-warning/5 border border-semantic-warning/20 rounded-lg p-3">
           <ShieldAlert size={20} className="flex-shrink-0 text-semantic-warning mt-0.5" />
           <p className="text-sm text-text-secondary leading-relaxed">
-            Salve esta chave em local seguro. Você não poderá vê-la novamente.
+            Save this key securely. You will not be able to view it again.
           </p>
         </div>
 
@@ -67,7 +67,7 @@ export function ApiKeyRevealModal({ open, onClose, apiKey }: ApiKeyRevealModalPr
           onClick={onClose}
           className="w-full"
         >
-          Fechar
+          Close
         </Button>
       </div>
     </Modal>

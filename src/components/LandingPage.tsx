@@ -210,7 +210,7 @@ export function LandingPage() {
                     Developers
                   </Button>
                 </Link>
-                <Link to="/entrar">
+                <Link to="/sign-in">
                   <Button variant="glass" size="sm">
                     Sign In
                   </Button>
@@ -264,7 +264,7 @@ export function LandingPage() {
                   variants={heroTextVariants}
                   className="flex flex-col sm:flex-row items-center justify-center gap-4"
                 >
-                  <Link to="/entrar">
+                  <Link to="/sign-in">
                     <Button
                       variant="primary"
                       size="lg"
@@ -323,7 +323,7 @@ export function LandingPage() {
               exit={{ opacity: 0, y: 20 }}
               className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40"
             >
-              <Link to="/entrar">
+              <Link to="/sign-in">
                 <button
                   className={cn(
                     "glass rounded-full px-6 py-3",
@@ -724,7 +724,7 @@ function PricingSection() {
                 <li className="flex items-start gap-2"><Check className="text-white/80 shrink-0 mt-0.5" size={18} /><span className="text-text-secondary">Unified inbox</span></li>
                 <li className="flex items-start gap-2"><Check className="text-white/80 shrink-0 mt-0.5" size={18} /><span className="text-text-secondary">Contacts</span></li>
               </ul>
-              <Link to="/entrar" className="block">
+              <Link to="/sign-in" className="block">
                 <Button variant="secondary" className="w-full min-h-[44px]">Get Started Free</Button>
               </Link>
             </Card>
@@ -750,7 +750,7 @@ function PricingSection() {
                 <li className="flex items-start gap-2"><Check className="text-white/80 shrink-0 mt-0.5" size={18} /><span className="text-text-secondary">Complete audit</span></li>
                 <li className="flex items-start gap-2"><Check className="text-white/80 shrink-0 mt-0.5" size={18} /><span className="text-text-secondary">Custom fields</span></li>
               </ul>
-              <Link to="/entrar" className="block">
+              <Link to="/sign-in" className="block">
                 <Button variant="primary" className="w-full min-h-[44px]">Get Started Free</Button>
               </Link>
             </Card>
@@ -771,7 +771,7 @@ function PricingSection() {
                 <li className="flex items-start gap-2"><Check className="text-white/80 shrink-0 mt-0.5" size={18} /><span className="text-text-secondary flex items-center gap-2">AI Co-pilot <Badge variant="warning">Soon</Badge></span></li>
                 <li className="flex items-start gap-2"><Check className="text-white/80 shrink-0 mt-0.5" size={18} /><span className="text-text-secondary">Priority support</span></li>
               </ul>
-              <Link to="/entrar" className="block">
+              <Link to="/sign-in" className="block">
                 <Button variant="secondary" className="w-full min-h-[44px]">Get Started Free</Button>
               </Link>
             </Card>
@@ -799,7 +799,7 @@ function CTASection() {
           Join companies already using HNBCRM to sell more.
         </motion.p>
         <motion.div initial={{ opacity: 0, y: 20 }} animate={isInView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.2 }}>
-          <Link to="/entrar">
+          <Link to="/sign-in">
             <Button variant="primary" size="lg" asMotion className="min-h-[44px]">
               Create Free Account
               <ArrowRight size={18} />

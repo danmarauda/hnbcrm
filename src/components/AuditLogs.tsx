@@ -115,10 +115,10 @@ export function AuditLogs() {
 
     if (selectedSeverity !== "all") {
       const severityLabels: Record<string, string> = {
-        low: "Baixa",
-        medium: "Média",
-        high: "Alta",
-        critical: "Crítica",
+        low: "Low",
+        medium: "Medium",
+        high: "High",
+        critical: "Critical",
       };
       result.push({
         key: "severity",
@@ -137,7 +137,7 @@ export function AuditLogs() {
       const actionLabel =
         filters?.actions.find((a) => a.value === selectedAction)?.label ||
         selectedAction;
-      result.push({ key: "action", label: `Ação: ${actionLabel}` });
+      result.push({ key: "action", label: `Action: ${actionLabel}` });
     }
 
     if (selectedActorId !== "all") {
@@ -149,12 +149,12 @@ export function AuditLogs() {
 
     if (startDate || endDate) {
       const start = startDate
-        ? new Date(startDate).toLocaleDateString("pt-BR")
-        : "início";
+        ? new Date(startDate).toLocaleDateString("en-US")
+        : "start";
       const end = endDate
-        ? new Date(endDate).toLocaleDateString("pt-BR")
-        : "agora";
-      result.push({ key: "date", label: `Período: ${start} até ${end}` });
+        ? new Date(endDate).toLocaleDateString("en-US")
+        : "now";
+      result.push({ key: "date", label: `Period: ${start} to ${end}` });
     }
 
     return result;
@@ -224,23 +224,23 @@ export function AuditLogs() {
 
   const handleExportCsv = () => {
     if (!auditLogs || auditLogs.logs.length === 0) {
-      toast.error("Nenhum dado para exportar.");
+      toast.error("No data to export.");
       return;
     }
     const headers = [
-      "Data/Hora",
-      "Ação",
+      "Date/Time",
+      "Action",
       "Tipo",
       "ID",
       "Severidade",
       "Ator",
-      "Tipo Ator",
-      "Descrição",
+      "Actor Type",
+      "Description",
     ];
     const rows = auditLogs.logs.map((log) => {
       const desc = log.description || buildClientDescription(log);
       return [
-        new Date(log.createdAt).toLocaleString("pt-BR"),
+        new Date(log.createdAt).toLocaleString("en-US"),
         log.action,
         log.entityType,
         log.entityId,
@@ -264,7 +264,7 @@ export function AuditLogs() {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-20">
         <Shield size={48} className="text-text-muted" />
-        <p className="text-text-secondary text-sm">Voce nao tem permissao para acessar os logs de auditoria.</p>
+        <p className="text-text-secondary text-sm">You do not have permission to access audit logs.</p>
       </div>
     );
   }
@@ -279,16 +279,16 @@ export function AuditLogs() {
           </div>
           <div>
             <h2 className="text-2xl md:text-3xl font-bold text-text-primary">
-              Logs de Auditoria
+              Audit Logs
             </h2>
             <p className="text-sm text-text-secondary">
-              Monitore todas as atividades da sua organização
+              Monitor all activity in your organization
             </p>
           </div>
         </div>
         <Button variant="secondary" onClick={handleExportCsv}>
           <Download size={16} />
-          Exportar CSV
+          Export CSV
         </Button>
       </div>
 
@@ -310,14 +310,14 @@ export function AuditLogs() {
                   )}
                 >
                   {preset === "all"
-                    ? "Todo período"
+                    ? "All time"
                     : preset === "24h"
-                    ? "Últimas 24h"
+                    ? "Last 24h"
                     : preset === "7d"
-                    ? "7 dias"
+                    ? "7 days"
                     : preset === "30d"
-                    ? "30 dias"
-                    : "Personalizado"}
+                    ? "30 days"
+                    : "Custom"}
                 </button>
               ))}
             </div>
@@ -333,7 +333,7 @@ export function AuditLogs() {
                   className="bg-surface-raised border border-border-strong text-text-primary rounded-field px-3 py-2 text-sm max-w-[150px] focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
                   style={{ fontSize: "16px" }}
                 />
-                <span className="text-text-muted text-sm">até</span>
+                <span className="text-text-muted text-sm">to</span>
                 <input
                   type="date"
                   value={endDate}
@@ -360,10 +360,10 @@ export function AuditLogs() {
               className="bg-surface-raised border border-border-strong text-text-primary rounded-field px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
               style={{ fontSize: "16px" }}
             >
-              <option value="all">Todos os Atores</option>
+              <option value="all">All Actors</option>
               {filters?.actors.map((a) => (
                 <option key={a.id} value={a.id}>
-                  {a.name} ({a.type === "ai" ? "IA" : "Humano"})
+                  {a.name} ({a.type === "ai" ? "AI" : "Human"})
                 </option>
               ))}
             </select>
@@ -378,7 +378,7 @@ export function AuditLogs() {
               className="bg-surface-raised border border-border-strong text-text-primary rounded-field px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
               style={{ fontSize: "16px" }}
             >
-              <option value="all">Todas as Ações</option>
+              <option value="all">All Actions</option>
               {filters?.actions.map((a) => (
                 <option key={a.value} value={a.value}>
                   {a.label}
@@ -396,7 +396,7 @@ export function AuditLogs() {
               className="bg-surface-raised border border-border-strong text-text-primary rounded-field px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
               style={{ fontSize: "16px" }}
             >
-              <option value="all">Todos os Tipos</option>
+              <option value="all">All Types</option>
               {filters?.entityTypes.map((t) => (
                 <option key={t.value} value={t.value}>
                   {t.label}
@@ -415,10 +415,10 @@ export function AuditLogs() {
               style={{ fontSize: "16px" }}
             >
               <option value="all">Todas as Severidades</option>
-              <option value="low">Baixa</option>
-              <option value="medium">Média</option>
-              <option value="high">Alta</option>
-              <option value="critical">Crítica</option>
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="critical">Critical</option>
             </select>
           </div>
 
@@ -443,7 +443,7 @@ export function AuditLogs() {
                 onClick={clearAllFilters}
                 className="text-xs text-text-muted hover:text-text-primary ml-1"
               >
-                Limpar tudo
+                Clear all
               </button>
             </div>
           )}
@@ -484,13 +484,13 @@ export function AuditLogs() {
             </div>
             <h3 className="text-lg font-semibold text-text-primary mb-2">
               {activeFilters.length > 0
-                ? "Nenhum log encontrado"
-                : "Nenhum log de auditoria"}
+                ? "No logs found"
+                : "No audit logs"}
             </h3>
             <p className="text-sm text-text-secondary text-center max-w-md">
               {activeFilters.length > 0
-                ? "Tente ajustar os filtros ou expandir o período de datas."
-                : "Os logs de auditoria aparecerão aqui automaticamente conforme as atividades da organização."}
+                ? "Try adjusting filters or expanding the date range."
+                : "Audit logs appear here automatically as organization activity happens."}
             </p>
             {activeFilters.length > 0 && (
               <Button
@@ -499,7 +499,7 @@ export function AuditLogs() {
                 className="mt-4"
                 onClick={clearAllFilters}
               >
-                Limpar Filtros
+                Clear Filters
               </Button>
             )}
           </div>
@@ -518,7 +518,7 @@ export function AuditLogs() {
                     <div className="flex-1 h-px bg-border" />
                     <span className="text-xs text-text-muted">
                       {group.logs.length}{" "}
-                      {group.logs.length === 1 ? "evento" : "eventos"}
+                      {group.logs.length === 1 ? "events?" : "events?s"}
                     </span>
                   </div>
 
@@ -600,10 +600,10 @@ export function AuditLogs() {
                                 <span className="text-xs text-text-muted">·</span>
                                 <span className="text-xs text-text-muted">
                                   {log.actorType === "ai"
-                                    ? "IA"
+                                    ? "AI"
                                     : log.actorType === "system"
                                     ? "Sistema"
-                                    : "Humano"}
+                                    : "Human"}
                                 </span>
                               </div>
                             </div>
@@ -613,7 +613,7 @@ export function AuditLogs() {
                               <span
                                 className="text-xs text-text-muted"
                                 title={new Date(log.createdAt).toLocaleString(
-                                  "pt-BR"
+                                  "en-US"
                                 )}
                               >
                                 {formatRelativeTime(log.createdAt)}
@@ -733,7 +733,7 @@ export function AuditLogs() {
             {/* Pagination */}
             <div className="flex items-center justify-between py-3 px-4 border-t border-border">
               <span className="text-xs text-text-muted">
-                Página {currentPage + 1}
+                Page {currentPage + 1}
               </span>
               <div className="flex items-center gap-2">
                 <Button
@@ -743,7 +743,7 @@ export function AuditLogs() {
                   onClick={handlePrevPage}
                 >
                   <ChevronLeft size={16} />
-                  Anterior
+                  Previous
                 </Button>
                 <Button
                   variant="secondary"
@@ -751,7 +751,7 @@ export function AuditLogs() {
                   disabled={!auditLogs.hasMore}
                   onClick={handleNextPage}
                 >
-                  Próximo
+                  Next
                   <ChevronRight size={16} />
                 </Button>
               </div>

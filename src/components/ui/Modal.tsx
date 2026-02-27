@@ -61,7 +61,7 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
             <button
               onClick={onClose}
               className="p-1.5 rounded-full text-text-muted hover:text-text-primary hover:bg-surface-raised transition-colors"
-              aria-label="Fechar"
+              aria-label="Close"
             >
               <X size={20} />
             </button>

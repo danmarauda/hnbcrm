@@ -28,15 +28,15 @@ interface ColumnDefinition {
 }
 
 const AVAILABLE_COLUMNS: ColumnDefinition[] = [
-  { key: "contact", label: "Contato", fixed: true },
+  { key: "contact", label: "Contact", fixed: true },
   { key: "company", label: "Empresa" },
   { key: "email", label: "Email" },
-  { key: "phone", label: "Telefone" },
+  { key: "phone", label: "Phone" },
   { key: "tags", label: "Tags" },
-  { key: "city", label: "Cidade" },
-  { key: "state", label: "Estado" },
-  { key: "country", label: "País" },
-  { key: "industry", label: "Indústria" },
+  { key: "city", label: "City" },
+  { key: "state", label: "State" },
+  { key: "country", label: "Country" },
+  { key: "industry", label: "Industry" },
   { key: "social", label: "Redes Sociais" },
   { key: "companySize", label: "Porte" },
   { key: "acquisitionChannel", label: "Canal" },
@@ -168,7 +168,7 @@ export function ContactsPage() {
 
   const renderCellContent = (contact: any, columnKey: ColumnKey) => {
     const fullName = [contact.firstName, contact.lastName].filter(Boolean).join(" ");
-    const displayName = fullName || contact.email || contact.phone || "Sem nome";
+    const displayName = fullName || contact.email || contact.phone || "No name";
 
     switch (columnKey) {
       case "contact":
@@ -287,9 +287,9 @@ export function ContactsPage() {
         <div className="flex flex-col gap-4 mb-6">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-text-primary">Contatos</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-text-primary">Contacts</h1>
               <p className="text-sm text-text-secondary mt-1">
-                Gerencie seus contatos e relacionamentos
+                Gerencie seus contacts e relacionamentos
               </p>
             </div>
             {can("contacts", "edit") && (
@@ -300,7 +300,7 @@ export function ContactsPage() {
                 className="shrink-0"
               >
                 <Plus size={20} className="mr-2" />
-                Novo Contato
+                New Contact
               </Button>
             )}
           </div>
@@ -313,7 +313,7 @@ export function ContactsPage() {
                 type="text"
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
-                placeholder="Buscar por nome, email, empresa..."
+                placeholder="Search by name, email, company..."
                 className="w-full pl-10 pr-4 py-2.5 bg-surface-raised border border-border-strong text-text-primary rounded-field focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 placeholder:text-text-muted"
                 style={{ fontSize: "16px" }}
               />
@@ -324,7 +324,7 @@ export function ContactsPage() {
               <button
                 onClick={() => setShowColumnSelector(!showColumnSelector)}
                 className="p-2.5 bg-surface-raised border border-border-strong text-text-secondary hover:text-text-primary hover:border-brand-500 rounded-field transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500"
-                aria-label="Configurar colunas"
+                aria-label="Configure columns"
               >
                 <Settings2 size={20} />
               </button>
@@ -333,7 +333,7 @@ export function ContactsPage() {
                 <div className="absolute right-0 top-full mt-2 w-64 bg-surface-overlay border border-border rounded-xl shadow-lg z-50 overflow-hidden">
                   <div className="p-3 border-b border-border">
                     <h3 className="text-sm font-semibold text-text-primary">
-                      Colunas Visíveis
+                      Visible Columns
                     </h3>
                   </div>
                   <div className="max-h-80 overflow-y-auto">
@@ -385,17 +385,17 @@ export function ContactsPage() {
               <Contact2 size={32} className="text-text-muted" />
             </div>
             <h3 className="text-lg font-semibold text-text-primary mb-2">
-              {debouncedSearch ? "Nenhum contato encontrado" : "Nenhum contato"}
+              {debouncedSearch ? "No contact found" : "No contacts"}
             </h3>
             <p className="text-sm text-text-secondary mb-6 text-center max-w-md">
               {debouncedSearch
-                ? "Tente ajustar sua busca ou adicione um novo contato"
-                : "Adicione seu primeiro contato para começar"}
+                ? "Try adjusting your search or add a new contact"
+                : "Add your first contact to get started"}
             </p>
             {!debouncedSearch && can("contacts", "edit") && (
               <Button variant="primary" size="md" onClick={() => setShowCreateModal(true)}>
                 <Plus size={20} className="mr-2" />
-                Criar Contato
+                Create Contact
               </Button>
             )}
           </div>
@@ -444,7 +444,7 @@ export function ContactsPage() {
             <div className="md:hidden divide-y divide-border">
               {paginatedContacts?.map((contact) => {
                 const fullName = [contact.firstName, contact.lastName].filter(Boolean).join(" ");
-                const displayName = fullName || contact.email || contact.phone || "Sem nome";
+                const displayName = fullName || contact.email || contact.phone || "No name";
                 const hasSocial = contact.linkedinUrl || contact.instagramUrl || contact.facebookUrl || contact.twitterUrl;
 
                 return (
@@ -496,7 +496,7 @@ export function ContactsPage() {
 
           {contacts && contacts.length === 500 && (
             <p className="text-xs text-text-muted text-center mt-3">
-              Exibindo os primeiros 500 contatos. Use a busca para encontrar contatos específicos.
+              Showing first 500 contacts. Use search to find specific contacts.
             </p>
           )}
           </>

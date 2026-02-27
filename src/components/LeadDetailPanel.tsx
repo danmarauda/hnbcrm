@@ -50,14 +50,14 @@ export function LeadDetailPanel({ leadId, organizationId, onClose }: LeadDetailP
   const [activeTab, setActiveTab] = useState<Tab>("conversation");
 
   const tabLabels: Record<Tab, string> = {
-    conversation: "Conversa",
+    conversation: "Conversation",
     details: "Detalhes",
-    tasks: "Tarefas",
-    activity: "Atividade",
+    tasks: "Tasks",
+    activity: "Activity",
   };
 
   return (
-    <SlideOver open={true} onClose={onClose} title="Detalhes do Lead">
+    <SlideOver open={true} onClose={onClose} title="Lead Details">
       {/* Tab Bar */}
       <div className="flex border-b border-border bg-surface-raised">
         {(["conversation", "details", "tasks", "activity"] as Tab[]).map((tab) => (
@@ -168,7 +168,7 @@ function ConversationTab({
 
       await sendMessage({
         conversationId,
-        content: trimmed || (stagedFiles.length > 0 ? `${stagedFiles.length} arquivo(s) anexado(s)` : ""),
+        content: trimmed || (stagedFiles.length > 0 ? ` attached file(s)` : ""),
         contentType,
         isInternal,
         attachments: attachmentIds,
@@ -193,9 +193,9 @@ function ConversationTab({
 
   const getSenderLabel = (senderType: string): string => {
     const labels: Record<string, string> = {
-      contact: "Contato",
-      ai: "IA",
-      human: "Humano",
+      contact: "Contact",
+      ai: "AI",
+      human: "Human",
     };
     return labels[senderType] || senderType;
   };
@@ -212,7 +212,7 @@ function ConversationTab({
 
         {conversations && conversations.length === 0 && (
           <div className="text-center py-12 text-text-muted text-sm">
-            Nenhuma conversa ainda. Envie uma mensagem para iniciar.
+            No conversation yet. Send a message to start.
           </div>
         )}
 
@@ -247,7 +247,7 @@ function ConversationTab({
                     )}
                   >
                     {getSenderLabel(msg.senderType)}
-                    {isInternalMsg && " (nota interna)"}
+                    {isInternalMsg && " (internal note)"}
                   </div>
                   {isInternalMsg ? (
                     <MentionRenderer content={msg.content} className="whitespace-pre-wrap" />
@@ -267,7 +267,7 @@ function ConversationTab({
                         : "text-text-muted"
                     )}
                   >
-                    {new Date(msg.createdAt).toLocaleTimeString("pt-BR", {
+                    {new Date(msg.createdAt).toLocaleTimeString("en-US", {
                       hour: "2-digit",
                       minute: "2-digit",
                     })}
@@ -305,7 +305,7 @@ function ConversationTab({
                   type="button"
                   onClick={() => setStagedFiles((prev) => prev.filter((f) => f.fileId !== file.fileId))}
                   className="shrink-0 p-0.5 rounded hover:bg-surface-raised text-text-muted hover:text-semantic-error transition-colors"
-                  aria-label={`Remover ${file.name}`}
+                  aria-label={`Remove ${file.name}`}
                 >
                   <X size={12} />
                 </button>
@@ -327,7 +327,7 @@ function ConversationTab({
             onKeyDown={handleKeyDown}
             teamMembers={teamMembers ?? []}
             mentionEnabled={isInternal}
-            placeholder={isInternal ? "Escreva uma nota interna... Use @ para mencionar" : "Digite uma mensagem..."}
+            placeholder={isInternal ? "Write an internal note... Use @ to mention" : "Type a message..."}
             rows={2}
           />
           <Button
@@ -337,7 +337,7 @@ function ConversationTab({
             size="md"
             className="self-end"
           >
-            {sending ? "Enviando..." : "Enviar"}
+            {sending ? "Sending..." : "Send"}
           </Button>
         </div>
       </div>
@@ -370,7 +370,7 @@ function BantInfoTooltip() {
       <button
         onClick={() => setOpen(!open)}
         className="p-0.5 rounded-full text-text-muted hover:text-brand-400 hover:bg-brand-500/10 transition-colors"
-        aria-label="O que é BANT?"
+        aria-label="What is BANT?"
       >
         <Info size={14} />
       </button>
@@ -407,17 +407,17 @@ function BantInfoTooltip() {
 
 function BantInfoContent() {
   const items = [
-    { letter: "B", label: "Budget", desc: "O prospect tem verba para comprar?" },
-    { letter: "A", label: "Authority", desc: "Está falando com quem decide?" },
-    { letter: "N", label: "Need", desc: "Existe uma dor real que seu produto resolve?" },
-    { letter: "T", label: "Timeline", desc: "Há urgência ou prazo definido?" },
+    { letter: "B", label: "Budget", desc: "Does the prospect have budget to buy?" },
+    { letter: "A", label: "Authority", desc: "Are you talking to the decision maker?" },
+    { letter: "N", label: "Need", desc: "Is there a real pain your product solves?" },
+    { letter: "T", label: "Timeline", desc: "Is there urgency or a defined timeline?" },
   ];
 
   return (
     <div>
-      <h4 className="text-sm font-semibold text-text-primary mb-1">O que é BANT?</h4>
+      <h4 className="text-sm font-semibold text-text-primary mb-1">What is BANT?</h4>
       <p className="text-xs text-text-secondary mb-3 leading-relaxed">
-        Framework de qualificação de leads usado em vendas B2B. Quanto mais critérios atendidos, maior a chance de fechamento.
+        A B2B lead-qualification framework. The more criteria met, the higher the chance of closing.
       </p>
       <div className="space-y-2.5">
         {items.map(({ letter, label, desc }) => (
@@ -545,18 +545,18 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
       await linkContactMutation({ leadId, contactId });
       setShowContactPicker(false);
       setContactSearchText("");
-      toast.success("Contato vinculado com sucesso");
+      toast.success("Contact linked successfully");
     } catch (error: any) {
-      toast.error(error.message || "Falha ao vincular contato");
+      toast.error(error.message || "Failed to vincular contact");
     }
   };
 
   const handleUnlinkContact = async () => {
     try {
       await linkContactMutation({ leadId });
-      toast.success("Contato desvinculado com sucesso");
+      toast.success("Contact unlinked successfully");
     } catch (error: any) {
-      toast.error(error.message || "Falha ao desvincular contato");
+      toast.error(error.message || "Failed to desvincular contact");
     }
   };
 
@@ -565,9 +565,9 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
     try {
       await assignLeadMutation({ leadId, assignedTo });
       setShowAssigneePicker(false);
-      toast.success(assignedTo ? "Lead atribuído com sucesso" : "Lead desatribuído com sucesso");
+      toast.success(assignedTo ? "Lead assigned successfully" : "Lead unassigned successfully");
     } catch (error: any) {
-      toast.error(error.message || "Falha ao atribuir lead");
+      toast.error(error.message || "Failed to assign lead");
     }
   };
 
@@ -577,9 +577,9 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
       await moveLeadToStageMutation({ leadId, stageId });
       setShowStagePicker(false);
       setSelectedBoardId(null);
-      toast.success("Lead movido com sucesso");
+      toast.success("Lead moved successfully");
     } catch (error: any) {
-      toast.error(error.message || "Falha ao mover lead");
+      toast.error(error.message || "Failed to move lead");
     }
   };
 
@@ -598,13 +598,13 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
       {/* Contact Section - Interactive */}
       <div>
         <h3 className="text-[13px] font-semibold text-text-secondary uppercase tracking-wide mb-3">
-          Contato Vinculado
+          Linked Contact
         </h3>
         {lead.contact ? (
           <div className="bg-surface-sunken rounded-card p-4 space-y-3">
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-text-muted">Nome</span>
+                <span className="text-text-muted">Name</span>
                 <span className="text-text-primary font-medium">
                   {`${lead.contact.firstName || ""} ${lead.contact.lastName || ""}`.trim() || "—"}
                 </span>
@@ -614,7 +614,7 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
                 <span className="text-text-primary">{lead.contact.email || "—"}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-text-muted">Telefone</span>
+                <span className="text-text-muted">Phone</span>
                 <span className="text-text-primary">{lead.contact.phone || "—"}</span>
               </div>
               <div className="flex justify-between">
@@ -630,13 +630,13 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
                 className="flex-1"
               >
                 <ExternalLink size={16} />
-                Alterar
+                Change
               </Button>
               <Button
                 onClick={handleUnlinkContact}
                 variant="ghost"
                 size="sm"
-                aria-label="Desvincular contato"
+                aria-label="Unlink contact"
               >
                 <X size={16} />
               </Button>
@@ -644,14 +644,14 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
           </div>
         ) : (
           <div className="bg-surface-sunken rounded-card p-4 text-center">
-            <p className="text-sm text-text-muted mb-3">Nenhum contato vinculado</p>
+            <p className="text-sm text-text-muted mb-3">No linked contacts</p>
             <Button
               onClick={() => setShowContactPicker(true)}
               variant="primary"
               size="sm"
             >
               <LinkIcon size={16} />
-              Vincular Contato
+              Link Contact
             </Button>
           </div>
         )}
@@ -674,7 +674,7 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
                     type="text"
                     value={contactSearchText}
                     onChange={(e) => setContactSearchText(e.target.value)}
-                    placeholder="Buscar contato..."
+                    placeholder="Search contact..."
                     className="w-full pl-9 pr-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 placeholder:text-text-muted"
                     style={{ fontSize: "16px" }}
                     autoFocus
@@ -682,7 +682,7 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
                 </div>
                 {contacts && contacts.length >= 500 && (
                   <p className="text-xs text-text-muted mt-2">
-                    Mostrando os primeiros 500 contatos.
+                    Showing the first 500 contacts.
                   </p>
                 )}
               </div>
@@ -695,7 +695,7 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
                       className="w-full px-4 py-3 text-left hover:bg-surface-raised transition-colors border-b border-border-subtle last:border-0"
                     >
                       <div className="font-medium text-sm text-text-primary">
-                        {`${contact.firstName || ""} ${contact.lastName || ""}`.trim() || "Sem nome"}
+                        {`${contact.firstName || ""} ${contact.lastName || ""}`.trim() || "No name"}
                       </div>
                       <div className="text-xs text-text-muted mt-0.5">
                         {contact.email}
@@ -708,7 +708,7 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
                     {contacts === undefined ? (
                       <Spinner size="sm" />
                     ) : (
-                      "Nenhum contato encontrado"
+                      "No contact found"
                     )}
                   </div>
                 )}
@@ -721,7 +721,7 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
       {/* Assignee Section */}
       <div className="relative">
         <h3 className="text-[13px] font-semibold text-text-secondary uppercase tracking-wide mb-3">
-          Atribuído a
+          Assigned to
         </h3>
         {can("leads", "edit_all") ? (
           <button
@@ -731,11 +731,11 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
             <div className="flex items-center gap-2">
               <User size={16} className="text-text-muted" />
               <span className="text-sm text-text-primary font-medium">
-                {lead.assignee ? lead.assignee.name : "Não atribuído"}
+                {lead.assignee ? lead.assignee.name : "Unassigned"}
               </span>
               {lead.assignee && (
                 <Badge variant="default" className="text-xs">
-                  {lead.assignee.type === "ai" ? "IA" : lead.assignee.role === "admin" ? "Admin" : lead.assignee.role === "manager" ? "Gerente" : "Agente"}
+                  {lead.assignee.type === "ai" ? "AI" : lead.assignee.role === "admin" ? "Admin" : lead.assignee.role === "manager" ? "Manager" : "Agent"}
                 </Badge>
               )}
             </div>
@@ -745,11 +745,11 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
           <div className="w-full px-4 py-3 bg-surface-sunken rounded-card text-left flex items-center gap-2">
             <User size={16} className="text-text-muted" />
             <span className="text-sm text-text-primary font-medium">
-              {lead.assignee ? lead.assignee.name : "Não atribuído"}
+              {lead.assignee ? lead.assignee.name : "Unassigned"}
             </span>
             {lead.assignee && (
               <Badge variant="default" className="text-xs">
-                {lead.assignee.type === "ai" ? "IA" : lead.assignee.role === "admin" ? "Admin" : lead.assignee.role === "manager" ? "Gerente" : "Agente"}
+                {lead.assignee.type === "ai" ? "AI" : lead.assignee.role === "admin" ? "Admin" : lead.assignee.role === "manager" ? "Manager" : "Agent"}
               </Badge>
             )}
           </div>
@@ -772,7 +772,7 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
               >
                 <div className="flex items-center gap-2">
                   <UserPlus size={16} className="text-text-muted" />
-                  <span className="text-sm text-text-primary font-medium">Não atribuído</span>
+                  <span className="text-sm text-text-primary font-medium">Unassigned</span>
                 </div>
               </button>
               {teamMembers?.map((member) => (
@@ -788,7 +788,7 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-text-primary font-medium">{member.name}</span>
                       <Badge variant="default" className="text-xs">
-                        {member.type === "ai" ? "IA" : member.role === "admin" ? "Admin" : member.role === "manager" ? "Gerente" : "Agente"}
+                        {member.type === "ai" ? "AI" : member.role === "admin" ? "Admin" : member.role === "manager" ? "Manager" : "Agent"}
                       </Badge>
                     </div>
                   </div>
@@ -810,7 +810,7 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
       {/* Stage Section */}
       <div className="relative">
         <h3 className="text-[13px] font-semibold text-text-secondary uppercase tracking-wide mb-3">
-          Pipeline e Etapa
+          Pipeline and Stage
         </h3>
         <button
           onClick={() => {
@@ -824,7 +824,7 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
           <div>
             <div className="text-xs text-text-muted">{lead.board?.name || "Pipeline"}</div>
             <div className="text-sm text-text-primary font-medium mt-0.5">
-              {lead.stage?.name || "Sem etapa"}
+              {lead.stage?.name || "No stage"}
             </div>
           </div>
           <ChevronDown size={16} className="text-text-muted" />
@@ -850,7 +850,7 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
                   className="w-full px-3 py-2 bg-surface-sunken border border-border-strong text-text-primary rounded-field text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                   style={{ fontSize: "16px" }}
                 >
-                  <option value="">Selecione um pipeline</option>
+                  <option value="">Select a pipeline</option>
                   {boards?.map((board) => (
                     <option key={board._id} value={board._id}>
                       {board.name}
@@ -875,7 +875,7 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
                         <span className="text-sm text-text-primary font-medium">{stage.name}</span>
                         {(stage.isClosedWon || stage.isClosedLost) && (
                           <Badge variant={stage.isClosedWon ? "success" : "error"} className="text-xs">
-                            {stage.isClosedWon ? "Ganho" : "Perdido"}
+                            {stage.isClosedWon ? "Won" : "Lost"}
                           </Badge>
                         )}
                       </div>
@@ -886,12 +886,12 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
                     {stages === undefined ? (
                       <Spinner size="sm" />
                     ) : (
-                      "Nenhuma etapa encontrada"
+                      "No stage found"
                     )}
                   </div>
                 ) : (
                   <div className="px-4 py-8 text-center text-sm text-text-muted">
-                    Selecione um pipeline acima
+                    Select a pipeline acima
                   </div>
                 )}
               </div>
@@ -903,11 +903,11 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
       {/* Editable Fields */}
       <div>
         <h3 className="text-[13px] font-semibold text-text-secondary uppercase tracking-wide mb-3">
-          Detalhes do Lead
+          Lead Details
         </h3>
         <div className="space-y-4">
           <div>
-            <label className="block text-[13px] font-medium text-text-secondary mb-1">Título</label>
+            <label className="block text-[13px] font-medium text-text-secondary mb-1">Title</label>
             <input
               type="text"
               value={title}
@@ -936,10 +936,10 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
               className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
               style={{ fontSize: "16px" }}
             >
-              <option value="low">Baixa</option>
-              <option value="medium">Média</option>
-              <option value="high">Alta</option>
-              <option value="urgent">Urgente</option>
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="urgent">Urgent</option>
             </select>
           </div>
 
@@ -959,13 +959,13 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
 
           <div>
             <label className="block text-[13px] font-medium text-text-secondary mb-1">
-              Tags <span className="text-text-muted font-normal">(separadas por vírgula)</span>
+              Tags <span className="text-text-muted font-normal">(comma-separated)</span>
             </label>
             <input
               type="text"
               value={tags}
               onChange={(e) => setTags(e.target.value)}
-              placeholder="ex: enterprise, urgente, follow-up"
+              placeholder="ex: enterprise, urgent, follow-up"
               className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 placeholder:text-text-muted"
               style={{ fontSize: "16px" }}
             />
@@ -978,7 +978,7 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
             size="md"
             className="w-full"
           >
-            {saving ? "Salvando..." : "Salvar Detalhes"}
+            {saving ? "Saving..." : "Save Detalhes"}
           </Button>
         </div>
       </div>
@@ -987,16 +987,16 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
       <div>
         <div className="flex items-center gap-2 mb-3">
           <h3 className="text-[13px] font-semibold text-text-secondary uppercase tracking-wide">
-            Qualificação BANT
+            Qualification BANT
           </h3>
           <BantInfoTooltip />
         </div>
         <div className="space-y-3">
           {([
-            { key: "budget" as const, label: "Orçamento", desc: "O prospect tem verba disponível?", checked: budget, setter: setBudget },
-            { key: "authority" as const, label: "Autoridade", desc: "Está falando com o decisor?", checked: authority, setter: setAuthority },
+            { key: "budget" as const, label: "Budget", desc: "Does the prospect have available budget?", checked: budget, setter: setBudget },
+            { key: "authority" as const, label: "Authority", desc: "Are you talking to the decision maker?", checked: authority, setter: setAuthority },
             { key: "need" as const, label: "Necessidade", desc: "Existe uma dor real a resolver?", checked: need, setter: setNeed },
-            { key: "timeline" as const, label: "Prazo", desc: "Há urgência ou prazo definido?", checked: timeline, setter: setTimeline },
+            { key: "timeline" as const, label: "Timeline", desc: "Is there urgency or a defined timeline?", checked: timeline, setter: setTimeline },
           ] as const).map(({ key, label, desc, checked, setter }) => (
             <label
               key={key}
@@ -1018,7 +1018,7 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
           {/* Score bar */}
           <div className="pt-1">
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs text-text-muted">Pontuação</span>
+              <span className="text-xs text-text-muted">Score</span>
               <span className={cn(
                 "text-xs font-semibold tabular-nums",
                 bantScore === 4 ? "text-semantic-success" :
@@ -1052,7 +1052,7 @@ function DetailsTab({ leadId, organizationId }: { leadId: Id<"leads">; organizat
             size="md"
             className="w-full"
           >
-            {savingBant ? "Salvando..." : "Salvar Qualificação"}
+            {savingBant ? "Saving..." : "Save Qualification"}
           </Button>
         </div>
       </div>
@@ -1077,10 +1077,10 @@ const LEAD_TASK_ACTIVITY_ICONS: Record<string, React.ElementType> = {
 };
 
 const LEAD_TASK_PRIORITY_BADGE: Record<string, { variant: "default" | "info" | "warning" | "error"; label: string }> = {
-  low: { variant: "default", label: "Baixa" },
-  medium: { variant: "info", label: "Média" },
-  high: { variant: "warning", label: "Alta" },
-  urgent: { variant: "error", label: "Urgente" },
+  low: { variant: "default", label: "Low" },
+  medium: { variant: "info", label: "Medium" },
+  high: { variant: "warning", label: "High" },
+  urgent: { variant: "error", label: "Urgent" },
 };
 
 function TasksTab({
@@ -1105,9 +1105,9 @@ function TasksTab({
   const handleComplete = async (taskId: Id<"tasks">) => {
     try {
       await completeTask({ taskId });
-      toast.success("Tarefa concluída!");
+      toast.success("Task completed!");
     } catch {
-      toast.error("Falha ao concluir tarefa");
+      toast.error("Failed to complete task");
     }
   };
 
@@ -1123,7 +1123,7 @@ function TasksTab({
     <div className="p-4">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold text-text-primary">
-          Tarefas ({leadTasks.length})
+          Tasks ({leadTasks.length})
         </h3>
         <Button
           variant="ghost"
@@ -1131,14 +1131,14 @@ function TasksTab({
           onClick={() => setShowCreateModal(true)}
         >
           <Plus size={14} />
-          Nova Tarefa
+          New Task
         </Button>
       </div>
 
       {leadTasks.length === 0 ? (
         <div className="text-center py-8">
           <CheckSquare size={32} className="mx-auto text-text-muted mb-2" />
-          <p className="text-sm text-text-muted">Nenhuma tarefa para este lead</p>
+          <p className="text-sm text-text-muted">No tasks for this lead</p>
         </div>
       ) : (
         <div className="space-y-1">
@@ -1166,7 +1166,7 @@ function TasksTab({
                       ? "border-semantic-success bg-semantic-success"
                       : "border-border-strong hover:border-brand-500"
                   )}
-                  aria-label={isCompleted ? "Concluída" : "Concluir"}
+                  aria-label={isCompleted ? "Completed" : "Complete"}
                 >
                   {isCompleted && (
                     <svg width="10" height="8" viewBox="0 0 10 8" fill="none" className="text-white">
@@ -1199,7 +1199,7 @@ function TasksTab({
                       !isCompleted && task.dueDate < now ? "text-semantic-error" : "text-text-muted"
                     )}
                   >
-                    {new Date(task.dueDate).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
+                    {new Date(task.dueDate).toLocaleDateString("en-US", { day: "2-digit", month: "short" })}
                   </span>
                 )}
               </div>
@@ -1252,7 +1252,7 @@ function ActivityTab({ leadId }: { leadId: Id<"leads"> }) {
   if (activities.length === 0) {
     return (
       <div className="text-center py-12 text-text-muted text-sm">
-        Nenhuma atividade registrada ainda.
+        No activity recorded yet.
       </div>
     );
   }
@@ -1289,7 +1289,7 @@ function ActivityTab({ leadId }: { leadId: Id<"leads"> }) {
                       {activity.actorName}
                     </span>
                     <span className="text-xs text-text-muted whitespace-nowrap">
-                      {new Date(activity.createdAt).toLocaleString("pt-BR", {
+                      {new Date(activity.createdAt).toLocaleString("en-US", {
                         month: "short",
                         day: "numeric",
                         hour: "2-digit",

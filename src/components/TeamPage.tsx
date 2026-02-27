@@ -32,15 +32,15 @@ type StatusFilter = "all" | "active" | "inactive" | "busy";
 
 const ROLE_LABELS: Record<string, string> = {
   admin: "Admin",
-  manager: "Gerente",
-  agent: "Agente",
-  ai: "IA",
+  manager: "Manager",
+  agent: "Agent",
+  ai: "AI",
 };
 
 const STATUS_LABELS: Record<string, string> = {
-  active: "Ativo",
+  active: "Active",
   busy: "Ocupado",
-  inactive: "Inativo",
+  inactive: "Inactive",
 };
 
 export function TeamPage() {
@@ -143,9 +143,9 @@ export function TeamPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-text-primary">Equipe</h2>
+          <h2 className="text-2xl font-bold text-text-primary">Team</h2>
           <p className="text-sm text-text-secondary mt-1">
-            {stats.total} membros &middot; {stats.active} ativos
+            {stats.total} members &middot; {stats.active} active
           </p>
         </div>
         <PermissionGate
@@ -155,7 +155,7 @@ export function TeamPage() {
         >
           <Button onClick={() => setShowInvite(true)}>
             <UserPlus size={18} />
-            Adicionar Membro
+            Add Member
           </Button>
         </PermissionGate>
       </div>
@@ -186,7 +186,7 @@ export function TeamPage() {
           </div>
           <div>
             <p className="text-xl font-bold text-text-primary tabular-nums">{stats.ais}</p>
-            <p className="text-xs text-text-muted">Agentes IA</p>
+            <p className="text-xs text-text-muted">AI Agents</p>
           </div>
         </Card>
         <Card className="flex items-center gap-3 !p-3">
@@ -195,7 +195,7 @@ export function TeamPage() {
           </div>
           <div>
             <p className="text-xl font-bold text-text-primary tabular-nums">{stats.active}</p>
-            <p className="text-xs text-text-muted">Ativos</p>
+            <p className="text-xs text-text-muted">Actives</p>
           </div>
         </Card>
       </div>
@@ -206,7 +206,7 @@ export function TeamPage() {
           <div className="flex-1">
             <Input
               icon={<Search size={18} />}
-              placeholder="Buscar por nome ou email..."
+              placeholder="Search by name or email..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -215,10 +215,10 @@ export function TeamPage() {
             variant={hasActiveFilters ? "primary" : "secondary"}
             size="md"
             onClick={() => setShowFilters(!showFilters)}
-            aria-label="Filtros"
+            aria-label="Filters"
           >
             <Filter size={18} />
-            <span className="hidden sm:inline">Filtros</span>
+            <span className="hidden sm:inline">Filters</span>
           </Button>
         </div>
 
@@ -227,7 +227,7 @@ export function TeamPage() {
             {/* Role filter */}
             <div>
               <label className="block text-xs font-medium text-text-muted mb-1">
-                Funcao
+                Role
               </label>
               <div className="flex flex-wrap gap-1">
                 {(["all", "admin", "manager", "agent", "ai"] as RoleFilter[]).map((r) => (
@@ -241,7 +241,7 @@ export function TeamPage() {
                         : "bg-surface-overlay text-text-secondary hover:text-text-primary"
                     )}
                   >
-                    {r === "all" ? "Todos" : ROLE_LABELS[r]}
+                    {r === "all" ? "All" : ROLE_LABELS[r]}
                   </button>
                 ))}
               </div>
@@ -264,7 +264,7 @@ export function TeamPage() {
                         : "bg-surface-overlay text-text-secondary hover:text-text-primary"
                     )}
                   >
-                    {t === "all" ? "Todos" : t === "human" ? "Humano" : "IA"}
+                    {t === "all" ? "All" : t === "human" ? "Human" : "AI"}
                   </button>
                 ))}
               </div>
@@ -287,7 +287,7 @@ export function TeamPage() {
                         : "bg-surface-overlay text-text-secondary hover:text-text-primary"
                     )}
                   >
-                    {s === "all" ? "Todos" : STATUS_LABELS[s]}
+                    {s === "all" ? "All" : STATUS_LABELS[s]}
                   </button>
                 ))}
               </div>
@@ -296,7 +296,7 @@ export function TeamPage() {
             {hasActiveFilters && (
               <div className="flex items-end">
                 <Button variant="ghost" size="sm" onClick={clearFilters}>
-                  Limpar Filtros
+                  Clear Filters
                 </Button>
               </div>
             )}
@@ -310,12 +310,12 @@ export function TeamPage() {
           <Users size={48} className="text-text-muted mb-4" />
           <p className="text-text-secondary text-sm">
             {search || hasActiveFilters
-              ? "Nenhum membro encontrado com os filtros atuais."
-              : "Nenhum membro na equipe ainda."}
+              ? "No members found with the current filters."
+              : "No team members yet."}
           </p>
           {(search || hasActiveFilters) && (
             <Button variant="ghost" size="sm" onClick={clearFilters} className="mt-2">
-              Limpar Filtros
+              Clear Filters
             </Button>
           )}
         </div>
@@ -355,7 +355,7 @@ export function TeamPage() {
                   {ROLE_LABELS[member.role] || member.role}
                 </Badge>
                 <Badge variant={member.type === "ai" ? "warning" : "info"}>
-                  {member.type === "ai" ? "IA" : "Humano"}
+                  {member.type === "ai" ? "AI" : "Human"}
                 </Badge>
                 <Badge variant={getStatusBadgeVariant(member.status)}>
                   {STATUS_LABELS[member.status] || member.status}
@@ -363,7 +363,7 @@ export function TeamPage() {
               </div>
 
               <div className="text-xs text-text-muted mt-3">
-                Desde {new Date(member.createdAt).toLocaleDateString("pt-BR")}
+                Since {new Date(member.createdAt).toLocaleDateString("en-US")}
               </div>
             </Card>
           ))}

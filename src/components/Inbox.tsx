@@ -55,7 +55,7 @@ export function Inbox() {
       });
       setNewMessage("");
     } catch (error) {
-      toast.error("Falha ao enviar mensagem");
+      toast.error("Failed to upload message");
     }
   };
 
@@ -99,7 +99,7 @@ export function Inbox() {
         align: "justify-start" as const,
         bg: "bg-surface-raised text-text-primary",
         rounded: "rounded-lg rounded-bl-none",
-        label: "Contato",
+        label: "Contact",
         labelColor: "text-text-secondary",
       };
     }
@@ -108,7 +108,7 @@ export function Inbox() {
         align: "justify-end" as const,
         bg: "bg-purple-600/80 text-white",
         rounded: "rounded-lg rounded-br-none",
-        label: "Agente IA",
+        label: "AI Agent",
         labelColor: "text-purple-300",
       };
     }
@@ -117,7 +117,7 @@ export function Inbox() {
       align: "justify-end" as const,
       bg: "bg-brand-600 text-white",
       rounded: "rounded-lg rounded-br-none",
-      label: "Equipe",
+      label: "Team",
       labelColor: "text-brand-200",
     };
   };
@@ -147,12 +147,12 @@ export function Inbox() {
         )}
       >
         <div className="p-4 border-b border-border">
-          <h2 className="text-lg font-semibold text-text-primary">Conversas</h2>
+          <h2 className="text-lg font-semibold text-text-primary">Conversations</h2>
         </div>
 
         <div className="overflow-y-auto flex-1">
           {validConversations.length === 0 ? (
-            <div className="p-4 text-center text-text-muted">Nenhuma conversa ainda</div>
+            <div className="p-4 text-center text-text-muted">No conversation yet</div>
           ) : (
             validConversations.map((conversation) => (
               <div
@@ -180,7 +180,7 @@ export function Inbox() {
 
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-text-muted tabular-nums">
-                    {conversation.messageCount} {conversation.messageCount === 1 ? "mensagem" : "mensagens"}
+                    {conversation.messageCount} {conversation.messageCount === 1 ? "message" : "messages"}
                   </span>
                   <div className="flex items-center gap-2">
                     {conversation.assignee && (
@@ -192,7 +192,7 @@ export function Inbox() {
                     )}
                     {conversation.lastMessageAt && (
                       <span className="text-xs text-text-muted tabular-nums">
-                        {new Date(conversation.lastMessageAt).toLocaleDateString("pt-BR")}
+                        {new Date(conversation.lastMessageAt).toLocaleDateString("en-US")}
                       </span>
                     )}
                   </div>
@@ -203,7 +203,7 @@ export function Inbox() {
           {conversations && conversations.length === 200 && (
             <div className="text-center py-2">
               <span className="text-xs text-text-muted">
-                Mostrando as 200 conversas mais recentes
+                Showing the latest 200 conversations
               </span>
             </div>
           )}
@@ -224,7 +224,7 @@ export function Inbox() {
               <button
                 onClick={handleBackToList}
                 className="p-2 -ml-2 text-text-primary hover:bg-surface-overlay rounded-full transition-colors"
-                aria-label="Voltar"
+                aria-label="Back"
               >
                 <ArrowLeft size={20} />
               </button>
@@ -239,7 +239,7 @@ export function Inbox() {
               {messages && messages.length === 500 && (
                 <div className="text-center py-2 mb-2">
                   <span className="text-xs text-text-muted bg-surface-overlay inline-block px-3 py-1.5 rounded-full">
-                    Exibindo as últimas 500 mensagens
+                    Showing the latest 500 messages
                   </span>
                 </div>
               )}
@@ -259,7 +259,7 @@ export function Inbox() {
                       )}
                       <div className="flex items-center justify-end mt-1">
                         <span className="text-xs opacity-75">
-                          {new Date(message.createdAt).toLocaleTimeString("pt-BR", {
+                          {new Date(message.createdAt).toLocaleTimeString("en-US", {
                             hour: "2-digit",
                             minute: "2-digit",
                           })}
@@ -285,7 +285,7 @@ export function Inbox() {
                     Nota interna
                   </label>
                   {isInternal && (
-                    <Badge variant="warning">Visível apenas para membros da equipe</Badge>
+                    <Badge variant="warning">Visible to team members only</Badge>
                   )}
                 </div>
                 <div className="flex gap-2">
@@ -302,7 +302,7 @@ export function Inbox() {
                     }}
                     teamMembers={teamMembers ?? []}
                     mentionEnabled={isInternal}
-                    placeholder={isInternal ? "Escreva uma nota interna... Use @ para mencionar" : "Digite uma mensagem..."}
+                    placeholder={isInternal ? "Write an internal note... Use @ to mention" : "Type a message..."}
                     rows={1}
                     className={cn(
                       "bg-surface-sunken",
@@ -320,22 +320,22 @@ export function Inbox() {
                       "shrink-0",
                       isInternal && "bg-semantic-warning hover:bg-amber-600 text-white"
                     )}
-                    aria-label={isInternal ? "Adicionar Nota" : "Enviar"}
+                    aria-label={isInternal ? "Add Note" : "Send"}
                   >
                     <Send size={16} />
-                    <span className="hidden sm:inline">{isInternal ? "Adicionar Nota" : "Enviar"}</span>
+                    <span className="hidden sm:inline">{isInternal ? "Add Note" : "Send"}</span>
                   </Button>
                 </div>
               </form>
             ) : (
               <div className="p-4 border-t border-border bg-surface-raised text-center">
-                <p className="text-sm text-text-muted">Voce nao tem permissao para enviar mensagens.</p>
+                <p className="text-sm text-text-muted">You do not have permission to send messages.</p>
               </div>
             )}
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center text-text-muted">
-            Selecione uma conversa para ver as mensagens
+            Select a conversation to view messages
           </div>
         )}
       </div>

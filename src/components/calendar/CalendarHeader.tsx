@@ -71,7 +71,7 @@ export function CalendarHeader({
 
   return (
     <div className="border-b border-border bg-surface-raised px-4 py-3 space-y-3">
-      {/* Row 1: View toggle pills (left) + Hoje + Filter + Create (desktop) (right) */}
+      {/* Row 1: View toggle pills (left) + Today + Filter + Create (desktop) (right) */}
       <div className="flex items-center justify-between gap-2">
         {/* View toggle pills - compact on mobile */}
         <div className="flex gap-1 bg-surface-sunken rounded-full p-0.5 md:p-1">
@@ -95,7 +95,7 @@ export function CalendarHeader({
                 : "text-text-secondary hover:text-text-primary"
             )}
           >
-            Semana
+            Week
           </button>
           <button
             onClick={() => onViewChange("month")}
@@ -110,10 +110,10 @@ export function CalendarHeader({
           </button>
         </div>
 
-        {/* Right side: Hoje + Filters + Create */}
+        {/* Right side: Today + Filters + Create */}
         <div className="flex items-center gap-2">
           <Button variant="secondary" size="sm" onClick={onGoToToday} className="px-2 md:px-3">
-            Hoje
+            Today
           </Button>
           <CalendarFilters
             teamMembers={teamMembers}
@@ -124,7 +124,7 @@ export function CalendarHeader({
           />
           <Button onClick={onCreateEvent} size="sm" className="hidden md:flex">
             <Plus size={16} />
-            Novo Evento
+            New Event
           </Button>
         </div>
       </div>
@@ -134,7 +134,7 @@ export function CalendarHeader({
         <button
           onClick={onNavigatePrev}
           className="p-1.5 md:p-2 rounded-full text-text-secondary hover:text-text-primary hover:bg-surface-overlay transition-colors min-w-[36px] min-h-[36px] md:min-w-[44px] md:min-h-[44px] flex items-center justify-center"
-          aria-label="Anterior"
+          aria-label="Previous"
         >
           <ChevronLeft size={20} />
         </button>

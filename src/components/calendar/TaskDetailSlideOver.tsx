@@ -29,10 +29,10 @@ interface TaskDetailSlideOverProps {
 }
 
 const PRIORITY_LABELS: Record<string, string> = {
-  low: "Baixa",
-  medium: "Média",
-  high: "Alta",
-  urgent: "Urgente",
+  low: "Low",
+  medium: "Medium",
+  high: "High",
+  urgent: "Urgent",
 };
 
 const PRIORITY_VARIANTS: Record<string, "default" | "warning" | "error"> = {
@@ -43,10 +43,10 @@ const PRIORITY_VARIANTS: Record<string, "default" | "warning" | "error"> = {
 };
 
 const STATUS_LABELS: Record<string, string> = {
-  pending: "Pendente",
+  pending: "Pending",
   in_progress: "Em Andamento",
-  completed: "Concluída",
-  cancelled: "Cancelada",
+  completed: "Completed",
+  cancelled: "Cancelled",
 };
 
 const STATUS_VARIANTS: Record<string, "default" | "brand" | "success" | "error"> = {
@@ -57,14 +57,14 @@ const STATUS_VARIANTS: Record<string, "default" | "brand" | "success" | "error">
 };
 
 const ACTIVITY_TYPE_LABELS: Record<string, string> = {
-  call: "Ligação",
+  call: "Call",
   email: "Email",
-  meeting: "Reunião",
+  meeting: "Meeting",
   follow_up: "Acompanhamento",
-  demo: "Demonstração",
-  proposal: "Proposta",
-  negotiation: "Negociação",
-  other: "Outro",
+  demo: "Demo",
+  proposal: "Proposal",
+  negotiation: "Negotiation",
+  other: "Other",
 };
 
 export function TaskDetailSlideOver({ open, onClose, taskId }: TaskDetailSlideOverProps) {
@@ -83,10 +83,10 @@ export function TaskDetailSlideOver({ open, onClose, taskId }: TaskDetailSlideOv
         taskId: taskId as Id<"tasks">,
         status: "completed",
       });
-      toast.success("Tarefa concluída!");
+      toast.success("Task completed!");
       onClose();
     } catch (error) {
-      toast.error("Erro ao concluir tarefa");
+      toast.error("Failed to complete task");
       console.error(error);
     }
   };
@@ -98,10 +98,10 @@ export function TaskDetailSlideOver({ open, onClose, taskId }: TaskDetailSlideOv
         taskId: taskId as Id<"tasks">,
         status: "cancelled",
       });
-      toast.success("Tarefa cancelada!");
+      toast.success("Task cancelada!");
       onClose();
     } catch (error) {
-      toast.error("Erro ao cancelar tarefa");
+      toast.error("Failed to cancel task");
       console.error(error);
     }
   };
@@ -110,18 +110,18 @@ export function TaskDetailSlideOver({ open, onClose, taskId }: TaskDetailSlideOv
     if (!taskId) return;
     try {
       await deleteTask({ taskId: taskId as Id<"tasks"> });
-      toast.success("Tarefa excluída!");
+      toast.success("Task deleted!");
       setShowDeleteConfirm(false);
       onClose();
     } catch (error) {
-      toast.error("Erro ao excluir tarefa");
+      toast.error("Failed to delete task");
       console.error(error);
     }
   };
 
   if (!task) {
     return (
-      <SlideOver open={open} onClose={onClose} title="Tarefa">
+      <SlideOver open={open} onClose={onClose} title="Task">
         <div className="flex justify-center py-8">
           <Spinner size="lg" />
         </div>
@@ -132,7 +132,7 @@ export function TaskDetailSlideOver({ open, onClose, taskId }: TaskDetailSlideOv
   const dueDate = task.dueDate ? new Date(task.dueDate) : null;
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString("pt-BR", {
+    return date.toLocaleDateString("en-US", {
       day: "numeric",
       month: "long",
       year: "numeric",
@@ -145,7 +145,7 @@ export function TaskDetailSlideOver({ open, onClose, taskId }: TaskDetailSlideOv
 
   return (
     <>
-      <SlideOver open={open} onClose={onClose} title="Detalhes da Tarefa">
+      <SlideOver open={open} onClose={onClose} title="Detalhes da Task">
         <div className="p-4 md:p-6 space-y-6">
           {/* Header */}
           <div>
@@ -183,7 +183,7 @@ export function TaskDetailSlideOver({ open, onClose, taskId }: TaskDetailSlideOv
           {/* Description */}
           {task.description && (
             <div>
-              <h3 className="text-sm font-medium text-text-secondary mb-2">Descrição</h3>
+              <h3 className="text-sm font-medium text-text-secondary mb-2">Description</h3>
               <p className="text-sm text-text-primary whitespace-pre-wrap">{task.description}</p>
             </div>
           )}
@@ -213,7 +213,7 @@ export function TaskDetailSlideOver({ open, onClose, taskId }: TaskDetailSlideOv
           {/* Linked Records */}
           {(task.lead || task.contact) && (
             <div>
-              <h3 className="text-sm font-medium text-text-secondary mb-2">Vinculado a</h3>
+              <h3 className="text-sm font-medium text-text-secondary mb-2">Linked to</h3>
               <div className="space-y-2">
                 {task.lead && (
                   <div className="flex items-center gap-2 px-3 py-2 bg-surface-raised rounded-lg border border-border">
@@ -228,7 +228,7 @@ export function TaskDetailSlideOver({ open, onClose, taskId }: TaskDetailSlideOv
                   <div className="flex items-center gap-2 px-3 py-2 bg-surface-raised rounded-lg border border-border">
                     <User size={16} className="text-text-muted" />
                     <div>
-                      <div className="text-xs text-text-muted">Contato</div>
+                      <div className="text-xs text-text-muted">Contact</div>
                       <div className="text-sm font-medium text-text-primary">
                         {task.contact.firstName} {task.contact.lastName}
                       </div>
@@ -242,7 +242,7 @@ export function TaskDetailSlideOver({ open, onClose, taskId }: TaskDetailSlideOv
           {/* Assignee */}
           {task.assignee && (
             <div>
-              <h3 className="text-sm font-medium text-text-secondary mb-2">Responsável</h3>
+              <h3 className="text-sm font-medium text-text-secondary mb-2">Owner</h3>
               <div className="flex items-center gap-2">
                 <Avatar name={task.assignee.name} type={task.assignee.type} size="sm" />
                 <span className="text-sm text-text-primary">{task.assignee.name}</span>
@@ -255,7 +255,7 @@ export function TaskDetailSlideOver({ open, onClose, taskId }: TaskDetailSlideOv
             <div>
               <h3 className="text-sm font-medium text-text-secondary mb-2 flex items-center gap-2">
                 <FileText size={16} />
-                Notas
+                Notes
               </h3>
               <p className="text-sm text-text-primary whitespace-pre-wrap">{(task as any).notes}</p>
             </div>
@@ -266,7 +266,7 @@ export function TaskDetailSlideOver({ open, onClose, taskId }: TaskDetailSlideOv
             <div className="flex items-start gap-2">
               <AlertCircle size={16} className="text-brand-500 shrink-0 mt-0.5" />
               <p className="text-xs text-text-secondary">
-                Para editar esta tarefa, acesse a página de Tarefas
+                To edit this task, go to the Tasks page
               </p>
             </div>
           </div>
@@ -281,7 +281,7 @@ export function TaskDetailSlideOver({ open, onClose, taskId }: TaskDetailSlideOv
                   onClick={handleComplete}
                 >
                   <CheckCircle2 size={16} />
-                  Concluir
+                  Complete
                 </Button>
                 <Button
                   variant="ghost"
@@ -289,7 +289,7 @@ export function TaskDetailSlideOver({ open, onClose, taskId }: TaskDetailSlideOv
                   onClick={handleCancel}
                 >
                   <XCircle size={16} />
-                  Cancelar
+                  Cancel
                 </Button>
               </>
             )}
@@ -299,7 +299,7 @@ export function TaskDetailSlideOver({ open, onClose, taskId }: TaskDetailSlideOv
               onClick={() => setShowDeleteConfirm(true)}
             >
               <Trash2 size={16} />
-              Excluir
+              Delete
             </Button>
           </div>
         </div>
@@ -309,9 +309,9 @@ export function TaskDetailSlideOver({ open, onClose, taskId }: TaskDetailSlideOv
         open={showDeleteConfirm}
         onClose={() => setShowDeleteConfirm(false)}
         onConfirm={handleDelete}
-        title="Excluir Tarefa"
-        description="Tem certeza que deseja excluir esta tarefa? Esta ação não pode ser desfeita."
-        confirmLabel="Excluir"
+        title="Delete Task"
+        description="Are you sure you want to delete this task? This action cannot be undone."
+        confirmLabel="Delete"
         variant="danger"
       />
     </>

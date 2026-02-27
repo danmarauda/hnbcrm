@@ -31,18 +31,18 @@ export function ChangePasswordScreen({
     const newErrors: Record<string, string> = {};
 
     if (!currentPassword) {
-      newErrors.currentPassword = "Senha atual e obrigatoria.";
+      newErrors.currentPassword = "Current password is required.";
     }
     if (!newPassword) {
-      newErrors.newPassword = "Nova senha e obrigatoria.";
+      newErrors.newPassword = "New password is required.";
     } else if (newPassword.length < 8) {
-      newErrors.newPassword = "A nova senha deve ter pelo menos 8 caracteres.";
+      newErrors.newPassword = "The new password must be at least 8 characters.";
     }
     if (newPassword !== confirmPassword) {
-      newErrors.confirmPassword = "As senhas nao coincidem.";
+      newErrors.confirmPassword = "Passwords do not match.";
     }
     if (newPassword === currentPassword && newPassword) {
-      newErrors.newPassword = "A nova senha deve ser diferente da atual.";
+      newErrors.newPassword = "The new password must be different from the current password.";
     }
 
     setErrors(newErrors);
@@ -60,10 +60,10 @@ export function ChangePasswordScreen({
         currentPassword,
         newPassword,
       });
-      toast.success("Senha alterada com sucesso!");
+      toast.success("Password changed successfully!");
       onSuccess();
     } catch (error: any) {
-      toast.error(error.message || "Falha ao alterar senha.");
+      toast.error(error.message || "Failed to change password.");
     } finally {
       setIsSubmitting(false);
     }
@@ -77,16 +77,16 @@ export function ChangePasswordScreen({
             <Lock size={32} className="text-brand-500" />
           </div>
           <h1 className="text-2xl font-bold text-text-primary mb-2">
-            Alterar Senha
+            Change Password
           </h1>
           <p className="text-text-secondary text-sm">
-            Voce precisa alterar sua senha temporaria antes de continuar.
+            You need to change your temporary password before continuing.
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
-            label="Senha Atual"
+            label="Current Password"
             type="password"
             value={currentPassword}
             onChange={(e) => {
@@ -94,12 +94,12 @@ export function ChangePasswordScreen({
               setErrors((prev) => ({ ...prev, currentPassword: "" }));
             }}
             error={errors.currentPassword}
-            placeholder="Digite sua senha atual"
+            placeholder="Enter your current password"
             autoComplete="current-password"
           />
 
           <Input
-            label="Nova Senha"
+            label="New Password"
             type="password"
             value={newPassword}
             onChange={(e) => {
@@ -112,7 +112,7 @@ export function ChangePasswordScreen({
           />
 
           <Input
-            label="Confirmar Nova Senha"
+            label="Confirmar New Password"
             type="password"
             value={confirmPassword}
             onChange={(e) => {
@@ -120,7 +120,7 @@ export function ChangePasswordScreen({
               setErrors((prev) => ({ ...prev, confirmPassword: "" }));
             }}
             error={errors.confirmPassword}
-            placeholder="Repita a nova senha"
+            placeholder="Repeat the new password"
             autoComplete="new-password"
           />
 
@@ -130,7 +130,7 @@ export function ChangePasswordScreen({
             className="w-full"
             size="lg"
           >
-            {isSubmitting ? "Alterando..." : "Alterar Senha"}
+            {isSubmitting ? "Updating..." : "Change Password"}
           </Button>
         </form>
       </div>

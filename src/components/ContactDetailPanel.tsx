@@ -158,12 +158,12 @@ export function ContactDetailPanel({ contactId, onClose }: ContactDetailPanelPro
     });
 
     toast.promise(updatePromise, {
-      loading: "Salvando...",
+      loading: "Saving...",
       success: () => {
         setEditing(false);
-        return "Contato atualizado com sucesso";
+        return "Contact updated successfully";
       },
-      error: "Falha ao atualizar contato",
+      error: "Failed to update contact",
     });
   };
 
@@ -176,8 +176,8 @@ export function ContactDetailPanel({ contactId, onClose }: ContactDetailPanelPro
     const deletePromise = deleteContact({ contactId });
     toast.promise(deletePromise, {
       loading: "Excluindo...",
-      success: () => { onClose(); return "Contato excluido com sucesso"; },
-      error: "Falha ao excluir contato",
+      success: () => { onClose(); return "Contact deleted successfully"; },
+      error: "Failed to delete contact",
     });
   };
 
@@ -194,7 +194,7 @@ export function ContactDetailPanel({ contactId, onClose }: ContactDetailPanelPro
   const contact = contactData;
   const leads = contactData.leads || [];
   const fullName = [contact.firstName, contact.lastName].filter(Boolean).join(" ");
-  const displayName = fullName || contact.email || contact.phone || "Sem nome";
+  const displayName = fullName || contact.email || contact.phone || "No name";
   const initials = [contact.firstName?.[0], contact.lastName?.[0]].filter(Boolean).join("").toUpperCase() || "?";
   const enrichMeta = contact.enrichmentMeta as Record<string, { source: string; updatedAt: number; confidence?: number }> | undefined;
 
@@ -252,16 +252,16 @@ export function ContactDetailPanel({ contactId, onClose }: ContactDetailPanelPro
               {!editing ? (
                 <div className="mb-4">
                   <Button variant="primary" size="md" onClick={() => setEditing(true)} className="w-full">
-                    Editar Informacoes
+                    Edit Informacoes
                   </Button>
                 </div>
               ) : (
                 <div className="flex gap-2 mb-4">
                   <Button variant="secondary" size="md" onClick={handleCancel} className="flex-1">
-                    Cancelar
+                    Cancel
                   </Button>
                   <Button variant="primary" size="md" onClick={handleSave} className="flex-1">
-                    Salvar
+                    Save
                   </Button>
                 </div>
               )}
@@ -320,18 +320,18 @@ export function ContactDetailPanel({ contactId, onClose }: ContactDetailPanelPro
                       />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
-                      <EditField label="Nome" value={form.firstName} onChange={(v) => updateField("firstName", v)} />
+                      <EditField label="Name" value={form.firstName} onChange={(v) => updateField("firstName", v)} />
                       <EditField label="Sobrenome" value={form.lastName} onChange={(v) => updateField("lastName", v)} />
                     </div>
                     <EditField label="Bio" value={form.bio} onChange={(v) => updateField("bio", v)} multiline />
-                    <EditField label="Tags (separadas por virgula)" value={form.tags} onChange={(v) => updateField("tags", v)} placeholder="cliente, vip, parceiro" />
+                    <EditField label="Tags (comma-separated)" value={form.tags} onChange={(v) => updateField("tags", v)} placeholder="customer, vip, partner" />
                   </div>
                 )}
               </CollapsibleSection>
 
-              {/* Contato */}
+              {/* Contact */}
               <CollapsibleSection
-                title="Contato"
+                title="Contact"
                 defaultOpen={countFilled(contactFields) > 0 || editing}
                 filledCount={countFilled(contactFields)}
                 totalCount={contactFields.length}
@@ -339,14 +339,14 @@ export function ContactDetailPanel({ contactId, onClose }: ContactDetailPanelPro
                 {!editing ? (
                   <div className="space-y-3">
                     <ViewField label="Email" value={contact.email} enrichMeta={enrichMeta?.email} />
-                    <ViewField label="Telefone" value={contact.phone} enrichMeta={enrichMeta?.phone} />
+                    <ViewField label="Phone" value={contact.phone} enrichMeta={enrichMeta?.phone} />
                     <ViewField label="WhatsApp" value={contact.whatsappNumber} enrichMeta={enrichMeta?.whatsappNumber} />
                     <ViewField label="Telegram" value={contact.telegramUsername} enrichMeta={enrichMeta?.telegramUsername} />
                   </div>
                 ) : (
                   <div className="space-y-3">
                     <EditField label="Email" value={form.email} onChange={(v) => updateField("email", v)} type="email" />
-                    <EditField label="Telefone" value={form.phone} onChange={(v) => updateField("phone", v)} />
+                    <EditField label="Phone" value={form.phone} onChange={(v) => updateField("phone", v)} />
                     <EditField label="WhatsApp" value={form.whatsappNumber} onChange={(v) => updateField("whatsappNumber", v)} />
                     <EditField label="Telegram" value={form.telegramUsername} onChange={(v) => updateField("telegramUsername", v)} placeholder="@username" />
                   </div>
@@ -369,7 +369,7 @@ export function ContactDetailPanel({ contactId, onClose }: ContactDetailPanelPro
                       twitterUrl={contact.twitterUrl}
                     />
                     {!contact.linkedinUrl && !contact.instagramUrl && !contact.facebookUrl && !contact.twitterUrl && (
-                      <p className="text-sm text-text-muted">Nenhuma rede social cadastrada</p>
+                      <p className="text-sm text-text-muted">No social profile added</p>
                     )}
                   </div>
                 ) : (
@@ -392,7 +392,7 @@ export function ContactDetailPanel({ contactId, onClose }: ContactDetailPanelPro
                 {!editing ? (
                   <div className="space-y-3">
                     <ViewField label="Empresa" value={contact.company} enrichMeta={enrichMeta?.company} />
-                    <ViewField label="Cargo" value={contact.title} enrichMeta={enrichMeta?.title} />
+                    <ViewField label="Job title" value={contact.title} enrichMeta={enrichMeta?.title} />
                     <ViewField label="Industria" value={contact.industry} enrichMeta={enrichMeta?.industry} />
                     <ViewField label="Porte da Empresa" value={contact.companySize} enrichMeta={enrichMeta?.companySize} />
                     <ViewField label="CNPJ" value={contact.cnpj} enrichMeta={enrichMeta?.cnpj} />
@@ -401,7 +401,7 @@ export function ContactDetailPanel({ contactId, onClose }: ContactDetailPanelPro
                 ) : (
                   <div className="space-y-3">
                     <EditField label="Empresa" value={form.company} onChange={(v) => updateField("company", v)} />
-                    <EditField label="Cargo" value={form.title} onChange={(v) => updateField("title", v)} />
+                    <EditField label="Job title" value={form.title} onChange={(v) => updateField("title", v)} />
                     <EditField label="Industria" value={form.industry} onChange={(v) => updateField("industry", v)} />
                     <div>
                       <label className="block text-xs font-medium text-text-secondary mb-1">Porte da Empresa</label>
@@ -410,7 +410,7 @@ export function ContactDetailPanel({ contactId, onClose }: ContactDetailPanelPro
                         onChange={(e) => updateField("companySize", e.target.value)}
                         className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm"
                       >
-                        <option value="">Selecionar...</option>
+                        <option value="">Select...</option>
                         <option value="1-10">1-10</option>
                         <option value="11-50">11-50</option>
                         <option value="51-200">51-200</option>
@@ -424,24 +424,24 @@ export function ContactDetailPanel({ contactId, onClose }: ContactDetailPanelPro
                 )}
               </CollapsibleSection>
 
-              {/* Localizacao */}
+              {/* Location */}
               <CollapsibleSection
-                title="Localizacao"
+                title="Location"
                 defaultOpen={countFilled(locationFields) > 0}
                 filledCount={countFilled(locationFields)}
                 totalCount={locationFields.length}
               >
                 {!editing ? (
                   <div className="space-y-3">
-                    <ViewField label="Cidade" value={contact.city} enrichMeta={enrichMeta?.city} />
-                    <ViewField label="Estado" value={contact.state} enrichMeta={enrichMeta?.state} />
-                    <ViewField label="Pais" value={contact.country} enrichMeta={enrichMeta?.country} />
+                    <ViewField label="City" value={contact.city} enrichMeta={enrichMeta?.city} />
+                    <ViewField label="State" value={contact.state} enrichMeta={enrichMeta?.state} />
+                    <ViewField label="Country" value={contact.country} enrichMeta={enrichMeta?.country} />
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    <EditField label="Cidade" value={form.city} onChange={(v) => updateField("city", v)} />
-                    <EditField label="Estado" value={form.state} onChange={(v) => updateField("state", v)} />
-                    <EditField label="Pais" value={form.country} onChange={(v) => updateField("country", v)} />
+                    <EditField label="City" value={form.city} onChange={(v) => updateField("city", v)} />
+                    <EditField label="State" value={form.state} onChange={(v) => updateField("state", v)} />
+                    <EditField label="Country" value={form.country} onChange={(v) => updateField("country", v)} />
                   </div>
                 )}
               </CollapsibleSection>
@@ -455,7 +455,7 @@ export function ContactDetailPanel({ contactId, onClose }: ContactDetailPanelPro
               >
                 {!editing ? (
                   <div className="space-y-3">
-                    <ViewField label="Horario Preferido" value={
+                    <ViewField label="Preferred Time" value={
                       contact.preferredContactTime === "morning" ? "Manha" :
                       contact.preferredContactTime === "afternoon" ? "Tarde" :
                       contact.preferredContactTime === "evening" ? "Noite" : undefined
@@ -467,13 +467,13 @@ export function ContactDetailPanel({ contactId, onClose }: ContactDetailPanelPro
                 ) : (
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-xs font-medium text-text-secondary mb-1">Horario Preferido</label>
+                      <label className="block text-xs font-medium text-text-secondary mb-1">Preferred Time</label>
                       <select
                         value={form.preferredContactTime}
                         onChange={(e) => updateField("preferredContactTime", e.target.value)}
                         className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm"
                       >
-                        <option value="">Selecionar...</option>
+                        <option value="">Select...</option>
                         <option value="morning">Manha</option>
                         <option value="afternoon">Tarde</option>
                         <option value="evening">Noite</option>
@@ -486,7 +486,7 @@ export function ContactDetailPanel({ contactId, onClose }: ContactDetailPanelPro
                         onChange={(e) => updateField("deviceType", e.target.value)}
                         className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-sm"
                       >
-                        <option value="">Selecionar...</option>
+                        <option value="">Select...</option>
                         <option value="android">Android</option>
                         <option value="iphone">iPhone</option>
                         <option value="desktop">Desktop</option>
@@ -521,10 +521,10 @@ export function ContactDetailPanel({ contactId, onClose }: ContactDetailPanelPro
                 )}
               </CollapsibleSection>
 
-              {/* Campos Personalizados */}
+              {/* Campos Customs */}
               {(fieldDefs && fieldDefs.length > 0) && (
                 <CollapsibleSection
-                  title="Campos Personalizados"
+                  title="Campos Customs"
                   defaultOpen={Object.keys(contact.customFields || {}).length > 0 || editing}
                   filledCount={Object.keys(contact.customFields || {}).filter((k) => (contact.customFields || {})[k] != null && (contact.customFields || {})[k] !== "").length}
                   totalCount={fieldDefs.length}
@@ -548,7 +548,7 @@ export function ContactDetailPanel({ contactId, onClose }: ContactDetailPanelPro
             <div className="space-y-3">
               {leads.length === 0 ? (
                 <div className="text-center py-8 text-text-secondary">
-                  Nenhum lead vinculado
+                  No linked lead
                 </div>
               ) : (
                 leads.map((lead: any) => (
@@ -559,7 +559,7 @@ export function ContactDetailPanel({ contactId, onClose }: ContactDetailPanelPro
                     <div className="font-medium text-text-primary mb-1">{lead.title}</div>
                     {lead.value > 0 && (
                       <div className="text-sm text-text-secondary mb-1">
-                        {new Intl.NumberFormat("pt-BR", {
+                        {new Intl.NumberFormat("en-US", {
                           style: "currency",
                           currency: "BRL",
                         }).format(lead.value)}
@@ -581,7 +581,7 @@ export function ContactDetailPanel({ contactId, onClose }: ContactDetailPanelPro
         <div className="border-t border-border px-4 md:px-6 py-4 shrink-0">
           <Button variant="danger" size="md" onClick={() => setShowDeleteConfirm(true)} className="w-full">
             <Trash2 size={18} className="mr-2" />
-            Excluir Contato
+            Delete Contact
           </Button>
         </div>
       </div>
@@ -590,9 +590,9 @@ export function ContactDetailPanel({ contactId, onClose }: ContactDetailPanelPro
         open={showDeleteConfirm}
         onClose={() => setShowDeleteConfirm(false)}
         onConfirm={handleDelete}
-        title="Excluir Contato"
-        description="Tem certeza que deseja excluir este contato? Esta ação não pode ser desfeita."
-        confirmLabel="Excluir"
+        title="Delete Contact"
+        description="Are you sure you want to delete this contact? This action cannot be undone."
+        confirmLabel="Delete"
         variant="danger"
       />
     </SlideOver>
@@ -616,7 +616,7 @@ function ViewField({
       <div className="flex items-center gap-1.5 mb-1">
         <span className="text-xs font-medium text-text-secondary">{label}</span>
         {enrichMeta && enrichMeta.source !== "manual" && (
-          <span title={`Fonte: ${enrichMeta.source} | ${new Date(enrichMeta.updatedAt).toLocaleDateString("pt-BR")}${enrichMeta.confidence != null ? ` | Confianca: ${Math.round(enrichMeta.confidence * 100)}%` : ""}`}>
+          <span title={`Source: ${enrichMeta.source} | ${new Date(enrichMeta.updatedAt).toLocaleDateString("en-US")}${enrichMeta.confidence != null ? ` | Confidence: ${Math.round(enrichMeta.confidence * 100)}%` : ""}`}>
             <Bot size={12} className="text-brand-400" />
           </span>
         )}

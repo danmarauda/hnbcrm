@@ -13,7 +13,7 @@ export function SignOutButton() {
       className="px-4 py-2 rounded-lg bg-surface-overlay text-text-secondary border border-border font-semibold hover:bg-surface-raised hover:text-text-primary transition-colors shadow-sm hover:shadow"
       onClick={() => void authClient.signOut()}
     >
-      Sair
+      Sign out
     </button>
   );
 }

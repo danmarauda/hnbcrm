@@ -60,7 +60,7 @@ export function ViewSelector({
   const defaultViews: DefaultView[] =
     entityType === "leads"
       ? [
-          { id: "all", label: "Todos os Leads", filters: {} },
+          { id: "all", label: "All Leads", filters: {} },
           {
             id: "my-leads",
             label: "Meus Leads",
@@ -70,18 +70,18 @@ export function ViewSelector({
           },
           {
             id: "unassigned",
-            label: "Não Atribuídos",
+            label: "Unassigned",
             filters: { assignedTo: undefined },
           },
           { id: "hot", label: "Leads Quentes", filters: { temperature: "hot" } },
           {
             id: "high-priority",
-            label: "Alta Prioridade",
+            label: "High Prioridade",
             filters: { priority: "urgent" },
           },
         ]
       : [
-          { id: "all", label: "Todos os Contatos", filters: {} },
+          { id: "all", label: "All Contacts", filters: {} },
           {
             id: "no-leads",
             label: "Sem Leads Vinculados",
@@ -135,14 +135,14 @@ export function ViewSelector({
 
     try {
       await deleteSavedView({ viewId });
-      toast.success("Visão excluída");
+      toast.success("View deleted");
 
       // If we're deleting the current view, switch to default
       if (currentViewId === viewId) {
         handleSelectView(defaultViews[0].id, defaultViews[0].filters);
       }
     } catch (error: any) {
-      toast.error(error.message || "Erro ao excluir visão");
+      toast.error(error.message || "Failed to delete view");
     }
   };
 
@@ -182,7 +182,7 @@ export function ViewSelector({
           {/* Default Views Section */}
           <div className="p-2">
             <div className="px-3 py-2 text-xs font-medium text-text-muted uppercase tracking-wide">
-              Padrão
+              Default
             </div>
             {defaultViews.map((view) => (
               <button
@@ -246,7 +246,7 @@ export function ViewSelector({
                         "text-text-muted hover:text-semantic-error",
                         "transition-all"
                       )}
-                      aria-label="Excluir visão"
+                      aria-label="Delete view"
                     >
                       <X size={14} />
                     </button>
@@ -271,7 +271,7 @@ export function ViewSelector({
               )}
             >
               <Plus size={16} />
-              <span>Criar Nova Visão</span>
+              <span>Create New View</span>
             </button>
           </div>
         </div>

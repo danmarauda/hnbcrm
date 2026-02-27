@@ -20,27 +20,27 @@ import {
 } from "lucide-react";
 
 const ACTIVITY_TYPES = [
-  { value: "todo", label: "Tarefa" },
-  { value: "call", label: "Ligação" },
-  { value: "email", label: "E-mail" },
+  { value: "todo", label: "Task" },
+  { value: "call", label: "Call" },
+  { value: "email", label: "Email" },
   { value: "follow_up", label: "Follow-up" },
-  { value: "meeting", label: "Reunião" },
-  { value: "research", label: "Pesquisa" },
+  { value: "meeting", label: "Meeting" },
+  { value: "research", label: "Research" },
 ] as const;
 
 const PRIORITIES = [
-  { value: "low", label: "Baixa", color: "bg-surface-overlay text-text-secondary" },
-  { value: "medium", label: "Média", color: "bg-semantic-info/10 text-semantic-info" },
-  { value: "high", label: "Alta", color: "bg-semantic-warning/10 text-semantic-warning" },
-  { value: "urgent", label: "Urgente", color: "bg-semantic-error/10 text-semantic-error" },
+  { value: "low", label: "Low", color: "bg-surface-overlay text-text-secondary" },
+  { value: "medium", label: "Medium", color: "bg-semantic-info/10 text-semantic-info" },
+  { value: "high", label: "High", color: "bg-semantic-warning/10 text-semantic-warning" },
+  { value: "urgent", label: "Urgent", color: "bg-semantic-error/10 text-semantic-error" },
 ] as const;
 
 const RECURRENCE_OPTIONS = [
-  { value: "", label: "Nenhuma" },
-  { value: "daily", label: "Diária" },
-  { value: "weekly", label: "Semanal" },
-  { value: "biweekly", label: "Quinzenal" },
-  { value: "monthly", label: "Mensal" },
+  { value: "", label: "None" },
+  { value: "daily", label: "Daily" },
+  { value: "weekly", label: "Weekly" },
+  { value: "biweekly", label: "Biweekly" },
+  { value: "monthly", label: "Monthly" },
 ] as const;
 
 interface CreateTaskModalProps {
@@ -111,11 +111,11 @@ export function CreateTaskModal({
         tags: tags.length > 0 ? tags : undefined,
       });
 
-      toast.success("Tarefa criada com sucesso!");
+      toast.success("Task created successfully!");
       resetForm();
       onClose();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Falha ao criar tarefa");
+      toast.error(err instanceof Error ? err.message : "Failed to create task");
     } finally {
       setSubmitting(false);
     }
@@ -164,12 +164,12 @@ export function CreateTaskModal({
   };
 
   return (
-    <Modal open={isOpen} onClose={onClose} title="Nova Tarefa">
+    <Modal open={isOpen} onClose={onClose} title="New Task">
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Title */}
         <div>
           <label className="block text-[13px] font-medium text-text-secondary mb-1">
-            Título <span className="text-semantic-error">*</span>
+            Title <span className="text-semantic-error">*</span>
           </label>
           <input
             type="text"
@@ -186,7 +186,7 @@ export function CreateTaskModal({
         {/* Description */}
         <div>
           <label className="block text-[13px] font-medium text-text-secondary mb-1">
-            Descrição
+            Description
           </label>
           <textarea
             value={description}
@@ -198,7 +198,7 @@ export function CreateTaskModal({
           />
         </div>
 
-        {/* Type: Tarefa / Lembrete */}
+        {/* Type: Task / Reminder */}
         <div>
           <label className="block text-[13px] font-medium text-text-secondary mb-1">Tipo</label>
           <div className="flex gap-2">
@@ -212,7 +212,7 @@ export function CreateTaskModal({
                   : "bg-surface-raised text-text-secondary border-2 border-border hover:border-border-strong"
               )}
             >
-              Tarefa
+              Task
             </button>
             <button
               type="button"
@@ -224,7 +224,7 @@ export function CreateTaskModal({
                   : "bg-surface-raised text-text-secondary border-2 border-border hover:border-border-strong"
               )}
             >
-              Lembrete
+              Reminder
             </button>
           </div>
         </div>
@@ -232,7 +232,7 @@ export function CreateTaskModal({
         {/* Activity Type */}
         <div>
           <label className="block text-[13px] font-medium text-text-secondary mb-1">
-            Tipo de Atividade
+            Activity Type
           </label>
           <select
             value={activityType}
@@ -264,7 +264,7 @@ export function CreateTaskModal({
           </div>
           <div>
             <label className="block text-[13px] font-medium text-text-secondary mb-1">
-              Horário
+              Time
             </label>
             <input
               type="time"
@@ -303,7 +303,7 @@ export function CreateTaskModal({
         {/* Assignee */}
         <div>
           <label className="block text-[13px] font-medium text-text-secondary mb-1">
-            Responsável
+            Owner
           </label>
           <select
             value={assignedTo}
@@ -311,7 +311,7 @@ export function CreateTaskModal({
             className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
             style={{ fontSize: "16px" }}
           >
-            <option value="">Sem responsável</option>
+            <option value="">Unassigned</option>
             {teamMembers?.map((member) => (
               <option key={member._id} value={member._id}>
                 {member.name} ({member.role})
@@ -324,7 +324,7 @@ export function CreateTaskModal({
         {!defaultContactId && (
           <div>
             <label className="block text-[13px] font-medium text-text-secondary mb-1">
-              Contato
+              Contact
             </label>
             <select
               value={contactId}
@@ -332,10 +332,10 @@ export function CreateTaskModal({
               className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
               style={{ fontSize: "16px" }}
             >
-              <option value="">Nenhum</option>
+              <option value="">No</option>
               {contacts?.map((c) => (
                 <option key={c._id} value={c._id}>
-                  {[c.firstName, c.lastName].filter(Boolean).join(" ") || c.email || "Sem nome"}
+                  {[c.firstName, c.lastName].filter(Boolean).join(" ") || c.email || "No name"}
                   {c.company ? ` (${c.company})` : ""}
                 </option>
               ))}
@@ -346,7 +346,7 @@ export function CreateTaskModal({
         {/* Recurrence */}
         <div>
           <label className="block text-[13px] font-medium text-text-secondary mb-1">
-            Recorrência
+            Recurrence
           </label>
           <select
             value={recurrence}
@@ -382,7 +382,7 @@ export function CreateTaskModal({
                     type="button"
                     onClick={() => removeChecklistItem(item.id)}
                     className="p-0.5 text-text-muted hover:text-semantic-error transition-colors"
-                    aria-label="Remover item"
+                    aria-label="Remove item"
                   >
                     <X size={14} />
                   </button>
@@ -401,7 +401,7 @@ export function CreateTaskModal({
                   addChecklistItem();
                 }
               }}
-              placeholder="Adicionar item..."
+              placeholder="Add item..."
               className="flex-1 px-3 py-1.5 bg-surface-raised border border-border-strong text-text-primary rounded-field text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 placeholder:text-text-muted"
               style={{ fontSize: "16px" }}
             />
@@ -410,7 +410,7 @@ export function CreateTaskModal({
               variant="ghost"
               size="sm"
               onClick={addChecklistItem}
-              aria-label="Adicionar item ao checklist"
+              aria-label="Add item ao checklist"
             >
               <Plus size={16} />
             </Button>
@@ -432,7 +432,7 @@ export function CreateTaskModal({
                     type="button"
                     onClick={() => removeTag(tag)}
                     className="hover:text-brand-300"
-                    aria-label={`Remover tag ${tag}`}
+                    aria-label={`Remove tag ${tag}`}
                   >
                     <X size={12} />
                   </button>
@@ -451,7 +451,7 @@ export function CreateTaskModal({
                   addTag();
                 }
               }}
-              placeholder="Adicionar tag..."
+              placeholder="Add tag..."
               className="flex-1 px-3 py-1.5 bg-surface-raised border border-border-strong text-text-primary rounded-field text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 placeholder:text-text-muted"
               style={{ fontSize: "16px" }}
             />
@@ -460,7 +460,7 @@ export function CreateTaskModal({
               variant="ghost"
               size="sm"
               onClick={addTag}
-              aria-label="Adicionar tag"
+              aria-label="Add tag"
             >
               <Plus size={16} />
             </Button>
@@ -476,7 +476,7 @@ export function CreateTaskModal({
             size="md"
             className="flex-1"
           >
-            Cancelar
+            Cancel
           </Button>
           <Button
             type="submit"
@@ -485,7 +485,7 @@ export function CreateTaskModal({
             size="md"
             className="flex-1"
           >
-            {submitting ? "Criando..." : "Criar Tarefa"}
+            {submitting ? "Creating..." : "Create Task"}
           </Button>
         </div>
       </form>

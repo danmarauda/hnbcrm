@@ -12,7 +12,7 @@ interface SEOProps {
 
 export function SEO({
   title = 'HNBCRM — Humans & Bots CRM',
-  description = 'CRM multi-tenancy com colaboração humano-IA. Gerencie leads, pipeline, contatos e conversas com agentes de IA integrados.',
+  description = 'Multi-tenant CRM with human-AI collaboration. Manage leads, pipeline, contacts, and conversations with integrated AI agents.',
   keywords = 'crm, ai, automation, leads, pipeline, multi-tenant, webhook, api',
   ogImage = '/orange_icon_logo_transparent_bg_full-700x700.png',
   ogType = 'website',

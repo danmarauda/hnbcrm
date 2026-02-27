@@ -44,7 +44,7 @@ export function AuthLayout() {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/entrar" replace />;
+    return <Navigate to="/sign-in" replace />;
   }
 
   if (loggedInUser === undefined) {
@@ -134,13 +134,13 @@ function WelcomeScreen({ onSelectOrg }: { onSelectOrg: (orgId: Id<"organizations
         name: newOrgName,
         slug: newOrgSlug,
       });
-      toast.success("Organização criada!");
+      toast.success("Organization created!");
       setShowCreateModal(false);
       setNewOrgName("");
       setNewOrgSlug("");
       onSelectOrg(orgId);
     } catch {
-      toast.error("Falha ao criar organização. O slug pode já estar em uso.");
+      toast.error("Failed to create organization. The slug may already be in use.");
     } finally {
       setIsCreating(false);
     }
@@ -156,10 +156,10 @@ function WelcomeScreen({ onSelectOrg }: { onSelectOrg: (orgId: Id<"organizations
             className="h-20 w-20 mx-auto mb-6 object-contain"
           />
           <h1 className="text-2xl md:text-3xl font-bold text-text-primary mb-2">
-            Bem-vindo ao HNBCRM
+            Welcome to HNBCRM
           </h1>
           <p className="text-text-secondary text-base md:text-lg">
-            Selecione uma organização para começar
+            Select an organization to get started
           </p>
         </div>
 
@@ -203,7 +203,7 @@ function WelcomeScreen({ onSelectOrg }: { onSelectOrg: (orgId: Id<"organizations
                 <Plus size={20} className="text-text-muted" />
               </div>
               <p className="text-sm font-medium text-text-secondary">
-                Criar Organização
+                Create Organization
               </p>
             </Card>
           </div>
@@ -212,12 +212,12 @@ function WelcomeScreen({ onSelectOrg }: { onSelectOrg: (orgId: Id<"organizations
         <Modal
           open={showCreateModal}
           onClose={() => setShowCreateModal(false)}
-          title="Criar Organização"
+          title="Create Organization"
         >
           <form onSubmit={handleCreate} className="space-y-4">
             <Input
-              label="Nome da Organização"
-              placeholder="Minha Empresa"
+              label="Organization Name"
+              placeholder="My Company"
               value={newOrgName}
               onChange={(e) => {
                 setNewOrgName(e.target.value);
@@ -232,7 +232,7 @@ function WelcomeScreen({ onSelectOrg }: { onSelectOrg: (orgId: Id<"organizations
               required
             />
             <Input
-              label="Slug (identificador URL)"
+              label="Slug (URL identifier)"
               placeholder="minha-empresa"
               value={newOrgSlug}
               onChange={(e) => setNewOrgSlug(e.target.value)}
@@ -245,14 +245,14 @@ function WelcomeScreen({ onSelectOrg }: { onSelectOrg: (orgId: Id<"organizations
                 onClick={() => setShowCreateModal(false)}
                 className="flex-1"
               >
-                Cancelar
+                Cancel
               </Button>
               <Button
                 type="submit"
                 disabled={isCreating || !newOrgName.trim() || !newOrgSlug.trim()}
                 className="flex-1"
               >
-                {isCreating ? "Criando..." : "Criar"}
+                {isCreating ? "Creating..." : "Create"}
               </Button>
             </div>
           </form>

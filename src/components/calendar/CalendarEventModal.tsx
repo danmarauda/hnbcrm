@@ -98,7 +98,7 @@ export function CalendarEventModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) {
-      toast.error("Titulo e obrigatorio");
+      toast.error("Title is required");
       return;
     }
 
@@ -144,15 +144,15 @@ export function CalendarEventModal({
 
       if (isEdit && eventId) {
         await updateEvent({ eventId: eventId as Id<"calendarEvents">, ...eventData });
-        toast.success("Evento atualizado!");
+        toast.success("Event updated!");
       } else {
         await createEvent({ organizationId, ...eventData });
-        toast.success("Evento criado!");
+        toast.success("Event created!");
       }
 
       onClose();
     } catch (error) {
-      toast.error("Erro ao salvar evento");
+      toast.error("Failed to save event");
       console.error(error);
     } finally {
       setIsSubmitting(false);
@@ -168,12 +168,12 @@ export function CalendarEventModal({
   };
 
   return (
-    <Modal open={open} onClose={onClose} title={isEdit ? "Editar Evento" : "Novo Evento"}>
+    <Modal open={open} onClose={onClose} title={isEdit ? "Edit Event" : "New Event"}>
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Title */}
         <Input
-          label="Titulo"
-          placeholder="Nome do evento"
+          label="Title"
+          placeholder="Event name"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
@@ -215,14 +215,14 @@ export function CalendarEventModal({
           {!allDay && (
             <>
               <Input
-                label="Horario Inicio"
+                label="Start Time"
                 type="time"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
                 required
               />
               <Input
-                label="Horario Fim"
+                label="End Time"
                 type="time"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
@@ -240,20 +240,20 @@ export function CalendarEventModal({
             onChange={(e) => setAllDay(e.target.checked)}
             className="w-4 h-4 rounded border-border-strong bg-surface-raised text-brand-500 focus:ring-2 focus:ring-brand-500/20"
           />
-          <span className="text-sm text-text-primary">Dia Inteiro</span>
+          <span className="text-sm text-text-primary">All Day</span>
         </label>
 
         {/* Description */}
         <div>
           <label className="block text-[13px] font-medium text-text-secondary mb-1.5">
-            Descricao
+            Description
           </label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
             className="w-full px-3.5 py-2.5 bg-surface-raised border border-border-strong rounded-field text-base md:text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
-            placeholder="Detalhes do evento"
+            placeholder="Event details"
           />
         </div>
 
@@ -261,14 +261,14 @@ export function CalendarEventModal({
         {leads && leads.length > 0 && (
           <div>
             <label className="block text-[13px] font-medium text-text-secondary mb-1.5">
-              Lead Vinculado
+              Linked Lead
             </label>
             <select
               value={leadId}
               onChange={(e) => setLeadId(e.target.value)}
               className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-sm"
             >
-              <option value="">Nenhum</option>
+              <option value="">No</option>
               {leads.map((lead) => (
                 <option key={lead._id} value={lead._id}>
                   {lead.title}
@@ -282,17 +282,17 @@ export function CalendarEventModal({
         {contacts && contacts.length > 0 && (
           <div>
             <label className="block text-[13px] font-medium text-text-secondary mb-1.5">
-              Contato
+              Contact
             </label>
             <select
               value={contactId}
               onChange={(e) => setContactId(e.target.value)}
               className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-sm"
             >
-              <option value="">Nenhum</option>
+              <option value="">No</option>
               {contacts.map((contact) => (
                 <option key={contact._id} value={contact._id}>
-                  {[contact.firstName, contact.lastName].filter(Boolean).join(" ") || contact.email || "Sem nome"}
+                  {[contact.firstName, contact.lastName].filter(Boolean).join(" ") || contact.email || "No name"}
                 </option>
               ))}
             </select>
@@ -303,14 +303,14 @@ export function CalendarEventModal({
         {teamMembers && teamMembers.length > 0 && (
           <div>
             <label className="block text-[13px] font-medium text-text-secondary mb-1.5">
-              Responsavel
+              Assignee
             </label>
             <select
               value={assignedTo}
               onChange={(e) => setAssignedTo(e.target.value)}
               className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-sm"
             >
-              <option value="">Nenhum</option>
+              <option value="">No</option>
               {teamMembers.map((member) => (
                 <option key={member._id} value={member._id}>
                   {member.name}
@@ -324,7 +324,7 @@ export function CalendarEventModal({
         {teamMembers && teamMembers.length > 0 && (
           <div>
             <label className="block text-[13px] font-medium text-text-secondary mb-1.5">
-              Participantes
+              Participants
             </label>
             <div className="flex flex-wrap gap-2">
               {teamMembers.map((member) => (
@@ -349,14 +349,14 @@ export function CalendarEventModal({
         {/* Location */}
         <Input
           label="Local"
-          placeholder="Endereco ou sala"
+          placeholder="Address or room"
           value={location}
           onChange={(e) => setLocation(e.target.value)}
         />
 
         {/* Meeting URL */}
         <Input
-          label="Link da Reuniao"
+          label="Meeting Link"
           type="url"
           placeholder="https://..."
           value={meetingUrl}
@@ -366,7 +366,7 @@ export function CalendarEventModal({
         {/* Recurrence */}
         <div>
           <label className="block text-[13px] font-medium text-text-secondary mb-1.5">
-            Recorrencia
+            Recurrence
           </label>
           <select
             value={recurrence}
@@ -384,24 +384,24 @@ export function CalendarEventModal({
         {/* Notes */}
         <div>
           <label className="block text-[13px] font-medium text-text-secondary mb-1.5">
-            Notas
+            Notes
           </label>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={2}
             className="w-full px-3.5 py-2.5 bg-surface-raised border border-border-strong rounded-field text-base md:text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
-            placeholder="Notas internas"
+            placeholder="Notes internas"
           />
         </div>
 
         {/* Actions */}
         <div className="flex gap-3 pt-2">
           <Button type="button" variant="secondary" onClick={onClose} className="flex-1">
-            Cancelar
+            Cancel
           </Button>
           <Button type="submit" disabled={isSubmitting} className="flex-1">
-            {isSubmitting ? "Salvando..." : isEdit ? "Atualizar" : "Criar"}
+            {isSubmitting ? "Saving..." : isEdit ? "Update" : "Create"}
           </Button>
         </div>
       </form>

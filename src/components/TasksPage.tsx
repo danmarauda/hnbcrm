@@ -92,26 +92,26 @@ const ACTIVITY_ICONS: Record<string, React.ElementType> = {
 };
 
 const ACTIVITY_LABELS: Record<string, string> = {
-  todo: "Tarefa",
-  call: "Ligação",
-  email: "E-mail",
+  todo: "Task",
+  call: "Call",
+  email: "Email",
   follow_up: "Follow-up",
-  meeting: "Reunião",
-  research: "Pesquisa",
+  meeting: "Meeting",
+  research: "Research",
 };
 
 const PRIORITY_BADGE: Record<string, { variant: "default" | "info" | "warning" | "error"; label: string }> = {
-  low: { variant: "default", label: "Baixa" },
-  medium: { variant: "info", label: "Média" },
-  high: { variant: "warning", label: "Alta" },
-  urgent: { variant: "error", label: "Urgente" },
+  low: { variant: "default", label: "Low" },
+  medium: { variant: "info", label: "Medium" },
+  high: { variant: "warning", label: "High" },
+  urgent: { variant: "error", label: "Urgent" },
 };
 
 const STATUS_LABELS: Record<string, string> = {
-  pending: "Pendente",
-  in_progress: "Em Progresso",
-  completed: "Concluída",
-  cancelled: "Cancelada",
+  pending: "Pending",
+  in_progress: "In Progress",
+  completed: "Completed",
+  cancelled: "Cancelled",
 };
 
 // ============================================================================
@@ -217,12 +217,12 @@ export function TasksPage() {
     endOfWeek.setHours(23, 59, 59, 999);
 
     const groups: { key: string; label: string; tasks: TaskItem[]; color?: string; defaultOpen: boolean }[] = [
-      { key: "overdue", label: "Atrasadas", tasks: [], color: "text-semantic-error", defaultOpen: true },
-      { key: "today", label: "Hoje", tasks: [], color: "text-brand-500", defaultOpen: true },
-      { key: "week", label: "Esta Semana", tasks: [], defaultOpen: true },
+      { key: "overdue", label: "Overdue", tasks: [], color: "text-semantic-error", defaultOpen: true },
+      { key: "today", label: "Today", tasks: [], color: "text-brand-500", defaultOpen: true },
+      { key: "week", label: "Esta Week", tasks: [], defaultOpen: true },
       { key: "future", label: "Futuras", tasks: [], defaultOpen: true },
-      { key: "noDate", label: "Sem Data", tasks: [], defaultOpen: true },
-      { key: "completed", label: "Concluídas", tasks: [], defaultOpen: false },
+      { key: "noDate", label: "No Date", tasks: [], defaultOpen: true },
+      { key: "completed", label: "Completed", tasks: [], defaultOpen: false },
     ];
 
     for (const task of filteredTasks) {
@@ -247,9 +247,9 @@ export function TasksPage() {
   const handleCompleteTask = async (taskId: Id<"tasks">) => {
     try {
       await completeTask({ taskId });
-      toast.success("Tarefa concluída!");
+      toast.success("Task completed!");
     } catch (err) {
-      toast.error("Falha ao concluir tarefa");
+      toast.error("Failed to complete task");
     }
   };
 
@@ -268,10 +268,10 @@ export function TasksPage() {
         taskIds: Array.from(selectedTasks) as Id<"tasks">[],
         action: "complete",
       });
-      toast.success(`${selectedTasks.size} tarefas concluídas!`);
+      toast.success(`${selectedTasks.size} tasks completed!`);
       setSelectedTasks(new Set());
     } catch {
-      toast.error("Falha ao concluir tarefas");
+      toast.error("Failed to complete tasks");
     }
   };
 
@@ -281,10 +281,10 @@ export function TasksPage() {
         taskIds: Array.from(selectedTasks) as Id<"tasks">[],
         action: "cancel",
       });
-      toast.success(`${selectedTasks.size} tarefas canceladas!`);
+      toast.success(`${selectedTasks.size} tasks canceled!`);
       setSelectedTasks(new Set());
     } catch {
-      toast.error("Falha ao cancelar tarefas");
+      toast.error("Failed to cancel tasks");
     }
   };
 
@@ -300,7 +300,7 @@ export function TasksPage() {
     <div className="space-y-4 max-w-7xl">
       {/* Header */}
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <h1 className="text-2xl font-bold text-text-primary">Tarefas</h1>
+        <h1 className="text-2xl font-bold text-text-primary">Tasks</h1>
         <div className="flex items-center gap-2">
           {/* Search */}
           <div className="relative flex-1 md:w-64 md:flex-none">
@@ -309,7 +309,7 @@ export function TasksPage() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar tarefas..."
+              placeholder="Search tasks..."
               className="w-full pl-9 pr-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 placeholder:text-text-muted"
               style={{ fontSize: "16px" }}
             />
@@ -325,7 +325,7 @@ export function TasksPage() {
                   ? "bg-brand-500/10 text-brand-500"
                   : "text-text-muted hover:text-text-primary"
               )}
-              aria-label="Visualização em lista"
+              aria-label="List view"
             >
               <List size={18} />
             </button>
@@ -337,7 +337,7 @@ export function TasksPage() {
                   ? "bg-brand-500/10 text-brand-500"
                   : "text-text-muted hover:text-text-primary"
               )}
-              aria-label="Visualização em quadro"
+              aria-label="Board view"
             >
               <Kanban size={18} />
             </button>
@@ -350,7 +350,7 @@ export function TasksPage() {
               onClick={() => setShowCreateModal(true)}
             >
               <Plus size={16} />
-              <span className="hidden md:inline">Nova Tarefa</span>
+              <span className="hidden md:inline">New Task</span>
             </Button>
           )}
         </div>
@@ -364,25 +364,25 @@ export function TasksPage() {
           onClick={() => setSmartFilter("all")}
         />
         <SmartPill
-          label="Hoje"
+          label="Today"
           count={taskCounts?.dueToday}
           active={smartFilter === "today"}
           onClick={() => setSmartFilter("today")}
         />
         <SmartPill
-          label="Atrasadas"
+          label="Overdue"
           count={taskCounts?.overdue}
           active={smartFilter === "overdue"}
           onClick={() => setSmartFilter("overdue")}
           countColor="text-semantic-error"
         />
         <SmartPill
-          label="Minha Semana"
+          label="Minha Week"
           active={smartFilter === "week"}
           onClick={() => setSmartFilter("week")}
         />
         <SmartPill
-          label="Sem Responsável"
+          label="Unassigned"
           active={smartFilter === "unassigned"}
           onClick={() => setSmartFilter("unassigned")}
         />
@@ -402,7 +402,7 @@ export function TasksPage() {
           size={16}
           className={cn("transition-transform", showFilters && "rotate-180")}
         />
-        Filtros
+        Filters
         {(filterStatus || filterPriority || filterAssignee || filterActivityType) && (
           <span className="ml-1 w-2 h-2 rounded-full bg-brand-500" />
         )}
@@ -418,11 +418,11 @@ export function TasksPage() {
               className="w-full px-2 py-1.5 bg-surface-raised border border-border-strong text-text-primary rounded-field text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
               style={{ fontSize: "16px" }}
             >
-              <option value="">Todos</option>
-              <option value="pending">Pendente</option>
-              <option value="in_progress">Em Progresso</option>
-              <option value="completed">Concluída</option>
-              <option value="cancelled">Cancelada</option>
+              <option value="">All</option>
+              <option value="pending">Pending</option>
+              <option value="in_progress">In Progress</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
             </select>
           </div>
           <div>
@@ -434,21 +434,21 @@ export function TasksPage() {
               style={{ fontSize: "16px" }}
             >
               <option value="">Todas</option>
-              <option value="low">Baixa</option>
-              <option value="medium">Média</option>
-              <option value="high">Alta</option>
-              <option value="urgent">Urgente</option>
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="urgent">Urgent</option>
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1">Responsável</label>
+            <label className="block text-xs font-medium text-text-muted mb-1">Owner</label>
             <select
               value={filterAssignee}
               onChange={(e) => setFilterAssignee(e.target.value)}
               className="w-full px-2 py-1.5 bg-surface-raised border border-border-strong text-text-primary rounded-field text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
               style={{ fontSize: "16px" }}
             >
-              <option value="">Todos</option>
+              <option value="">All</option>
               {teamMembers?.map((m) => (
                 <option key={m._id} value={m._id}>
                   {m.name}
@@ -457,20 +457,20 @@ export function TasksPage() {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-text-muted mb-1">Tipo de Atividade</label>
+            <label className="block text-xs font-medium text-text-muted mb-1">Activity Type</label>
             <select
               value={filterActivityType}
               onChange={(e) => setFilterActivityType(e.target.value)}
               className="w-full px-2 py-1.5 bg-surface-raised border border-border-strong text-text-primary rounded-field text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
               style={{ fontSize: "16px" }}
             >
-              <option value="">Todos</option>
-              <option value="todo">Tarefa</option>
-              <option value="call">Ligação</option>
-              <option value="email">E-mail</option>
+              <option value="">All</option>
+              <option value="todo">Task</option>
+              <option value="call">Call</option>
+              <option value="email">Email</option>
               <option value="follow_up">Follow-up</option>
-              <option value="meeting">Reunião</option>
-              <option value="research">Pesquisa</option>
+              <option value="meeting">Meeting</option>
+              <option value="research">Research</option>
             </select>
           </div>
         </div>
@@ -485,18 +485,18 @@ export function TasksPage() {
           <div className="flex-1" />
           <Button size="sm" variant="primary" onClick={handleBulkComplete}>
             <CheckSquare size={14} />
-            Concluir
+            Complete
           </Button>
           <Button size="sm" variant="danger" onClick={() => setShowBulkDeleteConfirm(true)}>
             <Trash2 size={14} />
-            Cancelar
+            Cancel
           </Button>
           <Button
             size="sm"
             variant="ghost"
             onClick={() => setSelectedTasks(new Set())}
           >
-            Limpar
+            Clear
           </Button>
         </div>
       )}
@@ -505,15 +505,15 @@ export function TasksPage() {
       {filteredTasks.length === 0 ? (
         <EmptyState
           icon={CheckSquare}
-          title="Nenhuma tarefa encontrada"
+          title="No tasks found"
           description={
             tasks.length === 0
-              ? "Crie sua primeira tarefa para organizar seu trabalho."
-              : "Tente ajustar os filtros ou a busca."
+              ? "Create your first task to organize your work."
+              : "Try adjusting filters or search."
           }
           action={
             tasks.length === 0 && can("tasks", "edit_own")
-              ? { label: "Nova Tarefa", onClick: () => setShowCreateModal(true) }
+              ? { label: "New Task", onClick: () => setShowCreateModal(true) }
               : undefined
           }
         />
@@ -556,9 +556,9 @@ export function TasksPage() {
         open={showBulkDeleteConfirm}
         onClose={() => setShowBulkDeleteConfirm(false)}
         onConfirm={handleBulkDelete}
-        title="Cancelar Tarefas"
-        description={`Deseja cancelar ${selectedTasks.size} tarefa${selectedTasks.size > 1 ? "s" : ""}?`}
-        confirmLabel="Cancelar Tarefas"
+        title="Cancel Tasks"
+        description={`Do you want to cancel  task?`}
+        confirmLabel="Cancel Tasks"
         variant="danger"
       />
     </div>
@@ -735,7 +735,7 @@ function TaskRow({
         checked={isSelected}
         onChange={onToggleSelect}
         className="shrink-0 h-4 w-4 rounded border-border-strong text-brand-500 focus:ring-brand-500 cursor-pointer"
-        aria-label="Selecionar tarefa"
+        aria-label="Select task"
       />
 
       {/* Complete checkbox */}
@@ -750,7 +750,7 @@ function TaskRow({
             ? "border-semantic-success bg-semantic-success"
             : "border-border-strong hover:border-brand-500"
         )}
-        aria-label={isCompleted ? "Tarefa concluída" : "Concluir tarefa"}
+        aria-label={isCompleted ? "Task completed" : "Complete task"}
       >
         {isCompleted && (
           <svg width="10" height="8" viewBox="0 0 10 8" fill="none" className="text-white">
@@ -840,9 +840,9 @@ function BoardView({
   );
 
   const columns: { status: TaskStatus; label: string; color: string }[] = [
-    { status: "pending", label: "Pendente", color: "bg-semantic-warning" },
-    { status: "in_progress", label: "Em Progresso", color: "bg-semantic-info" },
-    { status: "completed", label: "Concluída", color: "bg-semantic-success" },
+    { status: "pending", label: "Pending", color: "bg-semantic-warning" },
+    { status: "in_progress", label: "In Progress", color: "bg-semantic-info" },
+    { status: "completed", label: "Completed", color: "bg-semantic-success" },
   ];
 
   const tasksByStatus = useMemo(() => {
@@ -878,7 +878,7 @@ function BoardView({
         status: newStatus,
       });
     } catch {
-      toast.error("Falha ao mover tarefa");
+      toast.error("Failed to move task");
     }
   };
 
@@ -1092,10 +1092,10 @@ function formatRelativeDate(dueDate: number, now: number): string {
   const diffMs = dueDay.getTime() - today.getTime();
   const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
 
-  if (diffDays < -1) return `${Math.abs(diffDays)}d atrás`;
-  if (diffDays === -1) return "Ontem";
-  if (diffDays === 0) return "Hoje";
-  if (diffDays === 1) return "Amanhã";
+  if (diffDays < -1) return `${Math.abs(diffDays)}d ago`;
+  if (diffDays === -1) return "Yesterday";
+  if (diffDays === 0) return "Today";
+  if (diffDays === 1) return "Tomorrow";
   if (diffDays <= 7) return `${diffDays}d`;
-  return due.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
+  return due.toLocaleDateString("en-US", { day: "2-digit", month: "short" });
 }

@@ -5,7 +5,7 @@ export const OPENAPI_SPEC = `{
   "openapi": "3.1.0",
   "info": {
     "title": "ClawCRM API",
-    "description": "API REST do ClawCRM — CRM multi-tenant com colaboração entre humanos e agentes de IA. Todos os endpoints requerem autenticação via header X-API-Key.",
+    "description": "ClawCRM REST API — multi-tenant CRM with collaboration between humans and AI agents. All endpoints require authentication via the X-API-Key header.",
     "version": "1.0.0",
     "contact": {
       "name": "ClawCRM"
@@ -23,24 +23,24 @@ export const OPENAPI_SPEC = `{
     }
   ],
   "tags": [
-    { "name": "Leads", "description": "Gerenciamento de leads no pipeline de vendas" },
-    { "name": "Contatos", "description": "Gerenciamento de contatos e enriquecimento de dados" },
-    { "name": "Conversas", "description": "Conversas multicanal e mensagens" },
-    { "name": "Handoffs", "description": "Transferências entre agentes IA e humanos" },
-    { "name": "Referência", "description": "Dados de referência: boards, membros e campos" },
-    { "name": "Atividades", "description": "Timeline de atividades nos leads" },
-    { "name": "Dashboard", "description": "Estatísticas e métricas do dashboard" },
-    { "name": "Tarefas", "description": "Gerenciamento de tarefas e lembretes do CRM" },
-    { "name": "Fontes", "description": "Fontes de captação de leads" },
-    { "name": "Auditoria", "description": "Logs de auditoria" },
-    { "name": "Calendario", "description": "Eventos do calendário" }
+    { "name": "Leads", "description": "Lead management in the sales pipeline" },
+    { "name": "Contacts", "description": "Contact management and data enrichment" },
+    { "name": "Conversations", "description": "Multichannel conversations and messages" },
+    { "name": "Handoffs", "description": "Transfers between AI agents and humans" },
+    { "name": "Reference", "description": "Reference data: boards, members, and fields" },
+    { "name": "Activities", "description": "Lead activity timeline" },
+    { "name": "Dashboard", "description": "Dashboard statistics and metrics" },
+    { "name": "Tasks", "description": "Task and reminder management for the CRM" },
+    { "name": "Sources", "description": "Lead acquisition sources" },
+    { "name": "Audit", "description": "Audit logs" },
+    { "name": "Calendar", "description": "Calendar events" }
   ],
   "paths": {
     "/api/v1/inbound/lead": {
       "post": {
         "tags": ["Leads"],
-        "summary": "Criar lead via captura universal",
-        "description": "Cria um novo lead com contato e mensagem opcionais. Se o contato não existir, será criado automaticamente. Se uma mensagem for fornecida, uma conversa será criada.",
+        "summary": "Create lead via universal capture",
+        "description": "Creates a new lead with optional contact and message. If the contact does not exist, it is created automatically. If a message is provided, a conversation is created.",
         "operationId": "createInboundLead",
         "requestBody": {
           "required": true,
@@ -50,26 +50,26 @@ export const OPENAPI_SPEC = `{
                 "type": "object",
                 "required": ["title"],
                 "properties": {
-                  "title": { "type": "string", "description": "Título do lead" },
+                  "title": { "type": "string", "description": "Lead title" },
                   "contact": {
                     "type": "object",
-                    "description": "Dados do contato associado",
+                    "description": "Associated contact data",
                     "properties": {
-                      "email": { "type": "string", "format": "email", "description": "Email do contato" },
-                      "phone": { "type": "string", "description": "Telefone do contato" },
+                      "email": { "type": "string", "format": "email", "description": "Contact email" },
+                      "phone": { "type": "string", "description": "Contact phone" },
                       "firstName": { "type": "string", "description": "Primeiro nome" },
                       "lastName": { "type": "string", "description": "Sobrenome" },
                       "company": { "type": "string", "description": "Empresa" }
                     }
                   },
-                  "message": { "type": "string", "description": "Mensagem inicial (cria uma conversa)" },
-                  "channel": { "type": "string", "enum": ["whatsapp", "telegram", "email", "webchat", "internal"], "default": "webchat", "description": "Canal da conversa" },
-                  "value": { "type": "number", "default": 0, "description": "Valor monetário do lead" },
-                  "currency": { "type": "string", "description": "Código da moeda (ex: BRL)" },
-                  "priority": { "type": "string", "enum": ["low", "medium", "high", "urgent"], "default": "medium", "description": "Prioridade do lead" },
-                  "temperature": { "type": "string", "enum": ["cold", "warm", "hot"], "default": "cold", "description": "Temperatura do lead" },
-                  "sourceId": { "type": "string", "description": "ID da fonte de captação" },
-                  "tags": { "type": "array", "items": { "type": "string" }, "description": "Tags de categorização" },
+                  "message": { "type": "string", "description": "Initial message (creates a conversation)" },
+                  "channel": { "type": "string", "enum": ["whatsapp", "telegram", "email", "webchat", "internal"], "default": "webchat", "description": "Conversation channel" },
+                  "value": { "type": "number", "default": 0, "description": "Lead monetary value" },
+                  "currency": { "type": "string", "description": "Currency code (e.g. BRL)" },
+                  "priority": { "type": "string", "enum": ["low", "medium", "high", "urgent"], "default": "medium", "description": "Lead priority" },
+                  "temperature": { "type": "string", "enum": ["cold", "warm", "hot"], "default": "cold", "description": "Lead temperature" },
+                  "sourceId": { "type": "string", "description": "Lead source ID" },
+                  "tags": { "type": "array", "items": { "type": "string" }, "description": "Categorization tags" },
                   "customFields": { "type": "object", "additionalProperties": true, "description": "Campos personalizados" }
                 }
               }
@@ -78,15 +78,15 @@ export const OPENAPI_SPEC = `{
         },
         "responses": {
           "201": {
-            "description": "Lead criado com sucesso",
+            "description": "Lead created successfully",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "success": { "type": "boolean", "const": true },
-                    "leadId": { "type": "string", "description": "ID do lead criado" },
-                    "contactId": { "type": "string", "description": "ID do contato associado" }
+                    "leadId": { "type": "string", "description": "ID of created lead" },
+                    "contactId": { "type": "string", "description": "Associated contact ID" }
                   }
                 }
               }
@@ -101,27 +101,27 @@ export const OPENAPI_SPEC = `{
     "/api/v1/leads": {
       "get": {
         "tags": ["Leads"],
-        "summary": "Listar leads",
-        "description": "Retorna a lista de leads da organização com filtros opcionais.",
+        "summary": "List leads",
+        "description": "Returns a list of organization leads with optional filters.",
         "operationId": "listLeads",
         "parameters": [
-          { "name": "boardId", "in": "query", "schema": { "type": "string" }, "description": "Filtrar por board (pipeline)" },
-          { "name": "stageId", "in": "query", "schema": { "type": "string" }, "description": "Filtrar por estágio" },
-          { "name": "assignedTo", "in": "query", "schema": { "type": "string" }, "description": "Filtrar por membro responsável" },
+          { "name": "boardId", "in": "query", "schema": { "type": "string" }, "description": "Filter by board (pipeline)" },
+          { "name": "stageId", "in": "query", "schema": { "type": "string" }, "description": "Filter by stage" },
+          { "name": "assignedTo", "in": "query", "schema": { "type": "string" }, "description": "Filter by responsible member" },
           { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 200, "maximum": 500 }, "description": "Limite de resultados" },
-          { "name": "cursor", "in": "query", "schema": { "type": "string" }, "description": "Cursor para paginação (retornado como nextCursor na resposta anterior)" }
+          { "name": "cursor", "in": "query", "schema": { "type": "string" }, "description": "Pagination cursor (retornado como nextCursor na resposta anterior)" }
         ],
         "responses": {
           "200": {
-            "description": "Lista de leads",
+            "description": "List of leads",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "leads": { "type": "array", "items": { "$ref": "#/components/schemas/Lead" } },
-                    "nextCursor": { "type": "string", "nullable": true, "description": "Cursor para a próxima página (null se não houver mais)" },
-                    "hasMore": { "type": "boolean", "description": "Indica se há mais resultados" }
+                    "nextCursor": { "type": "string", "nullable": true, "description": "Cursor for the next page (null if there are no more)" },
+                    "hasMore": { "type": "boolean", "description": "Indicates whether there are more results" }
                   }
                 }
               }
@@ -135,15 +135,15 @@ export const OPENAPI_SPEC = `{
     "/api/v1/leads/get": {
       "get": {
         "tags": ["Leads"],
-        "summary": "Obter lead",
-        "description": "Retorna os dados de um lead específico pelo ID.",
+        "summary": "Get lead",
+        "description": "Returns data for a specific lead by ID.",
         "operationId": "getLead",
         "parameters": [
-          { "name": "id", "in": "query", "required": true, "schema": { "type": "string" }, "description": "ID do lead" }
+          { "name": "id", "in": "query", "required": true, "schema": { "type": "string" }, "description": "Lead ID" }
         ],
         "responses": {
           "200": {
-            "description": "Dados do lead",
+            "description": "Lead data",
             "content": {
               "application/json": {
                 "schema": {
@@ -165,8 +165,8 @@ export const OPENAPI_SPEC = `{
     "/api/v1/leads/update": {
       "post": {
         "tags": ["Leads"],
-        "summary": "Atualizar lead",
-        "description": "Atualiza os campos de um lead existente.",
+        "summary": "Update lead",
+        "description": "Updates fields of an existing lead.",
         "operationId": "updateLead",
         "requestBody": {
           "required": true,
@@ -176,14 +176,14 @@ export const OPENAPI_SPEC = `{
                 "type": "object",
                 "required": ["leadId"],
                 "properties": {
-                  "leadId": { "type": "string", "description": "ID do lead" },
-                  "title": { "type": "string", "description": "Novo título" },
-                  "value": { "type": "number", "description": "Novo valor monetário" },
-                  "priority": { "type": "string", "enum": ["low", "medium", "high", "urgent"], "description": "Nova prioridade" },
-                  "temperature": { "type": "string", "enum": ["cold", "warm", "hot"], "description": "Nova temperatura" },
+                  "leadId": { "type": "string", "description": "Lead ID" },
+                  "title": { "type": "string", "description": "New title" },
+                  "value": { "type": "number", "description": "New monetary value" },
+                  "priority": { "type": "string", "enum": ["low", "medium", "high", "urgent"], "description": "New priority" },
+                  "temperature": { "type": "string", "enum": ["cold", "warm", "hot"], "description": "New temperature" },
                   "tags": { "type": "array", "items": { "type": "string" }, "description": "Novas tags" },
                   "customFields": { "type": "object", "additionalProperties": true, "description": "Campos personalizados" },
-                  "sourceId": { "type": "string", "description": "ID da fonte de captação" }
+                  "sourceId": { "type": "string", "description": "Lead source ID" }
                 }
               }
             }
@@ -200,8 +200,8 @@ export const OPENAPI_SPEC = `{
     "/api/v1/leads/delete": {
       "post": {
         "tags": ["Leads"],
-        "summary": "Excluir lead",
-        "description": "Remove um lead permanentemente.",
+        "summary": "Delete lead",
+        "description": "Permanently removes a lead.",
         "operationId": "deleteLead",
         "requestBody": {
           "required": true,
@@ -211,7 +211,7 @@ export const OPENAPI_SPEC = `{
                 "type": "object",
                 "required": ["leadId"],
                 "properties": {
-                  "leadId": { "type": "string", "description": "ID do lead a excluir" }
+                  "leadId": { "type": "string", "description": "Lead ID to delete" }
                 }
               }
             }
@@ -228,8 +228,8 @@ export const OPENAPI_SPEC = `{
     "/api/v1/leads/move-stage": {
       "post": {
         "tags": ["Leads"],
-        "summary": "Mover lead de estágio",
-        "description": "Move um lead para um estágio diferente no pipeline.",
+        "summary": "Move lead stage",
+        "description": "Moves a lead to a different stage in the pipeline.",
         "operationId": "moveLeadStage",
         "requestBody": {
           "required": true,
@@ -239,8 +239,8 @@ export const OPENAPI_SPEC = `{
                 "type": "object",
                 "required": ["leadId", "stageId"],
                 "properties": {
-                  "leadId": { "type": "string", "description": "ID do lead" },
-                  "stageId": { "type": "string", "description": "ID do estágio de destino" }
+                  "leadId": { "type": "string", "description": "Lead ID" },
+                  "stageId": { "type": "string", "description": "Destination stage ID" }
                 }
               }
             }
@@ -257,8 +257,8 @@ export const OPENAPI_SPEC = `{
     "/api/v1/leads/assign": {
       "post": {
         "tags": ["Leads"],
-        "summary": "Atribuir lead",
-        "description": "Atribui ou desatribui um lead a um membro da equipe. Omita assignedTo para desatribuir.",
+        "summary": "Assign lead",
+        "description": "Assigns or unassigns a lead to a team member. Omit assignedTo to unassign.",
         "operationId": "assignLead",
         "requestBody": {
           "required": true,
@@ -268,8 +268,8 @@ export const OPENAPI_SPEC = `{
                 "type": "object",
                 "required": ["leadId"],
                 "properties": {
-                  "leadId": { "type": "string", "description": "ID do lead" },
-                  "assignedTo": { "type": "string", "description": "ID do membro da equipe (omita para desatribuir)" }
+                  "leadId": { "type": "string", "description": "Lead ID" },
+                  "assignedTo": { "type": "string", "description": "Team member ID (omit to unassign)" }
                 }
               }
             }
@@ -286,8 +286,8 @@ export const OPENAPI_SPEC = `{
     "/api/v1/leads/handoff": {
       "post": {
         "tags": ["Leads", "Handoffs"],
-        "summary": "Solicitar handoff",
-        "description": "Solicita uma transferência (handoff) do lead para outro membro da equipe.",
+        "summary": "Request handoff",
+        "description": "Requests a lead handoff to another team member.",
         "operationId": "requestHandoff",
         "requestBody": {
           "required": true,
@@ -297,11 +297,11 @@ export const OPENAPI_SPEC = `{
                 "type": "object",
                 "required": ["leadId", "reason"],
                 "properties": {
-                  "leadId": { "type": "string", "description": "ID do lead" },
-                  "reason": { "type": "string", "description": "Motivo do handoff" },
-                  "toMemberId": { "type": "string", "description": "ID do membro destino (opcional, qualquer humano se omitido)" },
-                  "summary": { "type": "string", "description": "Resumo da conversa" },
-                  "suggestedActions": { "type": "array", "items": { "type": "string" }, "description": "Ações sugeridas" }
+                  "leadId": { "type": "string", "description": "Lead ID" },
+                  "reason": { "type": "string", "description": "Reason for handoff" },
+                  "toMemberId": { "type": "string", "description": "Target member ID (optional, any human if omitted)" },
+                  "summary": { "type": "string", "description": "Conversation summary" },
+                  "suggestedActions": { "type": "array", "items": { "type": "string" }, "description": "Suggested actions" }
                 }
               }
             }
@@ -309,14 +309,14 @@ export const OPENAPI_SPEC = `{
         },
         "responses": {
           "201": {
-            "description": "Handoff criado com sucesso",
+            "description": "Handoff created successfully",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "success": { "type": "boolean", "const": true },
-                    "handoffId": { "type": "string", "description": "ID do handoff criado" }
+                    "handoffId": { "type": "string", "description": "ID of created handoff" }
                   }
                 }
               }
@@ -330,25 +330,25 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/contacts": {
       "get": {
-        "tags": ["Contatos"],
-        "summary": "Listar contatos",
-        "description": "Retorna a lista de contatos da organização.",
+        "tags": ["Contacts"],
+        "summary": "List contacts",
+        "description": "Returns a list of organization contacts.",
         "operationId": "listContacts",
         "parameters": [
           { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 500, "maximum": 500 }, "description": "Limite de resultados" },
-          { "name": "cursor", "in": "query", "schema": { "type": "string" }, "description": "Cursor para paginação" }
+          { "name": "cursor", "in": "query", "schema": { "type": "string" }, "description": "Pagination cursor" }
         ],
         "responses": {
           "200": {
-            "description": "Lista de contatos",
+            "description": "List of contacts",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "contacts": { "type": "array", "items": { "$ref": "#/components/schemas/Contact" } },
-                    "nextCursor": { "type": "string", "nullable": true, "description": "Cursor para a próxima página" },
-                    "hasMore": { "type": "boolean", "description": "Indica se há mais resultados" }
+                    "nextCursor": { "type": "string", "nullable": true, "description": "Cursor for the next page" },
+                    "hasMore": { "type": "boolean", "description": "Indicates whether there are more results" }
                   }
                 }
               }
@@ -361,9 +361,9 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/contacts/create": {
       "post": {
-        "tags": ["Contatos"],
-        "summary": "Criar contato",
-        "description": "Cria um novo contato na organização.",
+        "tags": ["Contacts"],
+        "summary": "Create contact",
+        "description": "Creates a new contact in the organization.",
         "operationId": "createContact",
         "requestBody": {
           "required": true,
@@ -375,32 +375,32 @@ export const OPENAPI_SPEC = `{
                   "firstName": { "type": "string", "description": "Primeiro nome" },
                   "lastName": { "type": "string", "description": "Sobrenome" },
                   "email": { "type": "string", "format": "email", "description": "Email" },
-                  "phone": { "type": "string", "description": "Telefone" },
+                  "phone": { "type": "string", "description": "Phone" },
                   "company": { "type": "string", "description": "Empresa" },
-                  "title": { "type": "string", "description": "Cargo" },
-                  "whatsappNumber": { "type": "string", "description": "Número WhatsApp" },
-                  "telegramUsername": { "type": "string", "description": "Usuário Telegram" },
+                  "title": { "type": "string", "description": "Job title" },
+                  "whatsappNumber": { "type": "string", "description": "WhatsApp number" },
+                  "telegramUsername": { "type": "string", "description": "Telegram username" },
                   "tags": { "type": "array", "items": { "type": "string" }, "description": "Tags" },
-                  "photoUrl": { "type": "string", "format": "uri", "description": "URL da foto" },
+                  "photoUrl": { "type": "string", "format": "uri", "description": "Photo URL" },
                   "bio": { "type": "string", "description": "Biografia" },
-                  "linkedinUrl": { "type": "string", "format": "uri", "description": "URL do LinkedIn" },
-                  "instagramUrl": { "type": "string", "format": "uri", "description": "URL do Instagram" },
-                  "facebookUrl": { "type": "string", "format": "uri", "description": "URL do Facebook" },
-                  "twitterUrl": { "type": "string", "format": "uri", "description": "URL do Twitter/X" },
-                  "city": { "type": "string", "description": "Cidade" },
-                  "state": { "type": "string", "description": "Estado" },
-                  "country": { "type": "string", "description": "País" },
-                  "industry": { "type": "string", "description": "Indústria" },
-                  "companySize": { "type": "string", "description": "Tamanho da empresa" },
-                  "cnpj": { "type": "string", "description": "CNPJ da empresa" },
-                  "companyWebsite": { "type": "string", "format": "uri", "description": "Website da empresa" },
-                  "preferredContactTime": { "type": "string", "enum": ["morning", "afternoon", "evening"], "description": "Horário preferido para contato" },
-                  "deviceType": { "type": "string", "enum": ["android", "iphone", "desktop", "unknown"], "description": "Tipo de dispositivo" },
+                  "linkedinUrl": { "type": "string", "format": "uri", "description": "LinkedIn URL" },
+                  "instagramUrl": { "type": "string", "format": "uri", "description": "Instagram URL" },
+                  "facebookUrl": { "type": "string", "format": "uri", "description": "Facebook URL" },
+                  "twitterUrl": { "type": "string", "format": "uri", "description": "Twitter/X URL" },
+                  "city": { "type": "string", "description": "City" },
+                  "state": { "type": "string", "description": "State" },
+                  "country": { "type": "string", "description": "Country" },
+                  "industry": { "type": "string", "description": "Industry" },
+                  "companySize": { "type": "string", "description": "Company size" },
+                  "cnpj": { "type": "string", "description": "Company tax ID (CNPJ)" },
+                  "companyWebsite": { "type": "string", "format": "uri", "description": "Company website" },
+                  "preferredContactTime": { "type": "string", "enum": ["morning", "afternoon", "evening"], "description": "Preferred time for contact" },
+                  "deviceType": { "type": "string", "enum": ["android", "iphone", "desktop", "unknown"], "description": "Device type" },
                   "utmSource": { "type": "string", "description": "UTM source" },
-                  "acquisitionChannel": { "type": "string", "description": "Canal de aquisição" },
+                  "acquisitionChannel": { "type": "string", "description": "Acquisition channel" },
                   "instagramFollowers": { "type": "number", "description": "Seguidores no Instagram" },
-                  "linkedinConnections": { "type": "number", "description": "Conexões no LinkedIn" },
-                  "socialInfluenceScore": { "type": "number", "minimum": 0, "maximum": 100, "description": "Score de influência social (0-100)" },
+                  "linkedinConnections": { "type": "number", "description": "LinkedIn connections" },
+                  "socialInfluenceScore": { "type": "number", "minimum": 0, "maximum": 100, "description": "Social influence score (0-100)" },
                   "customFields": { "type": "object", "additionalProperties": true, "description": "Campos personalizados" }
                 }
               }
@@ -409,14 +409,14 @@ export const OPENAPI_SPEC = `{
         },
         "responses": {
           "201": {
-            "description": "Contato criado com sucesso",
+            "description": "Contact created successfully",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "success": { "type": "boolean", "const": true },
-                    "contactId": { "type": "string", "description": "ID do contato criado" }
+                    "contactId": { "type": "string", "description": "ID of created contact" }
                   }
                 }
               }
@@ -429,16 +429,16 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/contacts/get": {
       "get": {
-        "tags": ["Contatos"],
-        "summary": "Obter contato",
-        "description": "Retorna os dados de um contato específico pelo ID.",
+        "tags": ["Contacts"],
+        "summary": "Get contact",
+        "description": "Returns data for a specific contact by ID.",
         "operationId": "getContact",
         "parameters": [
-          { "name": "id", "in": "query", "required": true, "schema": { "type": "string" }, "description": "ID do contato" }
+          { "name": "id", "in": "query", "required": true, "schema": { "type": "string" }, "description": "Contact ID" }
         ],
         "responses": {
           "200": {
-            "description": "Dados do contato",
+            "description": "Contact data",
             "content": {
               "application/json": {
                 "schema": {
@@ -459,9 +459,9 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/contacts/update": {
       "post": {
-        "tags": ["Contatos"],
-        "summary": "Atualizar contato",
-        "description": "Atualiza os campos de um contato existente.",
+        "tags": ["Contacts"],
+        "summary": "Update contact",
+        "description": "Updates fields of an existing contact.",
         "operationId": "updateContact",
         "requestBody": {
           "required": true,
@@ -471,36 +471,36 @@ export const OPENAPI_SPEC = `{
                 "type": "object",
                 "required": ["contactId"],
                 "properties": {
-                  "contactId": { "type": "string", "description": "ID do contato" },
+                  "contactId": { "type": "string", "description": "Contact ID" },
                   "firstName": { "type": "string", "description": "Primeiro nome" },
                   "lastName": { "type": "string", "description": "Sobrenome" },
                   "email": { "type": "string", "format": "email", "description": "Email" },
-                  "phone": { "type": "string", "description": "Telefone" },
+                  "phone": { "type": "string", "description": "Phone" },
                   "company": { "type": "string", "description": "Empresa" },
-                  "title": { "type": "string", "description": "Cargo" },
-                  "whatsappNumber": { "type": "string", "description": "Número WhatsApp" },
-                  "telegramUsername": { "type": "string", "description": "Usuário Telegram" },
+                  "title": { "type": "string", "description": "Job title" },
+                  "whatsappNumber": { "type": "string", "description": "WhatsApp number" },
+                  "telegramUsername": { "type": "string", "description": "Telegram username" },
                   "tags": { "type": "array", "items": { "type": "string" }, "description": "Tags" },
-                  "photoUrl": { "type": "string", "format": "uri", "description": "URL da foto" },
+                  "photoUrl": { "type": "string", "format": "uri", "description": "Photo URL" },
                   "bio": { "type": "string", "description": "Biografia" },
-                  "linkedinUrl": { "type": "string", "format": "uri", "description": "URL do LinkedIn" },
-                  "instagramUrl": { "type": "string", "format": "uri", "description": "URL do Instagram" },
-                  "facebookUrl": { "type": "string", "format": "uri", "description": "URL do Facebook" },
-                  "twitterUrl": { "type": "string", "format": "uri", "description": "URL do Twitter/X" },
-                  "city": { "type": "string", "description": "Cidade" },
-                  "state": { "type": "string", "description": "Estado" },
-                  "country": { "type": "string", "description": "País" },
-                  "industry": { "type": "string", "description": "Indústria" },
-                  "companySize": { "type": "string", "description": "Tamanho da empresa" },
-                  "cnpj": { "type": "string", "description": "CNPJ da empresa" },
-                  "companyWebsite": { "type": "string", "format": "uri", "description": "Website da empresa" },
-                  "preferredContactTime": { "type": "string", "enum": ["morning", "afternoon", "evening"], "description": "Horário preferido para contato" },
-                  "deviceType": { "type": "string", "enum": ["android", "iphone", "desktop", "unknown"], "description": "Tipo de dispositivo" },
+                  "linkedinUrl": { "type": "string", "format": "uri", "description": "LinkedIn URL" },
+                  "instagramUrl": { "type": "string", "format": "uri", "description": "Instagram URL" },
+                  "facebookUrl": { "type": "string", "format": "uri", "description": "Facebook URL" },
+                  "twitterUrl": { "type": "string", "format": "uri", "description": "Twitter/X URL" },
+                  "city": { "type": "string", "description": "City" },
+                  "state": { "type": "string", "description": "State" },
+                  "country": { "type": "string", "description": "Country" },
+                  "industry": { "type": "string", "description": "Industry" },
+                  "companySize": { "type": "string", "description": "Company size" },
+                  "cnpj": { "type": "string", "description": "Company tax ID (CNPJ)" },
+                  "companyWebsite": { "type": "string", "format": "uri", "description": "Company website" },
+                  "preferredContactTime": { "type": "string", "enum": ["morning", "afternoon", "evening"], "description": "Preferred time for contact" },
+                  "deviceType": { "type": "string", "enum": ["android", "iphone", "desktop", "unknown"], "description": "Device type" },
                   "utmSource": { "type": "string", "description": "UTM source" },
-                  "acquisitionChannel": { "type": "string", "description": "Canal de aquisição" },
+                  "acquisitionChannel": { "type": "string", "description": "Acquisition channel" },
                   "instagramFollowers": { "type": "number", "description": "Seguidores no Instagram" },
-                  "linkedinConnections": { "type": "number", "description": "Conexões no LinkedIn" },
-                  "socialInfluenceScore": { "type": "number", "minimum": 0, "maximum": 100, "description": "Score de influência social (0-100)" },
+                  "linkedinConnections": { "type": "number", "description": "LinkedIn connections" },
+                  "socialInfluenceScore": { "type": "number", "minimum": 0, "maximum": 100, "description": "Social influence score (0-100)" },
                   "customFields": { "type": "object", "additionalProperties": true, "description": "Campos personalizados" }
                 }
               }
@@ -517,9 +517,9 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/contacts/enrich": {
       "post": {
-        "tags": ["Contatos"],
-        "summary": "Enriquecer contato",
-        "description": "Enriquece um contato com dados de uma fonte externa. Usado por agentes de IA para adicionar informações descobertas.",
+        "tags": ["Contacts"],
+        "summary": "Enrich contact",
+        "description": "Enriches a contact with data from an external source. Used by AI agents to add discovered information.",
         "operationId": "enrichContact",
         "requestBody": {
           "required": true,
@@ -529,10 +529,10 @@ export const OPENAPI_SPEC = `{
                 "type": "object",
                 "required": ["contactId", "fields", "source"],
                 "properties": {
-                  "contactId": { "type": "string", "description": "ID do contato" },
+                  "contactId": { "type": "string", "description": "Contact ID" },
                   "fields": { "type": "object", "additionalProperties": true, "description": "Campos e valores a enriquecer" },
-                  "source": { "type": "string", "description": "Nome da fonte dos dados (ex: linkedin, google)" },
-                  "confidence": { "type": "number", "minimum": 0, "maximum": 1, "description": "Score de confiança dos dados (0-1)" }
+                  "source": { "type": "string", "description": "Data source name (e.g. linkedin, google)" },
+                  "confidence": { "type": "number", "minimum": 0, "maximum": 1, "description": "Data confidence score (0-1)" }
                 }
               }
             }
@@ -548,22 +548,22 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/contacts/gaps": {
       "get": {
-        "tags": ["Contatos"],
-        "summary": "Lacunas de enriquecimento",
-        "description": "Identifica campos faltantes ou enriquecíveis em um contato.",
+        "tags": ["Contacts"],
+        "summary": "Enrichment gaps",
+        "description": "Identifies missing or enrichable fields in a contact.",
         "operationId": "getContactGaps",
         "parameters": [
-          { "name": "id", "in": "query", "required": true, "schema": { "type": "string" }, "description": "ID do contato" }
+          { "name": "id", "in": "query", "required": true, "schema": { "type": "string" }, "description": "Contact ID" }
         ],
         "responses": {
           "200": {
-            "description": "Dados de lacunas do contato",
+            "description": "Contact gap data",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "contact": { "type": "object", "description": "Contato com informações de lacunas e metadados de enriquecimento" }
+                    "contact": { "type": "object", "description": "Contact with gap information and enrichment metadata" }
                   }
                 }
               }
@@ -578,9 +578,9 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/contacts/search": {
       "get": {
-        "tags": ["Contatos"],
-        "summary": "Buscar contatos",
-        "description": "Busca contatos por texto (nome, email, empresa, etc).",
+        "tags": ["Contacts"],
+        "summary": "Search contacts",
+        "description": "Busca contacts por texto (nome, email, empresa, etc).",
         "operationId": "searchContacts",
         "parameters": [
           { "name": "q", "in": "query", "required": true, "schema": { "type": "string" }, "description": "Texto de busca" },
@@ -588,7 +588,7 @@ export const OPENAPI_SPEC = `{
         ],
         "responses": {
           "200": {
-            "description": "Contatos encontrados",
+            "description": "Contacts encontrados",
             "content": {
               "application/json": {
                 "schema": {
@@ -608,26 +608,26 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/conversations": {
       "get": {
-        "tags": ["Conversas"],
-        "summary": "Listar conversas",
-        "description": "Retorna a lista de conversas da organização com filtro opcional por lead.",
+        "tags": ["Conversations"],
+        "summary": "List conversations",
+        "description": "Returns a list of organization conversations with an optional lead filter.",
         "operationId": "listConversations",
         "parameters": [
-          { "name": "leadId", "in": "query", "schema": { "type": "string" }, "description": "Filtrar por lead" },
+          { "name": "leadId", "in": "query", "schema": { "type": "string" }, "description": "Filter by lead" },
           { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 200, "maximum": 500 }, "description": "Limite de resultados" },
-          { "name": "cursor", "in": "query", "schema": { "type": "string" }, "description": "Cursor para paginação" }
+          { "name": "cursor", "in": "query", "schema": { "type": "string" }, "description": "Pagination cursor" }
         ],
         "responses": {
           "200": {
-            "description": "Lista de conversas",
+            "description": "List of conversations",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "conversations": { "type": "array", "items": { "$ref": "#/components/schemas/Conversation" } },
-                    "nextCursor": { "type": "string", "nullable": true, "description": "Cursor para a próxima página" },
-                    "hasMore": { "type": "boolean", "description": "Indica se há mais resultados" }
+                    "nextCursor": { "type": "string", "nullable": true, "description": "Cursor for the next page" },
+                    "hasMore": { "type": "boolean", "description": "Indicates whether there are more results" }
                   }
                 }
               }
@@ -640,16 +640,16 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/conversations/messages": {
       "get": {
-        "tags": ["Conversas"],
-        "summary": "Listar mensagens",
-        "description": "Retorna todas as mensagens de uma conversa.",
+        "tags": ["Conversations"],
+        "summary": "List messages",
+        "description": "Return all messages from a conversation.",
         "operationId": "getMessages",
         "parameters": [
-          { "name": "conversationId", "in": "query", "required": true, "schema": { "type": "string" }, "description": "ID da conversa" }
+          { "name": "conversationId", "in": "query", "required": true, "schema": { "type": "string" }, "description": "Conversation ID" }
         ],
         "responses": {
           "200": {
-            "description": "Lista de mensagens",
+            "description": "List of messages",
             "content": {
               "application/json": {
                 "schema": {
@@ -669,9 +669,9 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/conversations/send": {
       "post": {
-        "tags": ["Conversas"],
-        "summary": "Enviar mensagem",
-        "description": "Envia uma mensagem em uma conversa existente.",
+        "tags": ["Conversations"],
+        "summary": "Send message",
+        "description": "Sends a message in an existing conversation.",
         "operationId": "sendMessage",
         "requestBody": {
           "required": true,
@@ -681,10 +681,10 @@ export const OPENAPI_SPEC = `{
                 "type": "object",
                 "required": ["conversationId", "content"],
                 "properties": {
-                  "conversationId": { "type": "string", "description": "ID da conversa" },
-                  "content": { "type": "string", "description": "Conteúdo da mensagem" },
-                  "contentType": { "type": "string", "enum": ["text", "image", "file", "audio"], "default": "text", "description": "Tipo do conteúdo" },
-                  "isInternal": { "type": "boolean", "default": false, "description": "Nota interna (não visível ao contato)" }
+                  "conversationId": { "type": "string", "description": "Conversation ID" },
+                  "content": { "type": "string", "description": "Message content" },
+                  "contentType": { "type": "string", "enum": ["text", "image", "file", "audio"], "default": "text", "description": "Content type" },
+                  "isInternal": { "type": "boolean", "default": false, "description": "Internal note (not visible to contact)" }
                 }
               }
             }
@@ -692,14 +692,14 @@ export const OPENAPI_SPEC = `{
         },
         "responses": {
           "201": {
-            "description": "Mensagem enviada com sucesso",
+            "description": "Message sent successfully",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "success": { "type": "boolean", "const": true },
-                    "messageId": { "type": "string", "description": "ID da mensagem criada" }
+                    "messageId": { "type": "string", "description": "ID of created message" }
                   }
                 }
               }
@@ -714,25 +714,25 @@ export const OPENAPI_SPEC = `{
     "/api/v1/handoffs": {
       "get": {
         "tags": ["Handoffs"],
-        "summary": "Listar handoffs",
-        "description": "Retorna a lista de handoffs da organização com filtro opcional por status.",
+        "summary": "List handoffs",
+        "description": "Returns a list of organization handoffs with an optional status filter.",
         "operationId": "listHandoffs",
         "parameters": [
-          { "name": "status", "in": "query", "schema": { "type": "string", "enum": ["pending", "accepted", "rejected"] }, "description": "Filtrar por status" },
+          { "name": "status", "in": "query", "schema": { "type": "string", "enum": ["pending", "accepted", "rejected"] }, "description": "Filter by status" },
           { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 200, "maximum": 500 }, "description": "Limite de resultados" },
-          { "name": "cursor", "in": "query", "schema": { "type": "string" }, "description": "Cursor para paginação" }
+          { "name": "cursor", "in": "query", "schema": { "type": "string" }, "description": "Pagination cursor" }
         ],
         "responses": {
           "200": {
-            "description": "Lista de handoffs",
+            "description": "List of handoffs",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "handoffs": { "type": "array", "items": { "$ref": "#/components/schemas/Handoff" } },
-                    "nextCursor": { "type": "string", "nullable": true, "description": "Cursor para a próxima página" },
-                    "hasMore": { "type": "boolean", "description": "Indica se há mais resultados" }
+                    "nextCursor": { "type": "string", "nullable": true, "description": "Cursor for the next page" },
+                    "hasMore": { "type": "boolean", "description": "Indicates whether there are more results" }
                   }
                 }
               }
@@ -746,12 +746,12 @@ export const OPENAPI_SPEC = `{
     "/api/v1/handoffs/pending": {
       "get": {
         "tags": ["Handoffs"],
-        "summary": "Listar handoffs pendentes",
-        "description": "Atalho para listar apenas handoffs com status pendente.",
+        "summary": "List pending handoffs",
+        "description": "Shortcut to list only pending handoffs.",
         "operationId": "listPendingHandoffs",
         "responses": {
           "200": {
-            "description": "Lista de handoffs pendentes",
+            "description": "List of pending handoffs",
             "content": {
               "application/json": {
                 "schema": {
@@ -771,8 +771,8 @@ export const OPENAPI_SPEC = `{
     "/api/v1/handoffs/accept": {
       "post": {
         "tags": ["Handoffs"],
-        "summary": "Aceitar handoff",
-        "description": "Aceita uma solicitação de handoff pendente.",
+        "summary": "Accept handoff",
+        "description": "Accepts a pending handoff request.",
         "operationId": "acceptHandoff",
         "requestBody": {
           "required": true,
@@ -782,8 +782,8 @@ export const OPENAPI_SPEC = `{
                 "type": "object",
                 "required": ["handoffId"],
                 "properties": {
-                  "handoffId": { "type": "string", "description": "ID do handoff" },
-                  "notes": { "type": "string", "description": "Notas adicionais" }
+                  "handoffId": { "type": "string", "description": "Handoff ID" },
+                  "notes": { "type": "string", "description": "Notes adicionais" }
                 }
               }
             }
@@ -800,8 +800,8 @@ export const OPENAPI_SPEC = `{
     "/api/v1/handoffs/reject": {
       "post": {
         "tags": ["Handoffs"],
-        "summary": "Rejeitar handoff",
-        "description": "Rejeita uma solicitação de handoff pendente.",
+        "summary": "Reject handoff",
+        "description": "Rejects a pending handoff request.",
         "operationId": "rejectHandoff",
         "requestBody": {
           "required": true,
@@ -811,8 +811,8 @@ export const OPENAPI_SPEC = `{
                 "type": "object",
                 "required": ["handoffId"],
                 "properties": {
-                  "handoffId": { "type": "string", "description": "ID do handoff" },
-                  "notes": { "type": "string", "description": "Notas adicionais" }
+                  "handoffId": { "type": "string", "description": "Handoff ID" },
+                  "notes": { "type": "string", "description": "Notes adicionais" }
                 }
               }
             }
@@ -828,13 +828,13 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/boards": {
       "get": {
-        "tags": ["Referência"],
-        "summary": "Listar boards com estágios",
-        "description": "Retorna todos os boards (pipelines) da organização com seus estágios.",
+        "tags": ["Reference"],
+        "summary": "List boards with stages",
+        "description": "Returns all organization boards (pipelines) with their stages.",
         "operationId": "listBoards",
         "responses": {
           "200": {
-            "description": "Lista de boards com estágios",
+            "description": "List of boards with stages",
             "content": {
               "application/json": {
                 "schema": {
@@ -866,13 +866,13 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/team-members": {
       "get": {
-        "tags": ["Referência"],
-        "summary": "Listar membros da equipe",
-        "description": "Retorna todos os membros da equipe (humanos e agentes IA). Cada membro inclui um campo opcional 'permissions' com 9 categorias RBAC. Operacoes de gerenciamento (convite, edicao, remocao) sao mutacoes Convex e nao estao disponiveis via REST.",
+        "tags": ["Reference"],
+        "summary": "List team members",
+        "description": "Returns all team members (humans and AI agents). Each member includes an optional field 'permissions' com 9 RBAC categories. Management operations (invite, edit, removal) are Convex mutations e are not available via REST.",
         "operationId": "listTeamMembers",
         "responses": {
           "200": {
-            "description": "Lista de membros",
+            "description": "List of members",
             "content": {
               "application/json": {
                 "schema": {
@@ -891,13 +891,13 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/field-definitions": {
       "get": {
-        "tags": ["Referência"],
-        "summary": "Listar definições de campos",
-        "description": "Retorna as definições de campos personalizados da organização.",
+        "tags": ["Reference"],
+        "summary": "List field definitions",
+        "description": "Returns custom field definitions for the organization.",
         "operationId": "listFieldDefinitions",
         "responses": {
           "200": {
-            "description": "Lista de definições de campos",
+            "description": "List of field definitions",
             "content": {
               "application/json": {
                 "schema": {
@@ -916,26 +916,26 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/activities": {
       "get": {
-        "tags": ["Atividades"],
-        "summary": "Listar atividades",
-        "description": "Retorna as atividades de um lead específico.",
+        "tags": ["Activities"],
+        "summary": "List activities",
+        "description": "Returns activities for a specific lead.",
         "operationId": "listActivities",
         "parameters": [
-          { "name": "leadId", "in": "query", "required": true, "schema": { "type": "string" }, "description": "ID do lead" },
+          { "name": "leadId", "in": "query", "required": true, "schema": { "type": "string" }, "description": "Lead ID" },
           { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 50, "maximum": 200 }, "description": "Limite de resultados" },
-          { "name": "cursor", "in": "query", "schema": { "type": "string" }, "description": "Cursor para paginação" }
+          { "name": "cursor", "in": "query", "schema": { "type": "string" }, "description": "Pagination cursor" }
         ],
         "responses": {
           "200": {
-            "description": "Lista de atividades",
+            "description": "Activity list",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "activities": { "type": "array", "items": { "$ref": "#/components/schemas/Activity" } },
-                    "nextCursor": { "type": "string", "nullable": true, "description": "Cursor para a próxima página" },
-                    "hasMore": { "type": "boolean", "description": "Indica se há mais resultados" }
+                    "nextCursor": { "type": "string", "nullable": true, "description": "Cursor for the next page" },
+                    "hasMore": { "type": "boolean", "description": "Indicates whether there are more results" }
                   }
                 }
               }
@@ -947,9 +947,9 @@ export const OPENAPI_SPEC = `{
         }
       },
       "post": {
-        "tags": ["Atividades"],
-        "summary": "Criar atividade",
-        "description": "Registra uma nova atividade em um lead.",
+        "tags": ["Activities"],
+        "summary": "Create atividade",
+        "description": "Logs a new activity on a lead.",
         "operationId": "createActivity",
         "requestBody": {
           "required": true,
@@ -959,9 +959,9 @@ export const OPENAPI_SPEC = `{
                 "type": "object",
                 "required": ["leadId", "type"],
                 "properties": {
-                  "leadId": { "type": "string", "description": "ID do lead" },
-                  "type": { "type": "string", "enum": ["note", "call", "email", "meeting", "task"], "description": "Tipo da atividade" },
-                  "content": { "type": "string", "description": "Conteúdo ou descrição da atividade" },
+                  "leadId": { "type": "string", "description": "Lead ID" },
+                  "type": { "type": "string", "enum": ["note", "call", "email", "meeting", "task"], "description": "Activity type" },
+                  "content": { "type": "string", "description": "Activity content or description" },
                   "metadata": { "type": "object", "additionalProperties": true, "description": "Metadados adicionais" }
                 }
               }
@@ -970,14 +970,14 @@ export const OPENAPI_SPEC = `{
         },
         "responses": {
           "201": {
-            "description": "Atividade criada com sucesso",
+            "description": "Activity created successfully",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "success": { "type": "boolean", "const": true },
-                    "activityId": { "type": "string", "description": "ID da atividade criada" }
+                    "activityId": { "type": "string", "description": "ID of created activity" }
                   }
                 }
               }
@@ -992,22 +992,22 @@ export const OPENAPI_SPEC = `{
     "/api/v1/dashboard": {
       "get": {
         "tags": ["Dashboard"],
-        "summary": "Obter estatísticas do dashboard",
-        "description": "Retorna métricas agregadas da organização: total de leads, leads do mês, taxa de conversão, valor total e leads por estágio.",
+        "summary": "Get dashboard statistics",
+        "description": "Returns aggregated organization metrics: total leads, leads this month, conversion rate, total value, and leads by stage.",
         "operationId": "getDashboardStats",
         "responses": {
           "200": {
-            "description": "Estatísticas do dashboard",
+            "description": "Dashboard statistics",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "totalLeads": { "type": "integer", "description": "Total de leads" },
-                    "leadsThisMonth": { "type": "integer", "description": "Leads criados este mês" },
-                    "conversionRate": { "type": "number", "description": "Taxa de conversão (0-1)" },
-                    "totalValue": { "type": "number", "description": "Valor total do pipeline" },
-                    "leadsByStage": { "type": "object", "additionalProperties": { "type": "integer" }, "description": "Contagem de leads por estágio (chave: nome do estágio)" }
+                    "totalLeads": { "type": "integer", "description": "Total leads" },
+                    "leadsThisMonth": { "type": "integer", "description": "Leads created this month" },
+                    "conversionRate": { "type": "number", "description": "Conversion rate (0-1)" },
+                    "totalValue": { "type": "number", "description": "Total pipeline value" },
+                    "leadsByStage": { "type": "object", "additionalProperties": { "type": "integer" }, "description": "Lead count by stage (key: stage name)" }
                   }
                 }
               }
@@ -1020,13 +1020,13 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/lead-sources": {
       "get": {
-        "tags": ["Fontes"],
-        "summary": "Listar fontes de leads",
-        "description": "Retorna todas as fontes de captação de leads da organização.",
+        "tags": ["Sources"],
+        "summary": "List lead sources",
+        "description": "Returns all organization lead sources.",
         "operationId": "listLeadSources",
         "responses": {
           "200": {
-            "description": "Lista de fontes",
+            "description": "Source list",
             "content": {
               "application/json": {
                 "schema": {
@@ -1045,26 +1045,26 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/tasks": {
       "get": {
-        "tags": ["Tarefas"],
-        "summary": "Listar tarefas",
-        "description": "Retorna tarefas da organização com filtros opcionais.",
+        "tags": ["Tasks"],
+        "summary": "List tasks",
+        "description": "Returns tasks for the organization with optional filters.",
         "operationId": "listTasks",
         "parameters": [
-          { "name": "status", "in": "query", "schema": { "type": "string", "enum": ["pending", "in_progress", "completed", "cancelled"] }, "description": "Filtrar por status" },
-          { "name": "priority", "in": "query", "schema": { "type": "string", "enum": ["low", "medium", "high", "urgent"] }, "description": "Filtrar por prioridade" },
-          { "name": "assignedTo", "in": "query", "schema": { "type": "string" }, "description": "Filtrar por responsável" },
-          { "name": "leadId", "in": "query", "schema": { "type": "string" }, "description": "Filtrar por lead" },
-          { "name": "contactId", "in": "query", "schema": { "type": "string" }, "description": "Filtrar por contato" },
-          { "name": "type", "in": "query", "schema": { "type": "string", "enum": ["task", "reminder"] }, "description": "Filtrar por tipo" },
-          { "name": "activityType", "in": "query", "schema": { "type": "string", "enum": ["todo", "call", "email", "follow_up", "meeting", "research"] }, "description": "Filtrar por tipo de atividade" },
-          { "name": "dueBefore", "in": "query", "schema": { "type": "number" }, "description": "Data limite antes de (timestamp ms)" },
-          { "name": "dueAfter", "in": "query", "schema": { "type": "number" }, "description": "Data limite após (timestamp ms)" },
+          { "name": "status", "in": "query", "schema": { "type": "string", "enum": ["pending", "in_progress", "completed", "cancelled"] }, "description": "Filter by status" },
+          { "name": "priority", "in": "query", "schema": { "type": "string", "enum": ["low", "medium", "high", "urgent"] }, "description": "Filter by priority" },
+          { "name": "assignedTo", "in": "query", "schema": { "type": "string" }, "description": "Filter by owner" },
+          { "name": "leadId", "in": "query", "schema": { "type": "string" }, "description": "Filter by lead" },
+          { "name": "contactId", "in": "query", "schema": { "type": "string" }, "description": "Filter by contact" },
+          { "name": "type", "in": "query", "schema": { "type": "string", "enum": ["task", "reminder"] }, "description": "Filter by type" },
+          { "name": "activityType", "in": "query", "schema": { "type": "string", "enum": ["todo", "call", "email", "follow_up", "meeting", "research"] }, "description": "Filter by activity type" },
+          { "name": "dueBefore", "in": "query", "schema": { "type": "number" }, "description": "Due before (timestamp ms)" },
+          { "name": "dueAfter", "in": "query", "schema": { "type": "number" }, "description": "Due date after (timestamp ms)" },
           { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 200, "maximum": 500 }, "description": "Limite de resultados" },
-          { "name": "cursor", "in": "query", "schema": { "type": "string" }, "description": "Cursor para paginação" }
+          { "name": "cursor", "in": "query", "schema": { "type": "string" }, "description": "Pagination cursor" }
         ],
         "responses": {
           "200": {
-            "description": "Lista de tarefas",
+            "description": "List of tasks",
             "content": {
               "application/json": {
                 "schema": {
@@ -1085,16 +1085,16 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/tasks/get": {
       "get": {
-        "tags": ["Tarefas"],
-        "summary": "Obter tarefa",
-        "description": "Retorna os dados de uma tarefa específica pelo ID.",
+        "tags": ["Tasks"],
+        "summary": "Get task",
+        "description": "Returns data for a specific task by ID.",
         "operationId": "getTask",
         "parameters": [
-          { "name": "id", "in": "query", "required": true, "schema": { "type": "string" }, "description": "ID da tarefa" }
+          { "name": "id", "in": "query", "required": true, "schema": { "type": "string" }, "description": "Task ID" }
         ],
         "responses": {
           "200": {
-            "description": "Dados da tarefa",
+            "description": "Task data",
             "content": {
               "application/json": {
                 "schema": {
@@ -1115,13 +1115,13 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/tasks/my": {
       "get": {
-        "tags": ["Tarefas"],
-        "summary": "Minhas tarefas",
-        "description": "Retorna tarefas pendentes e em andamento do agente autenticado.",
+        "tags": ["Tasks"],
+        "summary": "My tasks",
+        "description": "Returns pending and in-progress tasks for the authenticated agent.",
         "operationId": "getMyTasks",
         "responses": {
           "200": {
-            "description": "Tarefas do agente",
+            "description": "Agent tasks",
             "content": {
               "application/json": {
                 "schema": {
@@ -1140,17 +1140,17 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/tasks/overdue": {
       "get": {
-        "tags": ["Tarefas"],
-        "summary": "Tarefas atrasadas",
-        "description": "Lista tarefas com data de vencimento no passado e status pendente ou em andamento.",
+        "tags": ["Tasks"],
+        "summary": "Overdue tasks",
+        "description": "Lists tasks with past due dates and status pending or in progress.",
         "operationId": "getOverdueTasks",
         "parameters": [
           { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 200, "maximum": 500 }, "description": "Limite de resultados" },
-          { "name": "cursor", "in": "query", "schema": { "type": "string" }, "description": "Cursor para paginação" }
+          { "name": "cursor", "in": "query", "schema": { "type": "string" }, "description": "Pagination cursor" }
         ],
         "responses": {
           "200": {
-            "description": "Tarefas atrasadas",
+            "description": "Overdue tasks",
             "content": {
               "application/json": {
                 "schema": {
@@ -1171,9 +1171,9 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/tasks/search": {
       "get": {
-        "tags": ["Tarefas"],
-        "summary": "Buscar tarefas",
-        "description": "Busca tarefas por texto (título, descrição).",
+        "tags": ["Tasks"],
+        "summary": "Search tasks",
+        "description": "Searches tasks by text (title, description).",
         "operationId": "searchTasks",
         "parameters": [
           { "name": "q", "in": "query", "required": true, "schema": { "type": "string" }, "description": "Texto de busca" },
@@ -1181,7 +1181,7 @@ export const OPENAPI_SPEC = `{
         ],
         "responses": {
           "200": {
-            "description": "Tarefas encontradas",
+            "description": "Tasks encontradas",
             "content": {
               "application/json": {
                 "schema": {
@@ -1201,9 +1201,9 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/tasks/create": {
       "post": {
-        "tags": ["Tarefas"],
-        "summary": "Criar tarefa",
-        "description": "Cria uma nova tarefa ou lembrete.",
+        "tags": ["Tasks"],
+        "summary": "Create task",
+        "description": "Creates a new task or reminder.",
         "operationId": "createTask",
         "requestBody": {
           "required": true,
@@ -1213,23 +1213,23 @@ export const OPENAPI_SPEC = `{
                 "type": "object",
                 "required": ["title"],
                 "properties": {
-                  "title": { "type": "string", "description": "Título da tarefa" },
-                  "type": { "type": "string", "enum": ["task", "reminder"], "default": "task", "description": "Tipo" },
+                  "title": { "type": "string", "description": "Task title" },
+                  "type": { "type": "string", "enum": ["task", "reminder"], "default": "task", "description": "Type" },
                   "priority": { "type": "string", "enum": ["low", "medium", "high", "urgent"], "default": "medium", "description": "Prioridade" },
-                  "activityType": { "type": "string", "enum": ["todo", "call", "email", "follow_up", "meeting", "research"], "description": "Tipo de atividade CRM" },
-                  "description": { "type": "string", "description": "Descrição detalhada" },
-                  "dueDate": { "type": "number", "description": "Data de vencimento (timestamp ms)" },
-                  "leadId": { "type": "string", "description": "ID do lead associado" },
-                  "contactId": { "type": "string", "description": "ID do contato associado" },
-                  "assignedTo": { "type": "string", "description": "ID do membro responsável" },
+                  "activityType": { "type": "string", "enum": ["todo", "call", "email", "follow_up", "meeting", "research"], "description": "CRM activity type" },
+                  "description": { "type": "string", "description": "Description detalhada" },
+                  "dueDate": { "type": "number", "description": "Due date (timestamp ms)" },
+                  "leadId": { "type": "string", "description": "Associated lead ID" },
+                  "contactId": { "type": "string", "description": "Associated contact ID" },
+                  "assignedTo": { "type": "string", "description": "Responsible member ID" },
                   "recurrence": {
                     "type": "object",
                     "properties": {
-                      "pattern": { "type": "string", "enum": ["daily", "weekly", "biweekly", "monthly"], "description": "Padrão de recorrência" },
-                      "endDate": { "type": "number", "description": "Data final da recorrência (timestamp ms)" }
+                      "pattern": { "type": "string", "enum": ["daily", "weekly", "biweekly", "monthly"], "description": "Recurrence default" },
+                      "endDate": { "type": "number", "description": "Recurrence end date (timestamp ms)" }
                     }
                   },
-                  "checklist": { "type": "array", "items": { "type": "object", "properties": { "id": { "type": "string" }, "title": { "type": "string" }, "completed": { "type": "boolean" } } }, "description": "Itens do checklist" },
+                  "checklist": { "type": "array", "items": { "type": "object", "properties": { "id": { "type": "string" }, "title": { "type": "string" }, "completed": { "type": "boolean" } } }, "description": "Checklist items" },
                   "tags": { "type": "array", "items": { "type": "string" }, "description": "Tags" }
                 }
               }
@@ -1238,14 +1238,14 @@ export const OPENAPI_SPEC = `{
         },
         "responses": {
           "201": {
-            "description": "Tarefa criada",
+            "description": "Task created",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "success": { "type": "boolean", "const": true },
-                    "taskId": { "type": "string", "description": "ID da tarefa criada" }
+                    "taskId": { "type": "string", "description": "ID of created task" }
                   }
                 }
               }
@@ -1259,9 +1259,9 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/tasks/update": {
       "post": {
-        "tags": ["Tarefas"],
-        "summary": "Atualizar tarefa",
-        "description": "Atualiza campos de uma tarefa existente.",
+        "tags": ["Tasks"],
+        "summary": "Update task",
+        "description": "Updates fields of an existing task.",
         "operationId": "updateTask",
         "requestBody": {
           "required": true,
@@ -1271,12 +1271,12 @@ export const OPENAPI_SPEC = `{
                 "type": "object",
                 "required": ["taskId"],
                 "properties": {
-                  "taskId": { "type": "string", "description": "ID da tarefa" },
-                  "title": { "type": "string", "description": "Novo título" },
-                  "description": { "type": "string", "description": "Nova descrição" },
-                  "priority": { "type": "string", "enum": ["low", "medium", "high", "urgent"], "description": "Nova prioridade" },
-                  "activityType": { "type": "string", "enum": ["todo", "call", "email", "follow_up", "meeting", "research"], "description": "Novo tipo de atividade" },
-                  "dueDate": { "type": "number", "description": "Nova data de vencimento (timestamp ms)" },
+                  "taskId": { "type": "string", "description": "Task ID" },
+                  "title": { "type": "string", "description": "New title" },
+                  "description": { "type": "string", "description": "New description" },
+                  "priority": { "type": "string", "enum": ["low", "medium", "high", "urgent"], "description": "New priority" },
+                  "activityType": { "type": "string", "enum": ["todo", "call", "email", "follow_up", "meeting", "research"], "description": "New activity type" },
+                  "dueDate": { "type": "number", "description": "New due date (timestamp ms)" },
                   "tags": { "type": "array", "items": { "type": "string" }, "description": "Novas tags" }
                 }
               }
@@ -1293,9 +1293,9 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/tasks/complete": {
       "post": {
-        "tags": ["Tarefas"],
-        "summary": "Concluir tarefa",
-        "description": "Marca uma tarefa como concluída.",
+        "tags": ["Tasks"],
+        "summary": "Complete task",
+        "description": "Marks a task as completed.",
         "operationId": "completeTask",
         "requestBody": {
           "required": true,
@@ -1305,7 +1305,7 @@ export const OPENAPI_SPEC = `{
                 "type": "object",
                 "required": ["taskId"],
                 "properties": {
-                  "taskId": { "type": "string", "description": "ID da tarefa" }
+                  "taskId": { "type": "string", "description": "Task ID" }
                 }
               }
             }
@@ -1321,9 +1321,9 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/tasks/delete": {
       "post": {
-        "tags": ["Tarefas"],
-        "summary": "Excluir tarefa",
-        "description": "Remove uma tarefa permanentemente.",
+        "tags": ["Tasks"],
+        "summary": "Delete task",
+        "description": "Permanently removes a task.",
         "operationId": "deleteTask",
         "requestBody": {
           "required": true,
@@ -1333,7 +1333,7 @@ export const OPENAPI_SPEC = `{
                 "type": "object",
                 "required": ["taskId"],
                 "properties": {
-                  "taskId": { "type": "string", "description": "ID da tarefa a excluir" }
+                  "taskId": { "type": "string", "description": "Task ID to delete" }
                 }
               }
             }
@@ -1349,9 +1349,9 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/tasks/assign": {
       "post": {
-        "tags": ["Tarefas"],
-        "summary": "Atribuir tarefa",
-        "description": "Atribui ou desatribui uma tarefa a um membro da equipe.",
+        "tags": ["Tasks"],
+        "summary": "Assign task",
+        "description": "Assigns or unassigns a task to a team member.",
         "operationId": "assignTask",
         "requestBody": {
           "required": true,
@@ -1361,8 +1361,8 @@ export const OPENAPI_SPEC = `{
                 "type": "object",
                 "required": ["taskId"],
                 "properties": {
-                  "taskId": { "type": "string", "description": "ID da tarefa" },
-                  "assignedTo": { "type": "string", "description": "ID do membro (omita para desatribuir)" }
+                  "taskId": { "type": "string", "description": "Task ID" },
+                  "assignedTo": { "type": "string", "description": "Member ID (omit to unassign)" }
                 }
               }
             }
@@ -1378,9 +1378,9 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/tasks/snooze": {
       "post": {
-        "tags": ["Tarefas"],
-        "summary": "Definir lembrete",
-        "description": "Define um lembrete para uma tarefa.",
+        "tags": ["Tasks"],
+        "summary": "Set reminder",
+        "description": "Sets a reminder for a task.",
         "operationId": "snoozeTask",
         "requestBody": {
           "required": true,
@@ -1390,8 +1390,8 @@ export const OPENAPI_SPEC = `{
                 "type": "object",
                 "required": ["taskId", "snoozedUntil"],
                 "properties": {
-                  "taskId": { "type": "string", "description": "ID da tarefa" },
-                  "snoozedUntil": { "type": "number", "description": "Data/hora do lembrete (timestamp ms)" }
+                  "taskId": { "type": "string", "description": "Task ID" },
+                  "snoozedUntil": { "type": "number", "description": "Reminder date/time (timestamp ms)" }
                 }
               }
             }
@@ -1407,9 +1407,9 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/tasks/bulk": {
       "post": {
-        "tags": ["Tarefas"],
-        "summary": "Operações em lote",
-        "description": "Executa operações em lote em múltiplas tarefas (completar, deletar, atribuir).",
+        "tags": ["Tasks"],
+        "summary": "Bulk operations",
+        "description": "Executes bulk operations on multiple tasks (complete, delete, assign).",
         "operationId": "bulkTaskUpdate",
         "requestBody": {
           "required": true,
@@ -1419,9 +1419,9 @@ export const OPENAPI_SPEC = `{
                 "type": "object",
                 "required": ["taskIds", "action"],
                 "properties": {
-                  "taskIds": { "type": "array", "items": { "type": "string" }, "description": "IDs das tarefas" },
-                  "action": { "type": "string", "enum": ["complete", "delete", "assign"], "description": "Ação a executar" },
-                  "assignedTo": { "type": "string", "description": "ID do membro (apenas para ação assign)" }
+                  "taskIds": { "type": "array", "items": { "type": "string" }, "description": "Task IDs" },
+                  "action": { "type": "string", "enum": ["complete", "delete", "assign"], "description": "Action a executar" },
+                  "assignedTo": { "type": "string", "description": "Member ID (only for assign action)" }
                 }
               }
             }
@@ -1437,18 +1437,18 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/tasks/comments": {
       "get": {
-        "tags": ["Tarefas"],
-        "summary": "Listar comentários de tarefa",
-        "description": "Retorna comentários de uma tarefa com paginação.",
+        "tags": ["Tasks"],
+        "summary": "List task comments",
+        "description": "Returns comments for a task with pagination.",
         "operationId": "listTaskComments",
         "parameters": [
-          { "name": "taskId", "in": "query", "required": true, "schema": { "type": "string" }, "description": "ID da tarefa" },
+          { "name": "taskId", "in": "query", "required": true, "schema": { "type": "string" }, "description": "Task ID" },
           { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 200, "maximum": 500 }, "description": "Limite de resultados" },
-          { "name": "cursor", "in": "query", "schema": { "type": "string" }, "description": "Cursor para paginação" }
+          { "name": "cursor", "in": "query", "schema": { "type": "string" }, "description": "Pagination cursor" }
         ],
         "responses": {
           "200": {
-            "description": "Lista de comentários",
+            "description": "List of comments",
             "content": {
               "application/json": {
                 "schema": {
@@ -1470,9 +1470,9 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/tasks/comments/add": {
       "post": {
-        "tags": ["Tarefas"],
-        "summary": "Adicionar comentário",
-        "description": "Adiciona um comentário a uma tarefa.",
+        "tags": ["Tasks"],
+        "summary": "Add comment",
+        "description": "Adds a comment to a task.",
         "operationId": "addTaskComment",
         "requestBody": {
           "required": true,
@@ -1482,9 +1482,9 @@ export const OPENAPI_SPEC = `{
                 "type": "object",
                 "required": ["taskId", "content"],
                 "properties": {
-                  "taskId": { "type": "string", "description": "ID da tarefa" },
-                  "content": { "type": "string", "description": "Conteúdo do comentário" },
-                  "mentionedUserIds": { "type": "array", "items": { "type": "string" }, "description": "IDs de membros mencionados" }
+                  "taskId": { "type": "string", "description": "Task ID" },
+                  "content": { "type": "string", "description": "Comment content" },
+                  "mentionedUserIds": { "type": "array", "items": { "type": "string" }, "description": "Mentioned member IDs" }
                 }
               }
             }
@@ -1492,14 +1492,14 @@ export const OPENAPI_SPEC = `{
         },
         "responses": {
           "201": {
-            "description": "Comentário adicionado",
+            "description": "Comment added",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "success": { "type": "boolean", "const": true },
-                    "commentId": { "type": "string", "description": "ID do comentário criado" }
+                    "commentId": { "type": "string", "description": "Created comment ID" }
                   }
                 }
               }
@@ -1513,31 +1513,31 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/audit-logs": {
       "get": {
-        "tags": ["Auditoria"],
-        "summary": "Listar logs de auditoria",
-        "description": "Retorna logs de auditoria da organização com filtros e paginação por cursor.",
+        "tags": ["Audit"],
+        "summary": "List audit logs",
+        "description": "Returns organization audit logs with filters and cursor pagination.",
         "operationId": "listAuditLogs",
         "parameters": [
-          { "name": "entityType", "in": "query", "schema": { "type": "string" }, "description": "Filtrar por tipo de entidade (ex: lead, contact)" },
-          { "name": "action", "in": "query", "schema": { "type": "string", "enum": ["create", "update", "delete", "move", "assign", "handoff"] }, "description": "Filtrar por ação" },
-          { "name": "severity", "in": "query", "schema": { "type": "string", "enum": ["low", "medium", "high", "critical"] }, "description": "Filtrar por severidade" },
-          { "name": "actorId", "in": "query", "schema": { "type": "string" }, "description": "Filtrar por ID do ator" },
+          { "name": "entityType", "in": "query", "schema": { "type": "string" }, "description": "Filter by entity type (e.g., lead, contact)" },
+          { "name": "action", "in": "query", "schema": { "type": "string", "enum": ["create", "update", "delete", "move", "assign", "handoff"] }, "description": "Filter by action" },
+          { "name": "severity", "in": "query", "schema": { "type": "string", "enum": ["low", "medium", "high", "critical"] }, "description": "Filter by severity" },
+          { "name": "actorId", "in": "query", "schema": { "type": "string" }, "description": "Filter by actor ID" },
           { "name": "startDate", "in": "query", "schema": { "type": "number" }, "description": "Timestamp inicial (ms)" },
           { "name": "endDate", "in": "query", "schema": { "type": "number" }, "description": "Timestamp final (ms)" },
-          { "name": "cursor", "in": "query", "schema": { "type": "string" }, "description": "Cursor para paginação" },
+          { "name": "cursor", "in": "query", "schema": { "type": "string" }, "description": "Pagination cursor" },
           { "name": "limit", "in": "query", "schema": { "type": "integer", "maximum": 200 }, "description": "Limite de resultados" }
         ],
         "responses": {
           "200": {
-            "description": "Lista de logs de auditoria",
+            "description": "List of audit logs",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "logs": { "type": "array", "items": { "$ref": "#/components/schemas/AuditLog" } },
-                    "nextCursor": { "type": "string", "description": "Cursor para a próxima página" },
-                    "hasMore": { "type": "boolean", "description": "Indica se há mais resultados" }
+                    "nextCursor": { "type": "string", "description": "Cursor for the next page" },
+                    "hasMore": { "type": "boolean", "description": "Indicates whether there are more results" }
                   }
                 }
               }
@@ -1550,23 +1550,23 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/calendar/events": {
       "get": {
-        "tags": ["Calendario"],
-        "summary": "Listar eventos do calendario",
-        "description": "Retorna eventos do calendario em um intervalo de datas com filtros opcionais. Pode incluir tarefas com data de vencimento no intervalo.",
+        "tags": ["Calendar"],
+        "summary": "List calendar events",
+        "description": "Returns calendar events in a date range with optional filters. Can include tasks with due dates in range.",
         "operationId": "listCalendarEvents",
         "parameters": [
-          { "name": "startDate", "in": "query", "required": true, "schema": { "type": "number" }, "description": "Inicio do intervalo (timestamp ms)" },
-          { "name": "endDate", "in": "query", "required": true, "schema": { "type": "number" }, "description": "Fim do intervalo (timestamp ms)" },
-          { "name": "assignedTo", "in": "query", "schema": { "type": "string" }, "description": "Filtrar por responsavel" },
-          { "name": "eventType", "in": "query", "schema": { "type": "string", "enum": ["call", "meeting", "follow_up", "demo", "task", "reminder", "other"] }, "description": "Filtrar por tipo de evento" },
-          { "name": "status", "in": "query", "schema": { "type": "string", "enum": ["scheduled", "completed", "cancelled"] }, "description": "Filtrar por status" },
-          { "name": "leadId", "in": "query", "schema": { "type": "string" }, "description": "Filtrar por lead" },
-          { "name": "contactId", "in": "query", "schema": { "type": "string" }, "description": "Filtrar por contato" },
-          { "name": "includeTasks", "in": "query", "schema": { "type": "boolean", "default": true }, "description": "Incluir tarefas com dueDate no intervalo" }
+          { "name": "startDate", "in": "query", "required": true, "schema": { "type": "number" }, "description": "Interval start (timestamp ms)" },
+          { "name": "endDate", "in": "query", "required": true, "schema": { "type": "number" }, "description": "Interval end (timestamp ms)" },
+          { "name": "assignedTo", "in": "query", "schema": { "type": "string" }, "description": "Filter by assignee" },
+          { "name": "eventType", "in": "query", "schema": { "type": "string", "enum": ["call", "meeting", "follow_up", "demo", "task", "reminder", "other"] }, "description": "Filter by event type" },
+          { "name": "status", "in": "query", "schema": { "type": "string", "enum": ["scheduled", "completed", "cancelled"] }, "description": "Filter by status" },
+          { "name": "leadId", "in": "query", "schema": { "type": "string" }, "description": "Filter by lead" },
+          { "name": "contactId", "in": "query", "schema": { "type": "string" }, "description": "Filter by contact" },
+          { "name": "includeTasks", "in": "query", "schema": { "type": "boolean", "default": true }, "description": "Include tasks with dueDate in range" }
         ],
         "responses": {
           "200": {
-            "description": "Lista de eventos",
+            "description": "List of events",
             "content": {
               "application/json": {
                 "schema": {
@@ -1586,16 +1586,16 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/calendar/events/get": {
       "get": {
-        "tags": ["Calendario"],
-        "summary": "Obter evento",
-        "description": "Retorna os dados de um evento especifico pelo ID.",
+        "tags": ["Calendar"],
+        "summary": "Get event",
+        "description": "Returns event data for a specific ID.",
         "operationId": "getCalendarEvent",
         "parameters": [
-          { "name": "id", "in": "query", "required": true, "schema": { "type": "string" }, "description": "ID do evento" }
+          { "name": "id", "in": "query", "required": true, "schema": { "type": "string" }, "description": "Event ID" }
         ],
         "responses": {
           "200": {
-            "description": "Dados do evento",
+            "description": "Event data",
             "content": {
               "application/json": {
                 "schema": {
@@ -1616,9 +1616,9 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/calendar/events/create": {
       "post": {
-        "tags": ["Calendario"],
-        "summary": "Criar evento",
-        "description": "Cria um novo evento no calendario.",
+        "tags": ["Calendar"],
+        "summary": "Create event",
+        "description": "Creates a new event in the calendar.",
         "operationId": "createCalendarEvent",
         "requestBody": {
           "required": true,
@@ -1628,20 +1628,20 @@ export const OPENAPI_SPEC = `{
                 "type": "object",
                 "required": ["title", "eventType", "startTime", "endTime"],
                 "properties": {
-                  "title": { "type": "string", "description": "Titulo do evento" },
-                  "eventType": { "type": "string", "enum": ["call", "meeting", "follow_up", "demo", "task", "reminder", "other"], "description": "Tipo do evento" },
-                  "startTime": { "type": "number", "description": "Inicio (timestamp ms)" },
-                  "endTime": { "type": "number", "description": "Fim (timestamp ms)" },
-                  "allDay": { "type": "boolean", "default": false, "description": "Evento de dia inteiro" },
-                  "description": { "type": "string", "description": "Descricao" },
-                  "leadId": { "type": "string", "description": "ID do lead associado" },
-                  "contactId": { "type": "string", "description": "ID do contato associado" },
-                  "assignedTo": { "type": "string", "description": "ID do responsavel" },
-                  "attendees": { "type": "array", "items": { "type": "string" }, "description": "IDs dos participantes" },
-                  "location": { "type": "string", "description": "Local" },
-                  "meetingUrl": { "type": "string", "description": "URL da reuniao" },
+                  "title": { "type": "string", "description": "Event title" },
+                  "eventType": { "type": "string", "enum": ["call", "meeting", "follow_up", "demo", "task", "reminder", "other"], "description": "Event type" },
+                  "startTime": { "type": "number", "description": "Start time (timestamp ms)" },
+                  "endTime": { "type": "number", "description": "End time (timestamp ms)" },
+                  "allDay": { "type": "boolean", "default": false, "description": "All-day event" },
+                  "description": { "type": "string", "description": "Description" },
+                  "leadId": { "type": "string", "description": "Associated lead ID" },
+                  "contactId": { "type": "string", "description": "Associated contact ID" },
+                  "assignedTo": { "type": "string", "description": "Assignee ID" },
+                  "attendees": { "type": "array", "items": { "type": "string" }, "description": "Participant IDs" },
+                  "location": { "type": "string", "description": "Location" },
+                  "meetingUrl": { "type": "string", "description": "Meeting URL" },
                   "recurrence": { "type": "object", "properties": { "pattern": { "type": "string", "enum": ["daily", "weekly", "biweekly", "monthly"] }, "endDate": { "type": "number" } } },
-                  "notes": { "type": "string", "description": "Notas" }
+                  "notes": { "type": "string", "description": "Notes" }
                 }
               }
             }
@@ -1649,14 +1649,14 @@ export const OPENAPI_SPEC = `{
         },
         "responses": {
           "201": {
-            "description": "Evento criado",
+            "description": "Event created",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
                     "success": { "type": "boolean", "const": true },
-                    "eventId": { "type": "string", "description": "ID do evento criado" }
+                    "eventId": { "type": "string", "description": "ID of created event" }
                   }
                 }
               }
@@ -1670,9 +1670,9 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/calendar/events/update": {
       "post": {
-        "tags": ["Calendario"],
-        "summary": "Atualizar evento",
-        "description": "Atualiza campos de um evento existente.",
+        "tags": ["Calendar"],
+        "summary": "Update event",
+        "description": "Updates fields of an existing event.",
         "operationId": "updateCalendarEvent",
         "requestBody": {
           "required": true,
@@ -1682,7 +1682,7 @@ export const OPENAPI_SPEC = `{
                 "type": "object",
                 "required": ["eventId"],
                 "properties": {
-                  "eventId": { "type": "string", "description": "ID do evento" },
+                  "eventId": { "type": "string", "description": "Event ID" },
                   "title": { "type": "string" },
                   "description": { "type": "string" },
                   "eventType": { "type": "string", "enum": ["call", "meeting", "follow_up", "demo", "task", "reminder", "other"] },
@@ -1707,9 +1707,9 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/calendar/events/delete": {
       "post": {
-        "tags": ["Calendario"],
-        "summary": "Excluir evento",
-        "description": "Remove um evento do calendario. Exclui tambem eventos recorrentes filhos.",
+        "tags": ["Calendar"],
+        "summary": "Delete event",
+        "description": "Removes a calendar event. Also deletes child recurring events.",
         "operationId": "deleteCalendarEvent",
         "requestBody": {
           "required": true,
@@ -1719,7 +1719,7 @@ export const OPENAPI_SPEC = `{
                 "type": "object",
                 "required": ["eventId"],
                 "properties": {
-                  "eventId": { "type": "string", "description": "ID do evento" }
+                  "eventId": { "type": "string", "description": "Event ID" }
                 }
               }
             }
@@ -1735,9 +1735,9 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/calendar/events/reschedule": {
       "post": {
-        "tags": ["Calendario"],
-        "summary": "Reagendar evento",
-        "description": "Reagenda um evento para novo horario. Se newEndTime nao for fornecido, a duracao original e mantida.",
+        "tags": ["Calendar"],
+        "summary": "Reschedule event",
+        "description": "Reschedules an event to a new time. If newEndTime is not provided, the original duration is kept.",
         "operationId": "rescheduleCalendarEvent",
         "requestBody": {
           "required": true,
@@ -1747,9 +1747,9 @@ export const OPENAPI_SPEC = `{
                 "type": "object",
                 "required": ["eventId", "newStartTime"],
                 "properties": {
-                  "eventId": { "type": "string", "description": "ID do evento" },
-                  "newStartTime": { "type": "number", "description": "Novo inicio (timestamp ms)" },
-                  "newEndTime": { "type": "number", "description": "Novo fim (timestamp ms, opcional)" }
+                  "eventId": { "type": "string", "description": "Event ID" },
+                  "newStartTime": { "type": "number", "description": "New start (timestamp ms)" },
+                  "newEndTime": { "type": "number", "description": "New end time (timestamp ms, optional)" }
                 }
               }
             }
@@ -1765,9 +1765,9 @@ export const OPENAPI_SPEC = `{
     },
     "/api/v1/calendar/events/complete": {
       "post": {
-        "tags": ["Calendario"],
-        "summary": "Concluir evento",
-        "description": "Marca um evento como concluido. Se o evento tiver recorrencia, gera automaticamente a proxima instancia.",
+        "tags": ["Calendar"],
+        "summary": "Complete event",
+        "description": "Marks an event as completed. If the event recurs, automatically generates the next instance.",
         "operationId": "completeCalendarEvent",
         "requestBody": {
           "required": true,
@@ -1777,7 +1777,7 @@ export const OPENAPI_SPEC = `{
                 "type": "object",
                 "required": ["eventId"],
                 "properties": {
-                  "eventId": { "type": "string", "description": "ID do evento" }
+                  "eventId": { "type": "string", "description": "Event ID" }
                 }
               }
             }
@@ -1798,198 +1798,198 @@ export const OPENAPI_SPEC = `{
         "type": "apiKey",
         "in": "header",
         "name": "X-API-Key",
-        "description": "Chave de API vinculada a um membro da equipe e organização. A chave é armazenada como hash SHA-256."
+        "description": "API key linked to a team member and organization. The key is stored as a SHA-256 hash."
       }
     },
     "schemas": {
       "Lead": {
         "type": "object",
         "properties": {
-          "_id": { "type": "string", "description": "ID único do lead" },
-          "_creationTime": { "type": "number", "description": "Timestamp de criação" },
-          "organizationId": { "type": "string", "description": "ID da organização" },
-          "title": { "type": "string", "description": "Título do lead" },
-          "contactId": { "type": "string", "description": "ID do contato associado" },
-          "boardId": { "type": "string", "description": "ID do board (pipeline)" },
-          "stageId": { "type": "string", "description": "ID do estágio atual" },
-          "assignedTo": { "type": "string", "description": "ID do membro responsável" },
-          "value": { "type": "number", "description": "Valor monetário" },
-          "currency": { "type": "string", "description": "Código da moeda" },
+          "_id": { "type": "string", "description": "Unique lead ID" },
+          "_creationTime": { "type": "number", "description": "Creation timestamp" },
+          "organizationId": { "type": "string", "description": "Organization ID" },
+          "title": { "type": "string", "description": "Lead title" },
+          "contactId": { "type": "string", "description": "Associated contact ID" },
+          "boardId": { "type": "string", "description": "Board ID (pipeline)" },
+          "stageId": { "type": "string", "description": "Current stage ID" },
+          "assignedTo": { "type": "string", "description": "Responsible member ID" },
+          "value": { "type": "number", "description": "Monetary value" },
+          "currency": { "type": "string", "description": "Currency code" },
           "priority": { "type": "string", "enum": ["low", "medium", "high", "urgent"], "description": "Prioridade" },
           "temperature": { "type": "string", "enum": ["cold", "warm", "hot"], "description": "Temperatura" },
-          "sourceId": { "type": "string", "description": "ID da fonte de captação" },
+          "sourceId": { "type": "string", "description": "Lead source ID" },
           "tags": { "type": "array", "items": { "type": "string" }, "description": "Tags" },
           "customFields": { "type": "object", "additionalProperties": true, "description": "Campos personalizados" },
-          "conversationStatus": { "type": "string", "enum": ["new", "active", "waiting", "closed"], "description": "Status da conversa" },
-          "closedAt": { "type": "number", "description": "Timestamp de fechamento" },
-          "closedType": { "type": "string", "enum": ["won", "lost"], "description": "Tipo de fechamento" }
+          "conversationStatus": { "type": "string", "enum": ["new", "active", "waiting", "closed"], "description": "Conversation status" },
+          "closedAt": { "type": "number", "description": "Closing timestamp" },
+          "closedType": { "type": "string", "enum": ["won", "lost"], "description": "Closing type" }
         }
       },
       "Contact": {
         "type": "object",
         "properties": {
-          "_id": { "type": "string", "description": "ID único do contato" },
-          "_creationTime": { "type": "number", "description": "Timestamp de criação" },
-          "organizationId": { "type": "string", "description": "ID da organização" },
+          "_id": { "type": "string", "description": "Unique contact ID" },
+          "_creationTime": { "type": "number", "description": "Creation timestamp" },
+          "organizationId": { "type": "string", "description": "Organization ID" },
           "firstName": { "type": "string", "description": "Primeiro nome" },
           "lastName": { "type": "string", "description": "Sobrenome" },
           "email": { "type": "string", "description": "Email" },
-          "phone": { "type": "string", "description": "Telefone" },
+          "phone": { "type": "string", "description": "Phone" },
           "company": { "type": "string", "description": "Empresa" },
-          "title": { "type": "string", "description": "Cargo" },
+          "title": { "type": "string", "description": "Job title" },
           "tags": { "type": "array", "items": { "type": "string" }, "description": "Tags" },
-          "city": { "type": "string", "description": "Cidade" },
-          "state": { "type": "string", "description": "Estado" },
-          "country": { "type": "string", "description": "País" },
-          "industry": { "type": "string", "description": "Indústria" },
+          "city": { "type": "string", "description": "City" },
+          "state": { "type": "string", "description": "State" },
+          "country": { "type": "string", "description": "Country" },
+          "industry": { "type": "string", "description": "Industry" },
           "customFields": { "type": "object", "additionalProperties": true, "description": "Campos personalizados" }
         }
       },
       "Conversation": {
         "type": "object",
         "properties": {
-          "_id": { "type": "string", "description": "ID único da conversa" },
-          "_creationTime": { "type": "number", "description": "Timestamp de criação" },
-          "organizationId": { "type": "string", "description": "ID da organização" },
-          "leadId": { "type": "string", "description": "ID do lead associado" },
-          "channel": { "type": "string", "enum": ["whatsapp", "telegram", "email", "webchat", "internal"], "description": "Canal da conversa" },
-          "status": { "type": "string", "enum": ["active", "closed"], "description": "Status da conversa" },
-          "messageCount": { "type": "integer", "description": "Total de mensagens" }
+          "_id": { "type": "string", "description": "Unique conversation ID" },
+          "_creationTime": { "type": "number", "description": "Creation timestamp" },
+          "organizationId": { "type": "string", "description": "Organization ID" },
+          "leadId": { "type": "string", "description": "Associated lead ID" },
+          "channel": { "type": "string", "enum": ["whatsapp", "telegram", "email", "webchat", "internal"], "description": "Conversation channel" },
+          "status": { "type": "string", "enum": ["active", "closed"], "description": "Conversation status" },
+          "messageCount": { "type": "integer", "description": "Total messages" }
         }
       },
       "Message": {
         "type": "object",
         "properties": {
-          "_id": { "type": "string", "description": "ID único da mensagem" },
-          "_creationTime": { "type": "number", "description": "Timestamp de criação" },
-          "conversationId": { "type": "string", "description": "ID da conversa" },
-          "leadId": { "type": "string", "description": "ID do lead" },
-          "direction": { "type": "string", "enum": ["inbound", "outbound", "internal"], "description": "Direção da mensagem" },
-          "senderId": { "type": "string", "description": "ID do remetente" },
-          "senderType": { "type": "string", "enum": ["contact", "human", "ai"], "description": "Tipo do remetente" },
-          "content": { "type": "string", "description": "Conteúdo da mensagem" },
-          "contentType": { "type": "string", "enum": ["text", "image", "file", "audio"], "description": "Tipo do conteúdo" },
+          "_id": { "type": "string", "description": "Unique message ID" },
+          "_creationTime": { "type": "number", "description": "Creation timestamp" },
+          "conversationId": { "type": "string", "description": "Conversation ID" },
+          "leadId": { "type": "string", "description": "Lead ID" },
+          "direction": { "type": "string", "enum": ["inbound", "outbound", "internal"], "description": "Message direction" },
+          "senderId": { "type": "string", "description": "Sender ID" },
+          "senderType": { "type": "string", "enum": ["contact", "human", "ai"], "description": "Sender type" },
+          "content": { "type": "string", "description": "Message content" },
+          "contentType": { "type": "string", "enum": ["text", "image", "file", "audio"], "description": "Content type" },
           "isInternal": { "type": "boolean", "description": "Nota interna" }
         }
       },
       "Handoff": {
         "type": "object",
         "properties": {
-          "_id": { "type": "string", "description": "ID único do handoff" },
-          "_creationTime": { "type": "number", "description": "Timestamp de criação" },
-          "organizationId": { "type": "string", "description": "ID da organização" },
-          "leadId": { "type": "string", "description": "ID do lead" },
-          "fromMemberId": { "type": "string", "description": "ID do membro solicitante" },
-          "toMemberId": { "type": "string", "description": "ID do membro destino" },
-          "reason": { "type": "string", "description": "Motivo do handoff" },
-          "summary": { "type": "string", "description": "Resumo da conversa" },
-          "suggestedActions": { "type": "array", "items": { "type": "string" }, "description": "Ações sugeridas" },
-          "status": { "type": "string", "enum": ["pending", "accepted", "rejected"], "description": "Status do handoff" }
+          "_id": { "type": "string", "description": "Unique handoff ID" },
+          "_creationTime": { "type": "number", "description": "Creation timestamp" },
+          "organizationId": { "type": "string", "description": "Organization ID" },
+          "leadId": { "type": "string", "description": "Lead ID" },
+          "fromMemberId": { "type": "string", "description": "Requester member ID" },
+          "toMemberId": { "type": "string", "description": "Target member ID" },
+          "reason": { "type": "string", "description": "Reason for handoff" },
+          "summary": { "type": "string", "description": "Conversation summary" },
+          "suggestedActions": { "type": "array", "items": { "type": "string" }, "description": "Suggested actions" },
+          "status": { "type": "string", "enum": ["pending", "accepted", "rejected"], "description": "Handoff status" }
         }
       },
       "Board": {
         "type": "object",
         "properties": {
-          "_id": { "type": "string", "description": "ID único do board" },
-          "_creationTime": { "type": "number", "description": "Timestamp de criação" },
-          "organizationId": { "type": "string", "description": "ID da organização" },
-          "name": { "type": "string", "description": "Nome do board" },
-          "description": { "type": "string", "description": "Descrição" },
-          "color": { "type": "string", "description": "Cor de exibição" },
-          "isDefault": { "type": "boolean", "description": "Se é o board padrão para novos leads" },
-          "order": { "type": "integer", "description": "Ordem de exibição" }
+          "_id": { "type": "string", "description": "Unique board ID" },
+          "_creationTime": { "type": "number", "description": "Creation timestamp" },
+          "organizationId": { "type": "string", "description": "Organization ID" },
+          "name": { "type": "string", "description": "Board name" },
+          "description": { "type": "string", "description": "Description" },
+          "color": { "type": "string", "description": "Display color" },
+          "isDefault": { "type": "boolean", "description": "Whether it is the default board for new leads" },
+          "order": { "type": "integer", "description": "Display order" }
         }
       },
       "Stage": {
         "type": "object",
         "properties": {
-          "_id": { "type": "string", "description": "ID único do estágio" },
-          "_creationTime": { "type": "number", "description": "Timestamp de criação" },
-          "boardId": { "type": "string", "description": "ID do board pai" },
-          "name": { "type": "string", "description": "Nome do estágio" },
-          "color": { "type": "string", "description": "Cor de exibição" },
-          "order": { "type": "integer", "description": "Ordem de exibição" },
-          "isClosedWon": { "type": "boolean", "description": "Marca como estágio de ganho" },
-          "isClosedLost": { "type": "boolean", "description": "Marca como estágio de perda" }
+          "_id": { "type": "string", "description": "Unique stage ID" },
+          "_creationTime": { "type": "number", "description": "Creation timestamp" },
+          "boardId": { "type": "string", "description": "Parent board ID" },
+          "name": { "type": "string", "description": "Stage name" },
+          "color": { "type": "string", "description": "Display color" },
+          "order": { "type": "integer", "description": "Display order" },
+          "isClosedWon": { "type": "boolean", "description": "Marks as won stage" },
+          "isClosedLost": { "type": "boolean", "description": "Marks as lost stage" }
         }
       },
       "TeamMember": {
         "type": "object",
         "properties": {
-          "_id": { "type": "string", "description": "ID único do membro" },
-          "_creationTime": { "type": "number", "description": "Timestamp de criação" },
-          "organizationId": { "type": "string", "description": "ID da organização" },
-          "name": { "type": "string", "description": "Nome de exibição" },
-          "email": { "type": "string", "description": "Email (humanos)" },
-          "role": { "type": "string", "enum": ["admin", "manager", "agent", "ai"], "description": "Papel na equipe" },
-          "type": { "type": "string", "enum": ["human", "ai"], "description": "Tipo de membro" },
+          "_id": { "type": "string", "description": "Unique member ID" },
+          "_creationTime": { "type": "number", "description": "Creation timestamp" },
+          "organizationId": { "type": "string", "description": "Organization ID" },
+          "name": { "type": "string", "description": "Display name" },
+          "email": { "type": "string", "description": "Email (humans)" },
+          "role": { "type": "string", "enum": ["admin", "manager", "agent", "ai"], "description": "Role in the team" },
+          "type": { "type": "string", "enum": ["human", "ai"], "description": "Member type" },
           "status": { "type": "string", "enum": ["active", "inactive", "busy"], "description": "Status atual" },
-          "capabilities": { "type": "array", "items": { "type": "string" }, "description": "Capacidades do membro" },
-          "permissions": { "type": "object", "nullable": true, "description": "Permissões RBAC granulares (9 categorias). Null = usar padrões do papel" },
-          "mustChangePassword": { "type": "boolean", "description": "Força troca de senha no próximo login" },
-          "invitedBy": { "type": "string", "nullable": true, "description": "ID do membro que convidou" }
+          "capabilities": { "type": "array", "items": { "type": "string" }, "description": "Member capabilities" },
+          "permissions": { "type": "object", "nullable": true, "description": "Granular RBAC permissions (9 categories). Null = use role defaults" },
+          "mustChangePassword": { "type": "boolean", "description": "Forces password change on next login" },
+          "invitedBy": { "type": "string", "nullable": true, "description": "Inviting member ID" }
         }
       },
       "FieldDefinition": {
         "type": "object",
         "properties": {
-          "_id": { "type": "string", "description": "ID único da definição" },
-          "_creationTime": { "type": "number", "description": "Timestamp de criação" },
-          "organizationId": { "type": "string", "description": "ID da organização" },
-          "name": { "type": "string", "description": "Nome de exibição" },
-          "key": { "type": "string", "description": "Chave única para armazenamento" },
-          "type": { "type": "string", "enum": ["text", "number", "boolean", "date", "select", "multiselect"], "description": "Tipo do campo" },
-          "entityType": { "type": "string", "enum": ["lead", "contact"], "description": "Tipo de entidade (null = ambos)" },
-          "options": { "type": "array", "items": { "type": "string" }, "description": "Opções para select/multiselect" },
-          "isRequired": { "type": "boolean", "description": "Se o campo é obrigatório" },
-          "order": { "type": "integer", "description": "Ordem de exibição" }
+          "_id": { "type": "string", "description": "Unique definition ID" },
+          "_creationTime": { "type": "number", "description": "Creation timestamp" },
+          "organizationId": { "type": "string", "description": "Organization ID" },
+          "name": { "type": "string", "description": "Display name" },
+          "key": { "type": "string", "description": "Unique storage key" },
+          "type": { "type": "string", "enum": ["text", "number", "boolean", "date", "select", "multiselect"], "description": "Field type" },
+          "entityType": { "type": "string", "enum": ["lead", "contact"], "description": "Entity type (null = both)" },
+          "options": { "type": "array", "items": { "type": "string" }, "description": "Options for select/multiselect" },
+          "isRequired": { "type": "boolean", "description": "Whether the field is required" },
+          "order": { "type": "integer", "description": "Display order" }
         }
       },
       "Activity": {
         "type": "object",
         "properties": {
-          "_id": { "type": "string", "description": "ID único da atividade" },
-          "_creationTime": { "type": "number", "description": "Timestamp de criação" },
-          "organizationId": { "type": "string", "description": "ID da organização" },
-          "leadId": { "type": "string", "description": "ID do lead" },
-          "type": { "type": "string", "description": "Tipo da atividade" },
-          "actorId": { "type": "string", "description": "ID do ator" },
-          "actorType": { "type": "string", "enum": ["human", "ai", "system"], "description": "Tipo do ator" },
-          "content": { "type": "string", "description": "Conteúdo da atividade" },
+          "_id": { "type": "string", "description": "Unique activity ID" },
+          "_creationTime": { "type": "number", "description": "Creation timestamp" },
+          "organizationId": { "type": "string", "description": "Organization ID" },
+          "leadId": { "type": "string", "description": "Lead ID" },
+          "type": { "type": "string", "description": "Activity type" },
+          "actorId": { "type": "string", "description": "Actor ID" },
+          "actorType": { "type": "string", "enum": ["human", "ai", "system"], "description": "Actor type" },
+          "content": { "type": "string", "description": "Activity content" },
           "metadata": { "type": "object", "additionalProperties": true, "description": "Metadados adicionais" },
-          "createdAt": { "type": "number", "description": "Timestamp de criação" }
+          "createdAt": { "type": "number", "description": "Creation timestamp" }
         }
       },
       "LeadSource": {
         "type": "object",
         "properties": {
-          "_id": { "type": "string", "description": "ID único da fonte" },
-          "_creationTime": { "type": "number", "description": "Timestamp de criação" },
-          "organizationId": { "type": "string", "description": "ID da organização" },
-          "name": { "type": "string", "description": "Nome da fonte" },
-          "type": { "type": "string", "enum": ["website", "social", "email", "phone", "referral", "api", "other"], "description": "Tipo da fonte" },
-          "isActive": { "type": "boolean", "description": "Se está ativa" }
+          "_id": { "type": "string", "description": "Unique source ID" },
+          "_creationTime": { "type": "number", "description": "Creation timestamp" },
+          "organizationId": { "type": "string", "description": "Organization ID" },
+          "name": { "type": "string", "description": "Source name" },
+          "type": { "type": "string", "enum": ["website", "social", "email", "phone", "referral", "api", "other"], "description": "Source type" },
+          "isActive": { "type": "boolean", "description": "Whether it is active" }
         }
       },
       "Task": {
         "type": "object",
         "properties": {
-          "_id": { "type": "string", "description": "ID único da tarefa" },
-          "_creationTime": { "type": "number", "description": "Timestamp de criação" },
-          "organizationId": { "type": "string", "description": "ID da organização" },
-          "title": { "type": "string", "description": "Título da tarefa" },
-          "description": { "type": "string", "description": "Descrição detalhada" },
-          "type": { "type": "string", "enum": ["task", "reminder"], "description": "Tipo" },
+          "_id": { "type": "string", "description": "Unique task ID" },
+          "_creationTime": { "type": "number", "description": "Creation timestamp" },
+          "organizationId": { "type": "string", "description": "Organization ID" },
+          "title": { "type": "string", "description": "Task title" },
+          "description": { "type": "string", "description": "Description detalhada" },
+          "type": { "type": "string", "enum": ["task", "reminder"], "description": "Type" },
           "status": { "type": "string", "enum": ["pending", "in_progress", "completed", "cancelled"], "description": "Status" },
           "priority": { "type": "string", "enum": ["low", "medium", "high", "urgent"], "description": "Prioridade" },
-          "activityType": { "type": "string", "enum": ["todo", "call", "email", "follow_up", "meeting", "research"], "description": "Tipo de atividade CRM" },
-          "dueDate": { "type": "number", "description": "Data de vencimento (timestamp ms)" },
-          "completedAt": { "type": "number", "description": "Timestamp de conclusão" },
-          "snoozedUntil": { "type": "number", "description": "Adiada até (timestamp ms)" },
-          "leadId": { "type": "string", "description": "ID do lead associado" },
-          "contactId": { "type": "string", "description": "ID do contato associado" },
-          "assignedTo": { "type": "string", "description": "ID do membro responsável" },
-          "createdBy": { "type": "string", "description": "ID do criador" },
+          "activityType": { "type": "string", "enum": ["todo", "call", "email", "follow_up", "meeting", "research"], "description": "CRM activity type" },
+          "dueDate": { "type": "number", "description": "Due date (timestamp ms)" },
+          "completedAt": { "type": "number", "description": "Completion timestamp" },
+          "snoozedUntil": { "type": "number", "description": "Snoozed until (timestamp ms)" },
+          "leadId": { "type": "string", "description": "Associated lead ID" },
+          "contactId": { "type": "string", "description": "Associated contact ID" },
+          "assignedTo": { "type": "string", "description": "Responsible member ID" },
+          "createdBy": { "type": "string", "description": "Creator ID" },
           "recurrence": {
             "type": "object",
             "properties": {
@@ -2004,73 +2004,73 @@ export const OPENAPI_SPEC = `{
       "TaskComment": {
         "type": "object",
         "properties": {
-          "_id": { "type": "string", "description": "ID único do comentário" },
-          "_creationTime": { "type": "number", "description": "Timestamp de criação" },
-          "organizationId": { "type": "string", "description": "ID da organização" },
-          "taskId": { "type": "string", "description": "ID da tarefa" },
-          "authorId": { "type": "string", "description": "ID do autor" },
-          "authorType": { "type": "string", "enum": ["human", "ai"], "description": "Tipo do autor" },
-          "content": { "type": "string", "description": "Conteúdo do comentário" },
+          "_id": { "type": "string", "description": "Unique comment ID" },
+          "_creationTime": { "type": "number", "description": "Creation timestamp" },
+          "organizationId": { "type": "string", "description": "Organization ID" },
+          "taskId": { "type": "string", "description": "Task ID" },
+          "authorId": { "type": "string", "description": "Author ID" },
+          "authorType": { "type": "string", "enum": ["human", "ai"], "description": "Author type" },
+          "content": { "type": "string", "description": "Comment content" },
           "mentionedUserIds": { "type": "array", "items": { "type": "string" }, "description": "IDs mencionados" }
         }
       },
       "CalendarEvent": {
         "type": "object",
         "properties": {
-          "_id": { "type": "string", "description": "ID unico do evento" },
-          "_creationTime": { "type": "number", "description": "Timestamp de criacao" },
-          "organizationId": { "type": "string", "description": "ID da organizacao" },
-          "title": { "type": "string", "description": "Titulo do evento" },
-          "description": { "type": "string", "description": "Descricao" },
-          "eventType": { "type": "string", "enum": ["call", "meeting", "follow_up", "demo", "task", "reminder", "other"], "description": "Tipo do evento" },
-          "startTime": { "type": "number", "description": "Inicio (timestamp ms)" },
-          "endTime": { "type": "number", "description": "Fim (timestamp ms)" },
-          "allDay": { "type": "boolean", "description": "Evento de dia inteiro" },
-          "status": { "type": "string", "enum": ["scheduled", "completed", "cancelled"], "description": "Status do evento" },
-          "leadId": { "type": "string", "description": "ID do lead associado" },
-          "contactId": { "type": "string", "description": "ID do contato associado" },
-          "taskId": { "type": "string", "description": "ID da tarefa vinculada" },
-          "attendees": { "type": "array", "items": { "type": "string" }, "description": "IDs dos participantes" },
-          "createdBy": { "type": "string", "description": "ID do criador" },
-          "assignedTo": { "type": "string", "description": "ID do responsavel" },
-          "location": { "type": "string", "description": "Local" },
-          "meetingUrl": { "type": "string", "description": "URL da reuniao" },
-          "color": { "type": "string", "description": "Cor customizada" },
+          "_id": { "type": "string", "description": "Unique event ID" },
+          "_creationTime": { "type": "number", "description": "Creation timestamp" },
+          "organizationId": { "type": "string", "description": "Organization ID" },
+          "title": { "type": "string", "description": "Event title" },
+          "description": { "type": "string", "description": "Description" },
+          "eventType": { "type": "string", "enum": ["call", "meeting", "follow_up", "demo", "task", "reminder", "other"], "description": "Event type" },
+          "startTime": { "type": "number", "description": "Start time (timestamp ms)" },
+          "endTime": { "type": "number", "description": "End time (timestamp ms)" },
+          "allDay": { "type": "boolean", "description": "All-day event" },
+          "status": { "type": "string", "enum": ["scheduled", "completed", "cancelled"], "description": "Event status" },
+          "leadId": { "type": "string", "description": "Associated lead ID" },
+          "contactId": { "type": "string", "description": "Associated contact ID" },
+          "taskId": { "type": "string", "description": "Linked task ID" },
+          "attendees": { "type": "array", "items": { "type": "string" }, "description": "Participant IDs" },
+          "createdBy": { "type": "string", "description": "Creator ID" },
+          "assignedTo": { "type": "string", "description": "Assignee ID" },
+          "location": { "type": "string", "description": "Location" },
+          "meetingUrl": { "type": "string", "description": "Meeting URL" },
+          "color": { "type": "string", "description": "Color customizada" },
           "recurrence": { "type": "object", "properties": { "pattern": { "type": "string", "enum": ["daily", "weekly", "biweekly", "monthly"] }, "endDate": { "type": "number" } } },
-          "parentEventId": { "type": "string", "description": "ID do evento pai (recorrencia)" },
-          "notes": { "type": "string", "description": "Notas adicionais" },
-          "createdAt": { "type": "number", "description": "Timestamp de criacao" },
-          "updatedAt": { "type": "number", "description": "Timestamp de atualizacao" }
+          "parentEventId": { "type": "string", "description": "Parent event ID (recurrence)" },
+          "notes": { "type": "string", "description": "Notes adicionais" },
+          "createdAt": { "type": "number", "description": "Creation timestamp" },
+          "updatedAt": { "type": "number", "description": "Update timestamp" }
         }
       },
       "AuditLog": {
         "type": "object",
         "properties": {
-          "_id": { "type": "string", "description": "ID único do log" },
-          "_creationTime": { "type": "number", "description": "Timestamp de criação" },
-          "organizationId": { "type": "string", "description": "ID da organização" },
-          "entityType": { "type": "string", "description": "Tipo da entidade (ex: lead, contact)" },
-          "entityId": { "type": "string", "description": "ID da entidade" },
-          "action": { "type": "string", "enum": ["create", "update", "delete", "move", "assign", "handoff"], "description": "Ação realizada" },
-          "actorId": { "type": "string", "description": "ID do ator" },
-          "actorType": { "type": "string", "enum": ["human", "ai", "system"], "description": "Tipo do ator" },
+          "_id": { "type": "string", "description": "Unique log ID" },
+          "_creationTime": { "type": "number", "description": "Creation timestamp" },
+          "organizationId": { "type": "string", "description": "Organization ID" },
+          "entityType": { "type": "string", "description": "Entity type (e.g., lead, contact)" },
+          "entityId": { "type": "string", "description": "Entity ID" },
+          "action": { "type": "string", "enum": ["create", "update", "delete", "move", "assign", "handoff"], "description": "Action realizada" },
+          "actorId": { "type": "string", "description": "Actor ID" },
+          "actorType": { "type": "string", "enum": ["human", "ai", "system"], "description": "Actor type" },
           "changes": {
             "type": "object",
             "properties": {
-              "before": { "type": "object", "additionalProperties": true, "description": "Estado anterior" },
-              "after": { "type": "object", "additionalProperties": true, "description": "Estado posterior" }
+              "before": { "type": "object", "additionalProperties": true, "description": "Previous state" },
+              "after": { "type": "object", "additionalProperties": true, "description": "Current state" }
             },
-            "description": "Alterações realizadas"
+            "description": "Changes made"
           },
-          "description": { "type": "string", "description": "Descrição legível da ação" },
+          "description": { "type": "string", "description": "Readable action description" },
           "severity": { "type": "string", "enum": ["low", "medium", "high", "critical"], "description": "Severidade" },
-          "createdAt": { "type": "number", "description": "Timestamp de criação" }
+          "createdAt": { "type": "number", "description": "Creation timestamp" }
         }
       }
     },
     "responses": {
       "Success": {
-        "description": "Operação realizada com sucesso",
+        "description": "Operation completed successfully",
         "content": {
           "application/json": {
             "schema": {
@@ -2083,13 +2083,13 @@ export const OPENAPI_SPEC = `{
         }
       },
       "BadRequest": {
-        "description": "Requisição inválida — parâmetros obrigatórios ausentes ou inválidos",
+        "description": "Invalid request — missing or invalid required parameters",
         "content": {
           "application/json": {
             "schema": {
               "type": "object",
               "properties": {
-                "error": { "type": "string", "description": "Mensagem de erro" },
+                "error": { "type": "string", "description": "Error message" },
                 "code": { "type": "integer", "example": 400 }
               }
             }
@@ -2097,13 +2097,13 @@ export const OPENAPI_SPEC = `{
         }
       },
       "Unauthorized": {
-        "description": "Não autorizado — chave de API ausente ou inválida",
+        "description": "Unauthorized — missing or invalid API key",
         "content": {
           "application/json": {
             "schema": {
               "type": "object",
               "properties": {
-                "error": { "type": "string", "description": "Mensagem de erro" },
+                "error": { "type": "string", "description": "Error message" },
                 "code": { "type": "integer", "example": 401 }
               }
             }
@@ -2111,13 +2111,13 @@ export const OPENAPI_SPEC = `{
         }
       },
       "NotFound": {
-        "description": "Recurso não encontrado",
+        "description": "Resource not found",
         "content": {
           "application/json": {
             "schema": {
               "type": "object",
               "properties": {
-                "error": { "type": "string", "description": "Mensagem de erro" },
+                "error": { "type": "string", "description": "Error message" },
                 "code": { "type": "integer", "example": 404 }
               }
             }
@@ -2125,13 +2125,13 @@ export const OPENAPI_SPEC = `{
         }
       },
       "InternalError": {
-        "description": "Erro interno do servidor",
+        "description": "Internal server error",
         "content": {
           "application/json": {
             "schema": {
               "type": "object",
               "properties": {
-                "error": { "type": "string", "description": "Mensagem de erro" },
+                "error": { "type": "string", "description": "Error message" },
                 "code": { "type": "integer", "example": 500 }
               }
             }

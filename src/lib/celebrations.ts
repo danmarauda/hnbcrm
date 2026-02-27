@@ -15,31 +15,31 @@ export interface MilestoneConfig {
 export const MILESTONES: Record<MilestoneId, MilestoneConfig> = {
   first_lead: {
     title: "Primeiro Lead!",
-    description: "Voce criou seu primeiro lead no CRM.",
+    description: "You created your first lead in the CRM.",
   },
   first_contact: {
-    title: "Primeiro Contato!",
-    description: "Seu primeiro contato foi adicionado.",
+    title: "First Contact!",
+    description: "Seu primeiro contact foi adicionado.",
   },
   first_invite: {
-    title: "Equipe Crescendo!",
-    description: "Voce convidou seu primeiro membro.",
+    title: "Team Crescendo!",
+    description: "You invited your first team member.",
   },
   first_webhook: {
     title: "Integrado!",
-    description: "Webhook ou API Key configurado.",
+    description: "Webhook or API key configured.",
   },
   custom_fields: {
-    title: "Personalizado!",
+    title: "Custom!",
     description: "Campos personalizados explorados.",
   },
   wizard_complete: {
-    title: "Tudo Pronto!",
-    description: "Seu CRM esta configurado e pronto para usar.",
+    title: "All Pronto!",
+    description: "Your CRM is configured and ready to use.",
   },
   checklist_complete: {
     title: "Missao Cumprida!",
-    description: "Todos os passos iniciais foram concluidos!",
+    description: "All initial steps were completed!",
   },
 };
 
@@ -54,30 +54,30 @@ export const SPOTLIGHTS: SpotlightConfig[] = [
     id: "board",
     title: "Pipeline Kanban",
     description:
-      "Arraste cards entre etapas para atualizar o status dos seus leads.",
+      "Drag cards between stages to update your lead status.",
   },
   {
     id: "contacts",
-    title: "Contatos",
+    title: "Contacts",
     description:
-      "Cadastre e organize contatos. Use a busca por nome, email ou empresa.",
+      "Register and organize contacts. Use search by name, email, or company.",
   },
   {
     id: "inbox",
-    title: "Caixa de Entrada",
+    title: "Inbox",
     description:
-      "Todas as conversas em um so lugar — WhatsApp, email e webchat.",
+      "All conversations in one place — WhatsApp, email, and webchat.",
   },
   {
     id: "handoffs",
-    title: "Repasses",
+    title: "Handoffs",
     description:
-      "Quando a IA precisa de ajuda humana, os repasses aparecem aqui.",
+      "When AI needs human help, handoffs appear here.",
   },
   {
     id: "team",
-    title: "Equipe",
+    title: "Team",
     description:
-      "Gerencie humanos e bots de IA como uma equipe unificada.",
+      "Manage humans and AI bots as one team.",
   },
 ];

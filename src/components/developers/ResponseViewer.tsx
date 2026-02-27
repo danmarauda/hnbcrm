@@ -32,7 +32,7 @@ export function ResponseViewer({
   if (!response) {
     return (
       <div className="h-full flex items-center justify-center bg-surface-raised">
-        <p className="text-text-muted text-sm">Envie uma requisição para ver a resposta</p>
+        <p className="text-text-muted text-sm">Send a request to see the response</p>
       </div>
     );
   }
@@ -60,7 +60,7 @@ export function ResponseViewer({
     <div className="h-full flex flex-col bg-surface-raised">
       <div className="px-3 py-2 border-b border-border flex items-center gap-3">
         <Badge variant={getStatusVariant(response.status)}>
-          {response.status > 0 ? `${response.status}` : "Erro"}
+          {response.status > 0 ? `${response.status}` : "Error"}
         </Badge>
         <span className="text-xs text-text-muted tabular-nums">{response.time}ms</span>
         <Badge variant="default" className="text-[10px] px-1.5 py-0">
@@ -70,7 +70,7 @@ export function ResponseViewer({
         <div className="flex-1" />
         <Button variant="ghost" size="sm" onClick={handleCopy}>
           {copied ? <Check size={14} /> : <Copy size={14} />}
-          {copied ? "Copiado!" : "Copiar"}
+          {copied ? "Copied!" : "Copy"}
         </Button>
       </div>
 
@@ -87,11 +87,11 @@ export function ResponseViewer({
             disabled={currentPage <= 0 || isLoadingMore}
           >
             <ChevronLeft size={14} />
-            Anterior
+            Previous
           </Button>
 
           <Badge variant="default" className="text-xs px-2 py-0.5">
-            Página {currentPage + 1}
+            Page {currentPage + 1}
           </Badge>
 
           <Button
@@ -103,11 +103,11 @@ export function ResponseViewer({
             {isLoadingMore ? (
               <>
                 <Spinner size="sm" />
-                Carregando...
+                Loading...
               </>
             ) : (
               <>
-                Próxima
+                Next
                 <ChevronRight size={14} />
               </>
             )}

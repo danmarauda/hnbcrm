@@ -290,11 +290,11 @@ export function ApiPlayground({ initialEndpointId, fullPage, onEndpointChange }:
         <div className="flex-1 flex items-center justify-center p-6">
           <Card variant="default" className="max-w-md p-6 text-center">
             <h3 className="text-lg font-semibold text-text-primary mb-2">
-              Configure o Playground
+              Configure Playground
             </h3>
             <p className="text-sm text-text-muted">
-              Insira a Base URL do seu deployment Convex e uma API Key valida para comecar a testar
-              os endpoints.
+              Enter your Convex deployment Base URL and a valid API key to start testing
+              endpoints.
             </p>
           </Card>
         </div>
@@ -314,7 +314,7 @@ export function ApiPlayground({ initialEndpointId, fullPage, onEndpointChange }:
                 }}
                 className="w-full bg-surface-raised border border-border-strong rounded-field px-3 py-2 text-base text-text-primary focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
               >
-                <option value="">Selecione um endpoint...</option>
+                <option value="">Select um endpoint...</option>
                 {API_CATEGORIES.map((category) => {
                   const endpoints = ALL_ENDPOINTS.filter((e) => e.category === category);
                   if (endpoints.length === 0) return null;
@@ -343,7 +343,7 @@ export function ApiPlayground({ initialEndpointId, fullPage, onEndpointChange }:
                         : "text-text-muted hover:text-text-secondary"
                     }`}
                   >
-                    Requisição
+                    Request
                   </button>
                   <button
                     onClick={() => setMobileTab("response")}
@@ -353,7 +353,7 @@ export function ApiPlayground({ initialEndpointId, fullPage, onEndpointChange }:
                         : "text-text-muted hover:text-text-secondary"
                     }`}
                   >
-                    Resposta
+                    Response
                     {response && (
                       <Badge
                         variant={response.status >= 200 && response.status < 300 ? "success" : "error"}
@@ -454,7 +454,7 @@ function EmptyState() {
   return (
     <div className="text-center space-y-4">
       <p className="text-text-muted text-sm mb-3">
-        Selecione um endpoint para comecar
+        Select an endpoint to start
       </p>
       <div className="flex flex-wrap items-center gap-2 justify-center">
         {API_CATEGORIES.map((cat) => {
@@ -473,7 +473,7 @@ function EmptyState() {
         <Badge variant="success" className="text-xs">GET</Badge>
         <Badge variant="info" className="text-xs">POST</Badge>
         <span className="text-text-muted text-xs">
-          {ALL_ENDPOINTS.length} endpoints disponiveis
+          {ALL_ENDPOINTS.length} endpoints available
         </span>
       </div>
     </div>

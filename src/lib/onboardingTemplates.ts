@@ -14,18 +14,18 @@ export interface IndustryTemplate {
 
 export const INDUSTRY_TEMPLATES: IndustryTemplate[] = [
   {
-    key: "imobiliaria",
-    label: "Imobiliaria",
+    key: "real_estate",
+    label: "Real Estate",
     icon: "Building2",
-    boardName: "Pipeline Imobiliario",
+    boardName: "Real Estate Pipeline",
     boardColor: "#3B82F6",
     stages: [
-      { name: "Novo Contato", color: "#3B82F6" },
-      { name: "Visita Agendada", color: "#8B5CF6" },
-      { name: "Proposta Enviada", color: "#F59E0B" },
-      { name: "Documentacao", color: "#06B6D4" },
-      { name: "Escritura", color: "#10B981", isClosedWon: true },
-      { name: "Desistencia", color: "#6B7280", isClosedLost: true },
+      { name: "New Contact", color: "#3B82F6" },
+      { name: "Visit Scheduled", color: "#8B5CF6" },
+      { name: "Proposal Sent", color: "#F59E0B" },
+      { name: "Documentation", color: "#06B6D4" },
+      { name: "Contract Signed", color: "#10B981", isClosedWon: true },
+      { name: "Withdrawn", color: "#6B7280", isClosedLost: true },
     ],
   },
   {
@@ -35,12 +35,12 @@ export const INDUSTRY_TEMPLATES: IndustryTemplate[] = [
     boardName: "Pipeline E-commerce",
     boardColor: "#EC4899",
     stages: [
-      { name: "Lead Captado", color: "#3B82F6" },
-      { name: "Primeiro Contato", color: "#8B5CF6" },
-      { name: "Demonstracao", color: "#F59E0B" },
-      { name: "Negociacao", color: "#EC4899" },
-      { name: "Fechado Ganho", color: "#10B981", isClosedWon: true },
-      { name: "Fechado Perdido", color: "#6B7280", isClosedLost: true },
+      { name: "Lead Captured", color: "#3B82F6" },
+      { name: "First Contact", color: "#8B5CF6" },
+      { name: "Demo", color: "#F59E0B" },
+      { name: "Negotiation", color: "#EC4899" },
+      { name: "Closed Won", color: "#10B981", isClosedWon: true },
+      { name: "Closed Lost", color: "#6B7280", isClosedLost: true },
     ],
   },
   {
@@ -52,86 +52,86 @@ export const INDUSTRY_TEMPLATES: IndustryTemplate[] = [
     stages: [
       { name: "MQL", color: "#06B6D4" },
       { name: "SQL", color: "#3B82F6" },
-      { name: "Demo Agendada", color: "#8B5CF6" },
-      { name: "Proposta", color: "#F59E0B" },
-      { name: "Negociacao", color: "#EC4899" },
-      { name: "Ganho", color: "#10B981", isClosedWon: true },
-      { name: "Perdido", color: "#6B7280", isClosedLost: true },
+      { name: "Demo Scheduled", color: "#8B5CF6" },
+      { name: "Proposal", color: "#F59E0B" },
+      { name: "Negotiation", color: "#EC4899" },
+      { name: "Won", color: "#10B981", isClosedWon: true },
+      { name: "Lost", color: "#6B7280", isClosedLost: true },
     ],
   },
   {
-    key: "servicos",
-    label: "Servicos",
+    key: "services",
+    label: "Services",
     icon: "Wrench",
-    boardName: "Pipeline de Servicos",
+    boardName: "Services Pipeline",
     boardColor: "#F59E0B",
     stages: [
-      { name: "Prospeccao", color: "#3B82F6" },
-      { name: "Qualificacao", color: "#8B5CF6" },
-      { name: "Orcamento", color: "#F59E0B" },
-      { name: "Aprovacao", color: "#06B6D4" },
-      { name: "Contrato Assinado", color: "#10B981", isClosedWon: true },
-      { name: "Nao Fechou", color: "#6B7280", isClosedLost: true },
+      { name: "Prospecting", color: "#3B82F6" },
+      { name: "Qualification", color: "#8B5CF6" },
+      { name: "Quote", color: "#F59E0B" },
+      { name: "Approval", color: "#06B6D4" },
+      { name: "Contract Signed", color: "#10B981", isClosedWon: true },
+      { name: "Not Closed", color: "#6B7280", isClosedLost: true },
     ],
   },
   {
-    key: "educacao",
-    label: "Educacao",
+    key: "education",
+    label: "Education",
     icon: "GraduationCap",
-    boardName: "Pipeline Educacional",
+    boardName: "Education Pipeline",
     boardColor: "#06B6D4",
     stages: [
-      { name: "Interessado", color: "#3B82F6" },
-      { name: "Matricula em Andamento", color: "#8B5CF6" },
-      { name: "Documentos Enviados", color: "#F59E0B" },
-      { name: "Aprovado", color: "#06B6D4" },
-      { name: "Matriculado", color: "#10B981", isClosedWon: true },
-      { name: "Desistiu", color: "#6B7280", isClosedLost: true },
+      { name: "Interested", color: "#3B82F6" },
+      { name: "Enrollment In Progress", color: "#8B5CF6" },
+      { name: "Documents Sent", color: "#F59E0B" },
+      { name: "Approved", color: "#06B6D4" },
+      { name: "Enrolled", color: "#10B981", isClosedWon: true },
+      { name: "Dropped Out", color: "#6B7280", isClosedLost: true },
     ],
   },
   {
-    key: "saude",
-    label: "Saude",
+    key: "healthcare",
+    label: "Healthcare",
     icon: "HeartPulse",
-    boardName: "Pipeline de Saude",
+    boardName: "Healthcare Pipeline",
     boardColor: "#EF4444",
     stages: [
-      { name: "Primeiro Contato", color: "#3B82F6" },
-      { name: "Avaliacao", color: "#8B5CF6" },
-      { name: "Orcamento", color: "#F59E0B" },
-      { name: "Tratamento", color: "#EC4899" },
-      { name: "Concluido", color: "#10B981", isClosedWon: true },
-      { name: "Cancelado", color: "#6B7280", isClosedLost: true },
+      { name: "First Contact", color: "#3B82F6" },
+      { name: "Evaluation", color: "#8B5CF6" },
+      { name: "Quote", color: "#F59E0B" },
+      { name: "Treatment", color: "#EC4899" },
+      { name: "Completed", color: "#10B981", isClosedWon: true },
+      { name: "Cancelled", color: "#6B7280", isClosedLost: true },
     ],
   },
   {
-    key: "financeiro",
-    label: "Financeiro",
+    key: "finance",
+    label: "Finance",
     icon: "Landmark",
-    boardName: "Pipeline Financeiro",
+    boardName: "Finance Pipeline",
     boardColor: "#10B981",
     stages: [
-      { name: "Lead Qualificado", color: "#3B82F6" },
-      { name: "Analise de Perfil", color: "#8B5CF6" },
-      { name: "Proposta", color: "#F59E0B" },
-      { name: "Aprovacao", color: "#06B6D4" },
+      { name: "Qualified Lead", color: "#3B82F6" },
+      { name: "Profile Analysis", color: "#8B5CF6" },
+      { name: "Proposal", color: "#F59E0B" },
+      { name: "Approval", color: "#06B6D4" },
       { name: "Contrato", color: "#10B981", isClosedWon: true },
-      { name: "Recusado", color: "#EF4444", isClosedLost: true },
+      { name: "Rejected", color: "#EF4444", isClosedLost: true },
     ],
   },
   {
-    key: "outro",
-    label: "Outro",
+    key: "other",
+    label: "Other",
     icon: "MoreHorizontal",
-    boardName: "Pipeline de Vendas",
+    boardName: "Sales Pipeline",
     boardColor: "#3B82F6",
     stages: [
-      { name: "Novo Lead", color: "#3B82F6" },
-      { name: "Qualificado", color: "#8B5CF6" },
-      { name: "Proposta", color: "#F59E0B" },
-      { name: "Negociacao", color: "#EC4899" },
-      { name: "Fechado Ganho", color: "#10B981", isClosedWon: true },
-      { name: "Fechado Perdido", color: "#6B7280", isClosedLost: true },
+      { name: "New Lead", color: "#3B82F6" },
+      { name: "Qualified", color: "#8B5CF6" },
+      { name: "Proposal", color: "#F59E0B" },
+      { name: "Negotiation", color: "#EC4899" },
+      { name: "Closed Won", color: "#10B981", isClosedWon: true },
+      { name: "Closed Lost", color: "#6B7280", isClosedLost: true },
     ],
   },
 ];
@@ -145,11 +145,20 @@ export const COMPANY_SIZES = [
 ];
 
 export const MAIN_GOALS = [
-  { key: "vendas", label: "Gerenciar vendas", icon: "TrendingUp" },
-  { key: "contatos", label: "Organizar contatos", icon: "Contact2" },
-  { key: "atendimento", label: "Automatizar atendimento", icon: "Bot" },
-  { key: "tudo", label: "Tudo isso!", icon: "Sparkles" },
+  { key: "sales", label: "Manage sales", icon: "TrendingUp" },
+  { key: "contacts", label: "Organize contacts", icon: "Contact2" },
+  { key: "support", label: "Automate support", icon: "Bot" },
+  { key: "all", label: "All of it!", icon: "Sparkles" },
 ];
+
+const LEGACY_INDUSTRY_KEY_MAP: Record<string, string> = {
+  imobiliaria: "real_estate",
+  servicos: "services",
+  educacao: "education",
+  saude: "healthcare",
+  financeiro: "finance",
+  outro: "other",
+};
 
 export const STAGE_COLORS = [
   "#EF4444",
@@ -163,8 +172,9 @@ export const STAGE_COLORS = [
 ];
 
 export function getTemplateByIndustry(industry: string): IndustryTemplate {
+  const normalizedIndustry = LEGACY_INDUSTRY_KEY_MAP[industry] ?? industry;
   return (
-    INDUSTRY_TEMPLATES.find((t) => t.key === industry) ||
+    INDUSTRY_TEMPLATES.find((t) => t.key === normalizedIndustry) ||
     INDUSTRY_TEMPLATES[INDUSTRY_TEMPLATES.length - 1]
   );
 }

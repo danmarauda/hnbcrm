@@ -49,23 +49,23 @@ const ICON_MAP: Record<string, React.ElementType> = {
 };
 
 const CURRENCIES = [
-  { key: "BRL", flag: "🇧🇷", symbol: "R$", label: "Real", sublabel: "Brasileiro" },
-  { key: "USD", flag: "🇺🇸", symbol: "$", label: "Dólar", sublabel: "Americano" },
+  { key: "BRL", flag: "🇧🇷", symbol: "$", label: "Real", sublabel: "Brasileiro" },
+  { key: "USD", flag: "🇺🇸", symbol: "$", label: "Dollar", sublabel: "US" },
   { key: "EUR", flag: "🇪🇺", symbol: "€", label: "Euro", sublabel: "" },
 ];
 
 const TIMEZONES = [
-  { value: "America/Sao_Paulo", label: "América/São Paulo (GMT-3)" },
-  { value: "America/Manaus", label: "América/Manaus (GMT-4)" },
-  { value: "America/Fortaleza", label: "América/Fortaleza (GMT-3)" },
-  { value: "America/New_York", label: "América/Nova York (GMT-5)" },
-  { value: "America/Chicago", label: "América/Chicago (GMT-6)" },
-  { value: "America/Denver", label: "América/Denver (GMT-7)" },
-  { value: "America/Los_Angeles", label: "América/Los Angeles (GMT-8)" },
+  { value: "America/Sao_Paulo", label: "America/Sao Paulo (GMT-3)" },
+  { value: "America/Manaus", label: "America/Manaus (GMT-4)" },
+  { value: "America/Fortaleza", label: "America/Fortaleza (GMT-3)" },
+  { value: "America/New_York", label: "America/New York (GMT-5)" },
+  { value: "America/Chicago", label: "America/Chicago (GMT-6)" },
+  { value: "America/Denver", label: "America/Denver (GMT-7)" },
+  { value: "America/Los_Angeles", label: "America/Los Angeles (GMT-8)" },
   { value: "Europe/Paris", label: "Europa/Paris (GMT+1)" },
   { value: "Europe/London", label: "Europa/Londres (GMT+0)" },
   { value: "Europe/Berlin", label: "Europa/Berlim (GMT+1)" },
-  { value: "Asia/Tokyo", label: "Ásia/Tóquio (GMT+9)" },
+  { value: "Asia/Tokyo", label: "Asia/Tokyo (GMT+9)" },
   { value: "UTC", label: "UTC (GMT+0)" },
 ];
 
@@ -86,17 +86,17 @@ export function WizardStep1Welcome({
       {/* Header */}
       <div className="text-center space-y-2">
         <h2 className="text-2xl md:text-3xl font-bold text-text-primary">
-          Vamos personalizar seu CRM
+          Let's personalize your CRM
         </h2>
         <p className="text-text-secondary">
-          Responda algumas perguntas para configurar tudo automaticamente
+          Answer a few questions to set everything up automatically
         </p>
       </div>
 
       {/* Section 1: Industry */}
       <div className="space-y-3">
         <label className="block text-sm font-semibold text-text-primary">
-          Qual o setor do seu negócio?
+          What is your business industry?
         </label>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {INDUSTRY_TEMPLATES.map((template) => {
@@ -140,7 +140,7 @@ export function WizardStep1Welcome({
       {/* Section 2: Company Size */}
       <div className="space-y-3">
         <label className="block text-sm font-semibold text-text-primary">
-          Tamanho da equipe
+          Team size
         </label>
         <div className="flex flex-wrap gap-2">
           {COMPANY_SIZES.map((size) => {
@@ -169,7 +169,7 @@ export function WizardStep1Welcome({
       {/* Section 3: Main Goal */}
       <div className="space-y-3">
         <label className="block text-sm font-semibold text-text-primary">
-          Qual seu principal objetivo?
+          What is your main goal?
         </label>
         <div className="grid grid-cols-2 gap-3">
           {MAIN_GOALS.map((goal) => {
@@ -253,7 +253,7 @@ export function WizardStep1Welcome({
       {/* Section 5: Timezone */}
       <div className="space-y-3">
         <label className="block text-sm font-semibold text-text-primary">
-          Fuso horário
+          Time Zone
         </label>
         <select
           value={timezone}

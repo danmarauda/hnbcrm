@@ -12,19 +12,19 @@ interface WizardStep3SampleDataProps {
 const SAMPLE_DATA_ITEMS = [
   {
     icon: Contact2,
-    label: "8 contatos com perfis completos",
+    label: "8 contacts com perfis completos",
   },
   {
     icon: Target,
-    label: "6 leads em diferentes etapas do pipeline",
+    label: "6 leads in different pipeline stages",
   },
   {
     icon: MessageSquare,
-    label: "3 conversas simuladas multicanal",
+    label: "3 simulated multichannel conversations",
   },
   {
     icon: ArrowRightLeft,
-    label: "1 repasse IA-humano pendente",
+    label: "1 pending AI-to-human handoff",
   },
 ];
 
@@ -38,9 +38,9 @@ export function WizardStep3SampleData({
     <div className="space-y-6 animate-fade-in-up">
       {/* Header */}
       <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold text-text-primary">Dados de Exemplo</h2>
+        <h2 className="text-2xl font-bold text-text-primary">Sample Data</h2>
         <p className="text-text-secondary">
-          Explore o CRM com dados realistas gerados automaticamente
+          Explore the CRM with realistic auto-generated data
         </p>
       </div>
 
@@ -64,7 +64,7 @@ export function WizardStep3SampleData({
                 enabled ? "bg-brand-500" : "bg-surface-overlay border border-border",
                 isGenerating && "cursor-not-allowed opacity-50"
               )}
-              aria-label="Alternar dados de exemplo"
+              aria-label="Toggle sample data"
             >
               <div
                 className={cn(
@@ -77,7 +77,7 @@ export function WizardStep3SampleData({
             {/* Label */}
             <div className="flex-1">
               <h3 className="text-base font-semibold text-text-primary">
-                Gerar dados de exemplo
+                Generate sample data
               </h3>
             </div>
           </div>
@@ -116,7 +116,7 @@ export function WizardStep3SampleData({
           {/* Disabled Message */}
           {!enabled && !isGenerating && (
             <p className="text-sm text-text-muted pt-2 border-t border-border">
-              Você pode adicionar dados manualmente depois
+              You can add data manually later
             </p>
           )}
         </div>

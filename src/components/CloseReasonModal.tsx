@@ -37,7 +37,7 @@ export function CloseReasonModal({
 
     // Validate: lost requires a reason
     if (!isWon && !reason.trim()) {
-      toast.error("Motivo é obrigatório para leads perdidos");
+      toast.error("Reason is required for lost leads");
       return;
     }
 
@@ -52,9 +52,9 @@ export function CloseReasonModal({
           finalValue,
         }),
         {
-          loading: isWon ? "Fechando como ganho..." : "Fechando como perdido...",
-          success: isWon ? "Lead fechado como ganho!" : "Lead fechado como perdido!",
-          error: "Falha ao fechar lead",
+          loading: isWon ? "Closing as won..." : "Closing as lost...",
+          success: isWon ? "Lead closed as won!" : "Lead closed as lost!",
+          error: "Failed to close lead",
         }
       );
 
@@ -76,12 +76,12 @@ export function CloseReasonModal({
     <Modal
       open={open}
       onClose={handleCancel}
-      title={isWon ? "Fechando como Ganho" : "Fechando como Perdido"}
+      title={isWon ? "Closing as Won" : "Closing as Lost"}
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-[13px] font-medium text-text-secondary mb-1">
-            Motivo {!isWon && <span className="text-semantic-error">*</span>}
+            Reason {!isWon && <span className="text-semantic-error">*</span>}
           </label>
           <input
             type="text"
@@ -89,8 +89,8 @@ export function CloseReasonModal({
             onChange={(e) => setReason(e.target.value)}
             placeholder={
               isWon
-                ? "Motivo da vitória (opcional)"
-                : "Motivo da perda (obrigatório)"
+                ? "Reason for win (optional)"
+                : "Reason for loss (required)"
             }
             className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 placeholder:text-text-muted"
             style={{ fontSize: "16px" }}
@@ -104,7 +104,7 @@ export function CloseReasonModal({
           </label>
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary text-sm">
-              R$
+              $
             </span>
             <input
               type="number"
@@ -127,7 +127,7 @@ export function CloseReasonModal({
             className="flex-1"
             disabled={isSubmitting}
           >
-            Cancelar
+            Cancel
           </Button>
           <Button
             type="submit"

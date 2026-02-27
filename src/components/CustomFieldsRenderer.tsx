@@ -27,7 +27,7 @@ export function CustomFieldsRenderer({
 
   if (sorted.length === 0) {
     return (
-      <p className="text-sm text-text-muted">Nenhum campo personalizado definido.</p>
+      <p className="text-sm text-text-muted">No custom fields defined.</p>
     );
   }
 
@@ -69,9 +69,9 @@ function renderViewValue(field: FieldDefinition, value: any): React.ReactNode {
 
   switch (field.type) {
     case "boolean":
-      return value ? "Sim" : "Nao";
+      return value ? "Yes" : "No";
     case "date":
-      return new Date(value).toLocaleDateString("pt-BR");
+      return new Date(value).toLocaleDateString("en-US");
     case "multiselect":
       if (Array.isArray(value) && value.length > 0) {
         return (
@@ -126,7 +126,7 @@ function renderEditField(
             onChange={(e) => onChange(field.key, e.target.checked)}
             className="rounded border-border-strong bg-surface-raised text-brand-600 focus:ring-brand-500"
           />
-          <span className="text-sm text-text-secondary">{value ? "Sim" : "Nao"}</span>
+          <span className="text-sm text-text-secondary">{value ? "Yes" : "No"}</span>
         </label>
       );
     case "date":
@@ -146,7 +146,7 @@ function renderEditField(
           onChange={(e) => onChange(field.key, e.target.value)}
           className={inputClass}
         >
-          <option value="">Selecionar...</option>
+          <option value="">Select...</option>
           {field.options?.map((opt) => (
             <option key={opt} value={opt}>{opt}</option>
           ))}

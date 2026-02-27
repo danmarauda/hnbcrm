@@ -33,19 +33,19 @@ type ActionFilter = "all" | "create" | "update" | "delete" | "move" | "assign" |
 
 const DATE_PRESETS: { value: DatePreset; label: string }[] = [
   { value: "24h", label: "24h" },
-  { value: "7d", label: "7 dias" },
-  { value: "30d", label: "30 dias" },
-  { value: "all", label: "Tudo" },
+  { value: "7d", label: "7 days" },
+  { value: "30d", label: "30 days" },
+  { value: "all", label: "All" },
 ];
 
 const ACTION_FILTERS: { value: ActionFilter; label: string }[] = [
-  { value: "all", label: "Tudo" },
-  { value: "create", label: "Criar" },
-  { value: "update", label: "Atualizar" },
-  { value: "move", label: "Mover" },
-  { value: "assign", label: "Atribuir" },
-  { value: "delete", label: "Excluir" },
-  { value: "handoff", label: "Repassar" },
+  { value: "all", label: "All" },
+  { value: "create", label: "Create" },
+  { value: "update", label: "Update" },
+  { value: "move", label: "Move" },
+  { value: "assign", label: "Assign" },
+  { value: "delete", label: "Delete" },
+  { value: "handoff", label: "Handoff" },
 ];
 
 export function RecentActivityWidget({
@@ -91,12 +91,12 @@ export function RecentActivityWidget({
     <Card>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-text-primary">Atividade Recente</h3>
+        <h3 className="text-lg font-semibold text-text-primary">Recent Activity</h3>
         <button
-          onClick={() => navigate("/app/auditoria")}
+          onClick={() => navigate("/app/audit")}
           className="flex items-center gap-1 text-sm text-brand-500 hover:text-brand-400 transition-colors font-medium"
         >
-          Ver tudo
+          View all
           <ChevronRight size={16} />
         </button>
       </div>
@@ -163,16 +163,16 @@ export function RecentActivityWidget({
             <Shield size={24} className="text-text-muted" />
           </div>
           <p className="text-sm font-medium text-text-primary mb-1">
-            Nenhuma atividade encontrada
+            No activity found
           </p>
           <p className="text-xs text-text-muted text-center">
             {hasActiveFilters
-              ? "Tente ajustar os filtros."
-              : "As atividades aparecerão aqui automaticamente."}
+              ? "Try adjusting your filters."
+              : "Activity will appear here automatically."}
           </p>
           {hasActiveFilters && (
             <Button variant="ghost" size="sm" className="mt-3" onClick={clearFilters}>
-              Limpar filtros
+              Clear filters
             </Button>
           )}
         </div>
@@ -190,7 +190,7 @@ export function RecentActivityWidget({
                 </span>
                 <div className="flex-1 h-px bg-border" />
                 <span className="text-[10px] text-text-muted">
-                  {group.logs.length} {group.logs.length === 1 ? "evento" : "eventos"}
+                  {group.logs.length} {group.logs.length === 1 ? "events?" : "events?s"}
                 </span>
               </div>
 
@@ -266,7 +266,7 @@ export function RecentActivityWidget({
                         <div className="flex flex-col items-end gap-1 shrink-0">
                           <span
                             className="text-[10px] text-text-muted"
-                            title={new Date(log.createdAt).toLocaleString("pt-BR")}
+                            title={new Date(log.createdAt).toLocaleString("en-US")}
                           >
                             {formatRelativeTime(log.createdAt)}
                           </span>
@@ -384,9 +384,9 @@ export function RecentActivityWidget({
                 variant="ghost"
                 size="sm"
                 className="w-full"
-                onClick={() => navigate("/app/auditoria")}
+                onClick={() => navigate("/app/audit")}
               >
-                Ver mais na Auditoria
+                View more in Audit Logs
                 <ChevronRight size={14} />
               </Button>
             </div>

@@ -24,14 +24,14 @@ interface MentionTextareaProps {
 }
 
 const ROLE_LABELS: Record<string, string> = {
-  ai: "IA",
+  ai: "AI",
   admin: "Admin",
-  manager: "Gerente",
-  agent: "Agente",
+  manager: "Manager",
+  agent: "Agent",
 };
 
 function getRoleLabel(member: TeamMember): string {
-  if (member.type === "ai") return "IA";
+  if (member.type === "ai") return "AI";
   return ROLE_LABELS[member.role] || member.role;
 }
 

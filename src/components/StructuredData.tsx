@@ -12,7 +12,7 @@ export function OrganizationStructuredData() {
       "priceCurrency": "BRL"
     },
     "operatingSystem": "Web",
-    "description": "CRM multi-tenancy com colaboração humano-IA. Gerencie leads, pipeline, contatos e conversas com agentes de IA integrados.",
+    "description": "Multi-tenant CRM with human-AI collaboration. Manage leads, pipeline, contacts, and conversations with integrated AI agents.",
   };
 
   return (

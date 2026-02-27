@@ -74,7 +74,7 @@ export function AttachmentPreview({
                     href={file.url}
                     download={file.name}
                     className="p-0.5 text-text-muted hover:text-brand-500 transition-colors"
-                    aria-label={`Baixar ${file.name}`}
+                    aria-label={`Download ${file.name}`}
                   >
                     <Download size={10} />
                   </a>
@@ -85,7 +85,7 @@ export function AttachmentPreview({
                   type="button"
                   onClick={() => onRemove(file._id)}
                   className="absolute top-1 right-1 p-0.5 rounded-full bg-surface-base/80 text-text-muted hover:text-semantic-error transition-colors opacity-0 group-hover:opacity-100"
-                  aria-label={`Remover ${file.name}`}
+                  aria-label={`Remove ${file.name}`}
                 >
                   <X size={12} />
                 </button>
@@ -113,7 +113,7 @@ export function AttachmentPreview({
                 href={file.url}
                 download={file.name}
                 className="shrink-0 p-1 text-text-muted hover:text-brand-500 transition-colors"
-                aria-label={`Baixar ${file.name}`}
+                aria-label={`Download ${file.name}`}
               >
                 <Download size={12} />
               </a>
@@ -123,7 +123,7 @@ export function AttachmentPreview({
                 type="button"
                 onClick={() => onRemove(file._id)}
                 className="shrink-0 p-0.5 text-text-muted hover:text-semantic-error transition-colors opacity-0 group-hover:opacity-100"
-                aria-label={`Remover ${file.name}`}
+                aria-label={`Remove ${file.name}`}
               >
                 <X size={12} />
               </button>

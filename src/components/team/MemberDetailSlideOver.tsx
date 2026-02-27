@@ -54,15 +54,15 @@ interface MemberDetailSlideOverProps {
 
 const ROLE_LABELS: Record<string, string> = {
   admin: "Admin",
-  manager: "Gerente",
-  agent: "Agente",
-  ai: "IA",
+  manager: "Manager",
+  agent: "Agent",
+  ai: "AI",
 };
 
 const STATUS_LABELS: Record<string, string> = {
-  active: "Ativo",
+  active: "Active",
   busy: "Ocupado",
-  inactive: "Inativo",
+  inactive: "Inactive",
 };
 
 export function MemberDetailSlideOver({
@@ -138,10 +138,10 @@ export function MemberDetailSlideOver({
         role: editRole !== member.role ? editRole : undefined,
         permissions: customPermissions ? editPermissions : undefined,
       });
-      toast.success("Membro atualizado!");
+      toast.success("Member updated!");
       setIsEditing(false);
     } catch (error: any) {
-      toast.error(error.message || "Falha ao atualizar membro.");
+      toast.error(error.message || "Failed to update member.");
     } finally {
       setIsSaving(false);
     }
@@ -150,19 +150,19 @@ export function MemberDetailSlideOver({
   const handleRemove = async () => {
     try {
       await removeMember({ teamMemberId: member._id });
-      toast.success("Membro removido.");
+      toast.success("Member removed.");
       onClose();
     } catch (error: any) {
-      toast.error(error.message || "Falha ao remover membro.");
+      toast.error(error.message || "Failed to remove member.");
     }
   };
 
   const handleReactivate = async () => {
     try {
       await reactivateMember({ teamMemberId: member._id });
-      toast.success("Membro reativado!");
+      toast.success("Member reactivated!");
     } catch (error: any) {
-      toast.error(error.message || "Falha ao reativar membro.");
+      toast.error(error.message || "Failed to reactivate member.");
     }
   };
 
@@ -184,9 +184,9 @@ export function MemberDetailSlideOver({
       });
       setNewKeyValue(result.apiKey);
       setNewKeyName("");
-      toast.success("Chave API criada!");
+      toast.success("API key created!");
     } catch (error: any) {
-      toast.error(error.message || "Falha ao criar chave API.");
+      toast.error(error.message || "Failed to create API key.");
     } finally {
       setCreatingKey(false);
     }
@@ -196,17 +196,17 @@ export function MemberDetailSlideOver({
     if (!revokeKeyId) return;
     try {
       await revokeApiKeyMutation({ apiKeyId: revokeKeyId, organizationId });
-      toast.success("Chave API revogada!");
+      toast.success("API key revoked!");
       setRevokeKeyId(null);
     } catch (error: any) {
-      toast.error(error.message || "Falha ao revogar chave.");
+      toast.error(error.message || "Failed to revoke key.");
     }
   };
 
   const handleCopyKey = async (text: string) => {
     await navigator.clipboard.writeText(text);
     setKeyCopied(true);
-    toast.success("Copiado!");
+    toast.success("Copied!");
     setTimeout(() => setKeyCopied(false), 2000);
   };
 
@@ -246,7 +246,7 @@ export function MemberDetailSlideOver({
 
   return (
     <>
-      <SlideOver open={open} onClose={onClose} title="Detalhes do Membro">
+      <SlideOver open={open} onClose={onClose} title="Member Details">
         <div className="p-4 md:p-6 space-y-6">
           {/* Member header */}
           <div className="flex items-center gap-4">
@@ -267,7 +267,7 @@ export function MemberDetailSlideOver({
                 <Input
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  placeholder="Nome do membro"
+                  placeholder="Member name"
                 />
               ) : (
                 <>
@@ -290,7 +290,7 @@ export function MemberDetailSlideOver({
               {ROLE_LABELS[isEditing ? editRole : member.role] || member.role}
             </Badge>
             <Badge variant={member.type === "ai" ? "warning" : "info"}>
-              {member.type === "ai" ? "IA" : "Humano"}
+              {member.type === "ai" ? "AI" : "Human"}
             </Badge>
             <Badge variant={getStatusBadgeVariant(member.status)}>
               {STATUS_LABELS[member.status] || member.status}
@@ -301,7 +301,7 @@ export function MemberDetailSlideOver({
           {isEditing && member.type === "human" && (
             <div>
               <label className="block text-[13px] font-medium text-text-secondary mb-1.5">
-                Funcao
+                Role
               </label>
               <div className="flex flex-wrap gap-2">
                 {(["agent", "manager", "admin"] as Role[]).map((r) => (
@@ -328,7 +328,7 @@ export function MemberDetailSlideOver({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-text-secondary">
-                  Personalizar permissoes
+                  Customize permissions
                 </span>
                 <button
                   type="button"
@@ -385,7 +385,7 @@ export function MemberDetailSlideOver({
                     className="flex items-center gap-1 text-xs font-medium text-brand-500 hover:text-brand-400 transition-colors"
                   >
                     <Plus size={14} />
-                    Nova Chave
+                    New Key
                   </button>
                 )}
               </div>
@@ -394,7 +394,7 @@ export function MemberDetailSlideOver({
               {showNewKey && !newKeyValue && (
                 <div className="p-3 bg-surface-sunken rounded-lg border border-border space-y-3">
                   <Input
-                    label="Nome da Chave"
+                    label="Key Name"
                     value={newKeyName}
                     onChange={(e) => setNewKeyName(e.target.value)}
                     placeholder={slugify(member.name)}
@@ -406,7 +406,7 @@ export function MemberDetailSlideOver({
                       onClick={() => { setShowNewKey(false); setNewKeyName(""); }}
                       className="flex-1"
                     >
-                      Cancelar
+                      Cancel
                     </Button>
                     <Button
                       size="sm"
@@ -414,7 +414,7 @@ export function MemberDetailSlideOver({
                       disabled={creatingKey || !newKeyName.trim()}
                       className="flex-1"
                     >
-                      {creatingKey ? "Criando..." : "Criar Chave"}
+                      {creatingKey ? "Creating..." : "Create Key"}
                     </Button>
                   </div>
                 </div>
@@ -425,7 +425,7 @@ export function MemberDetailSlideOver({
                 <div className="p-3 bg-surface-sunken rounded-lg border border-semantic-success/30 space-y-3">
                   <div className="flex items-center gap-2 text-semantic-success">
                     <Check size={16} />
-                    <span className="text-sm font-medium">Chave criada!</span>
+                    <span className="text-sm font-medium">Key created!</span>
                   </div>
                   <div className="flex items-center gap-2 bg-surface-base border border-border rounded-lg p-2">
                     <code className="flex-1 text-xs font-mono text-text-primary break-all select-all">
@@ -444,11 +444,11 @@ export function MemberDetailSlideOver({
                     className="w-full"
                   >
                     {keyCopied ? <Check size={14} /> : <Copy size={14} />}
-                    {keyCopied ? "Copiada!" : "Copiar Chave"}
+                    {keyCopied ? "Copied!" : "Copy Key"}
                   </Button>
                   <div className="flex gap-2 items-start text-xs text-semantic-warning bg-semantic-warning/5 border border-semantic-warning/20 rounded-lg p-2">
                     <ShieldAlert size={14} className="flex-shrink-0 mt-0.5" />
-                    <span>Salve em local seguro. Nao sera exibida novamente.</span>
+                    <span>Save it in a secure location. It will not be shown again.</span>
                   </div>
                   <Button
                     variant="secondary"
@@ -456,7 +456,7 @@ export function MemberDetailSlideOver({
                     onClick={handleCloseNewKey}
                     className="w-full"
                   >
-                    Fechar
+                    Close
                   </Button>
                 </div>
               )}
@@ -480,16 +480,16 @@ export function MemberDetailSlideOver({
                             {key.name}
                           </span>
                           {!key.isActive && (
-                            <Badge variant="error">Revogada</Badge>
+                            <Badge variant="error">Revoked</Badge>
                           )}
                           {key.expiresAt && key.expiresAt < Date.now() && key.isActive && (
-                            <Badge variant="warning">Expirada</Badge>
+                            <Badge variant="warning">Expired</Badge>
                           )}
                         </div>
                         <p className="text-xs text-text-muted mt-0.5">
-                          Criada em {new Date(key.createdAt).toLocaleDateString("pt-BR")}
+                          Created on {new Date(key.createdAt).toLocaleDateString("en-US")}
                           {key.lastUsed && (
-                            <> · Usada {new Date(key.lastUsed).toLocaleDateString("pt-BR")}</>
+                            <> · Used {new Date(key.lastUsed).toLocaleDateString("en-US")}</>
                           )}
                         </p>
                       </div>
@@ -497,7 +497,7 @@ export function MemberDetailSlideOver({
                         <button
                           onClick={() => setRevokeKeyId(key._id)}
                           className="flex-shrink-0 p-1.5 rounded-md text-text-muted hover:text-semantic-error hover:bg-semantic-error/10 transition-colors"
-                          title="Revogar chave"
+                          title="Revoke key"
                         >
                           <Ban size={14} />
                         </button>
@@ -509,7 +509,7 @@ export function MemberDetailSlideOver({
 
               {apiKeys && apiKeys.length === 0 && !showNewKey && !newKeyValue && (
                 <p className="text-xs text-text-muted text-center py-2">
-                  Nenhuma chave API criada.
+                  No API keys created.
                 </p>
               )}
             </div>
@@ -518,8 +518,8 @@ export function MemberDetailSlideOver({
           {/* Metadata */}
           <div className="text-xs text-text-muted space-y-1 pt-2 border-t border-border-subtle">
             <p>
-              Criado em{" "}
-              {new Date(member.createdAt).toLocaleDateString("pt-BR", {
+              Created at{" "}
+              {new Date(member.createdAt).toLocaleDateString("en-US", {
                 day: "2-digit",
                 month: "long",
                 year: "numeric",
@@ -527,7 +527,7 @@ export function MemberDetailSlideOver({
             </p>
             {member.mustChangePassword && (
               <p className="text-semantic-warning">
-                Aguardando troca de senha
+                Waiting for password change
               </p>
             )}
           </div>
@@ -543,7 +543,7 @@ export function MemberDetailSlideOver({
                     className="flex-1"
                   >
                     <X size={16} />
-                    Cancelar
+                    Cancel
                   </Button>
                   <Button
                     onClick={handleSave}
@@ -551,7 +551,7 @@ export function MemberDetailSlideOver({
                     className="flex-1"
                   >
                     <Save size={16} />
-                    {isSaving ? "Salvando..." : "Salvar"}
+                    {isSaving ? "Saving..." : "Save"}
                   </Button>
                 </div>
               ) : (
@@ -562,7 +562,7 @@ export function MemberDetailSlideOver({
                     className="w-full"
                   >
                     <Pencil size={16} />
-                    Editar Membro
+                    Edit Member
                   </Button>
 
                   {isInactive ? (
@@ -572,7 +572,7 @@ export function MemberDetailSlideOver({
                       className="w-full"
                     >
                       <RotateCcw size={16} />
-                      Reativar Membro
+                      Reactivate Member
                     </Button>
                   ) : (
                     !isSelf && (
@@ -582,7 +582,7 @@ export function MemberDetailSlideOver({
                         className="w-full"
                       >
                         <Trash2 size={16} />
-                        Remover Membro
+                        Remove Member
                       </Button>
                     )
                   )}
@@ -597,9 +597,9 @@ export function MemberDetailSlideOver({
         open={showRemoveConfirm}
         onClose={() => setShowRemoveConfirm(false)}
         onConfirm={handleRemove}
-        title="Remover Membro"
-        description={`Tem certeza que deseja remover ${member.name} da equipe? O status sera alterado para inativo.`}
-        confirmLabel="Remover"
+        title="Remove Member"
+        description={`Are you sure you want to remove ${member.name} from the team? The status will be set to inactive.`}
+        confirmLabel="Remove"
         variant="danger"
       />
 
@@ -607,9 +607,9 @@ export function MemberDetailSlideOver({
         open={!!revokeKeyId}
         onClose={() => setRevokeKeyId(null)}
         onConfirm={handleRevokeApiKey}
-        title="Revogar Chave API"
-        description="Esta acao e irreversivel. Qualquer integracao usando esta chave parara de funcionar imediatamente."
-        confirmLabel="Revogar"
+        title="Revoke API Key"
+        description="This action is irreversible. Any integration using this key will stop working immediately."
+        confirmLabel="Revoke"
         variant="danger"
       />
     </>

@@ -47,26 +47,26 @@ const ACTIVITY_ICONS: Record<string, React.ElementType> = {
 };
 
 const ACTIVITY_LABELS: Record<string, string> = {
-  todo: "Tarefa",
-  call: "Ligação",
-  email: "E-mail",
+  todo: "Task",
+  call: "Call",
+  email: "Email",
   follow_up: "Follow-up",
-  meeting: "Reunião",
-  research: "Pesquisa",
+  meeting: "Meeting",
+  research: "Research",
 };
 
 const PRIORITY_BADGE: Record<string, { variant: "default" | "info" | "warning" | "error"; label: string }> = {
-  low: { variant: "default", label: "Baixa" },
-  medium: { variant: "info", label: "Média" },
-  high: { variant: "warning", label: "Alta" },
-  urgent: { variant: "error", label: "Urgente" },
+  low: { variant: "default", label: "Low" },
+  medium: { variant: "info", label: "Medium" },
+  high: { variant: "warning", label: "High" },
+  urgent: { variant: "error", label: "Urgent" },
 };
 
 const STATUS_LABELS: Record<string, string> = {
-  pending: "Pendente",
-  in_progress: "Em Progresso",
-  completed: "Concluída",
-  cancelled: "Cancelada",
+  pending: "Pending",
+  in_progress: "In Progress",
+  completed: "Completed",
+  cancelled: "Cancelled",
 };
 
 const STATUS_BADGE_VARIANT: Record<string, "default" | "info" | "success" | "error"> = {
@@ -77,10 +77,10 @@ const STATUS_BADGE_VARIANT: Record<string, "default" | "info" | "success" | "err
 };
 
 const RECURRENCE_LABELS: Record<string, string> = {
-  daily: "Diária",
-  weekly: "Semanal",
-  biweekly: "Quinzenal",
-  monthly: "Mensal",
+  daily: "Daily",
+  weekly: "Weekly",
+  biweekly: "Biweekly",
+  monthly: "Monthly",
 };
 
 // ============================================================================
@@ -142,7 +142,7 @@ export function TaskDetailSlideOver({
 
   if (task === undefined) {
     return (
-      <SlideOver open={isOpen} onClose={onClose} title="Tarefa">
+      <SlideOver open={isOpen} onClose={onClose} title="Task">
         <div className="flex justify-center items-center h-48">
           <Spinner size="lg" />
         </div>
@@ -152,8 +152,8 @@ export function TaskDetailSlideOver({
 
   if (task === null) {
     return (
-      <SlideOver open={isOpen} onClose={onClose} title="Tarefa">
-        <div className="p-6 text-center text-text-muted">Tarefa não encontrada.</div>
+      <SlideOver open={isOpen} onClose={onClose} title="Task">
+        <div className="p-6 text-center text-text-muted">Task not found.</div>
       </SlideOver>
     );
   }
@@ -170,28 +170,28 @@ export function TaskDetailSlideOver({
   const handleComplete = async () => {
     try {
       await completeTask({ taskId });
-      toast.success("Tarefa concluída!");
+      toast.success("Task completed!");
     } catch {
-      toast.error("Falha ao concluir tarefa");
+      toast.error("Failed to complete task");
     }
   };
 
   const handleCancel = async () => {
     try {
       await cancelTask({ taskId });
-      toast.success("Tarefa cancelada");
+      toast.success("Task cancelada");
     } catch {
-      toast.error("Falha ao cancelar tarefa");
+      toast.error("Failed to cancel task");
     }
   };
 
   const handleDelete = async () => {
     try {
       await deleteTask({ taskId });
-      toast.success("Tarefa excluída");
+      toast.success("Task deleted");
       onClose();
     } catch {
-      toast.error("Falha ao excluir tarefa");
+      toast.error("Failed to delete task");
     }
   };
 
@@ -201,12 +201,12 @@ export function TaskDetailSlideOver({
     const snoozedUntil = new Date(snoozeDate + "T" + timeStr).getTime();
     try {
       await snoozeTask({ taskId, snoozedUntil });
-      toast.success("Lembrete salvo");
+      toast.success("Reminder salvo");
       setShowSnoozeDate(false);
       setSnoozeDate("");
       setSnoozeTime("");
     } catch {
-      toast.error("Falha ao salvar lembrete");
+      toast.error("Failed to save reminder");
     }
   };
 
@@ -216,7 +216,7 @@ export function TaskDetailSlideOver({
       await updateTask({ taskId, title: titleValue.trim() });
       setEditingTitle(false);
     } catch {
-      toast.error("Falha ao atualizar título");
+      toast.error("Failed to update title");
     }
   };
 
@@ -225,7 +225,7 @@ export function TaskDetailSlideOver({
       await updateTask({ taskId, description: descriptionValue.trim() || undefined });
       setEditingDescription(false);
     } catch {
-      toast.error("Falha ao atualizar descrição");
+      toast.error("Failed to update description");
     }
   };
 
@@ -236,7 +236,7 @@ export function TaskDetailSlideOver({
         assignedTo: memberId ? (memberId as Id<"teamMembers">) : undefined,
       });
     } catch {
-      toast.error("Falha ao atribuir");
+      toast.error("Failed to assign");
     }
   };
 
@@ -247,7 +247,7 @@ export function TaskDetailSlideOver({
         priority: priority as "low" | "medium" | "high" | "urgent",
       });
     } catch {
-      toast.error("Falha ao alterar prioridade");
+      toast.error("Failed to change priority");
     }
   };
 
@@ -258,7 +258,7 @@ export function TaskDetailSlideOver({
         status: status as "pending" | "in_progress" | "completed" | "cancelled",
       });
     } catch {
-      toast.error("Falha ao alterar status");
+      toast.error("Failed to change status");
     }
   };
 
@@ -266,7 +266,7 @@ export function TaskDetailSlideOver({
     try {
       await toggleChecklistItem({ taskId, itemId });
     } catch {
-      toast.error("Falha ao atualizar item");
+      toast.error("Failed to update item");
     }
   };
 
@@ -280,7 +280,7 @@ export function TaskDetailSlideOver({
       await updateChecklist({ taskId, checklist: newItems });
       setNewChecklistItem("");
     } catch {
-      toast.error("Falha ao adicionar item");
+      toast.error("Failed to add item");
     }
   };
 
@@ -291,7 +291,7 @@ export function TaskDetailSlideOver({
       await updateChecklist({ taskId, checklist: newItems });
       setNewChecklistItem("");
     } catch {
-      toast.error("Falha ao adicionar item");
+      toast.error("Failed to add item");
     }
   };
 
@@ -301,7 +301,7 @@ export function TaskDetailSlideOver({
     try {
       await updateChecklist({ taskId, checklist: newItems });
     } catch {
-      toast.error("Falha ao remover item");
+      toast.error("Failed to remove item");
     }
   };
 
@@ -312,21 +312,21 @@ export function TaskDetailSlideOver({
       await addComment({ taskId, content: commentText.trim() });
       setCommentText("");
     } catch {
-      toast.error("Falha ao adicionar comentário");
+      toast.error("Failed to add comment");
     } finally {
       setSendingComment(false);
     }
   };
 
   return (
-    <SlideOver open={isOpen} onClose={onClose} title="Detalhes da Tarefa">
+    <SlideOver open={isOpen} onClose={onClose} title="Detalhes da Task">
       <div className="divide-y divide-border">
         {/* Action bar */}
         <div className="flex items-center gap-2 px-4 py-3 bg-surface-raised">
           {!isCompleted && (
             <Button variant="primary" size="sm" onClick={handleComplete}>
               <Check size={14} />
-              Concluir
+              Complete
             </Button>
           )}
 
@@ -337,7 +337,7 @@ export function TaskDetailSlideOver({
               onClick={() => setShowSnoozeDate(!showSnoozeDate)}
             >
               <AlarmClock size={14} />
-              Lembrete
+              Reminder
             </Button>
           )}
 
@@ -349,7 +349,7 @@ export function TaskDetailSlideOver({
               variant="ghost"
               size="sm"
               onClick={() => setShowActionsMenu(!showActionsMenu)}
-              aria-label="Mais ações"
+              aria-label="More actions"
             >
               <MoreHorizontal size={16} />
             </Button>
@@ -367,7 +367,7 @@ export function TaskDetailSlideOver({
                     className="w-full px-3 py-2 bg-transparent text-text-primary text-sm rounded-lg hover:bg-surface-raised cursor-pointer"
                     style={{ fontSize: "16px" }}
                   >
-                    <option value="">Sem responsável</option>
+                    <option value="">Unassigned</option>
                     {teamMembers?.map((m) => (
                       <option key={m._id} value={m._id}>
                         {m.name}
@@ -383,10 +383,10 @@ export function TaskDetailSlideOver({
                     className="w-full px-3 py-2 bg-transparent text-text-primary text-sm rounded-lg hover:bg-surface-raised cursor-pointer"
                     style={{ fontSize: "16px" }}
                   >
-                    <option value="low">Prioridade: Baixa</option>
-                    <option value="medium">Prioridade: Média</option>
-                    <option value="high">Prioridade: Alta</option>
-                    <option value="urgent">Prioridade: Urgente</option>
+                    <option value="low">Prioridade: Low</option>
+                    <option value="medium">Prioridade: Medium</option>
+                    <option value="high">Prioridade: High</option>
+                    <option value="urgent">Prioridade: Urgent</option>
                   </select>
                   {!isCompleted && (
                     <button
@@ -397,7 +397,7 @@ export function TaskDetailSlideOver({
                       className="w-full flex items-center gap-2 px-3 py-2 text-sm text-semantic-warning rounded-lg hover:bg-surface-raised transition-colors"
                     >
                       <Ban size={14} />
-                      Cancelar Tarefa
+                      Cancel Task
                     </button>
                   )}
                   <button
@@ -408,7 +408,7 @@ export function TaskDetailSlideOver({
                     className="w-full flex items-center gap-2 px-3 py-2 text-sm text-semantic-error rounded-lg hover:bg-surface-raised transition-colors"
                   >
                     <Trash2 size={14} />
-                    Excluir
+                    Delete
                   </button>
                 </div>
               </>
@@ -435,7 +435,7 @@ export function TaskDetailSlideOver({
               style={{ fontSize: "16px" }}
             />
             <Button size="sm" onClick={handleSnooze} disabled={!snoozeDate}>
-              Salvar
+              Save
             </Button>
             <Button
               size="sm"
@@ -465,7 +465,7 @@ export function TaskDetailSlideOver({
                   ? "border-semantic-success bg-semantic-success"
                   : "border-border-strong hover:border-brand-500"
               )}
-              aria-label={isCompleted ? "Concluída" : "Concluir"}
+              aria-label={isCompleted ? "Completed" : "Complete"}
             >
               {isCompleted && (
                 <svg width="12" height="10" viewBox="0 0 10 8" fill="none" className="text-white">
@@ -519,11 +519,11 @@ export function TaskDetailSlideOver({
                 {ACTIVITY_LABELS[task.activityType] || task.activityType}
               </Badge>
             )}
-            {task.type === "reminder" && <Badge variant="warning">Lembrete</Badge>}
+            {task.type === "reminder" && <Badge variant="warning">Reminder</Badge>}
             {task.snoozedUntil && task.snoozedUntil > now && (
               <Badge variant="info">
                 <AlarmClock size={12} className="mr-1" />
-                Lembrete: {new Date(task.snoozedUntil).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                Reminder: {new Date(task.snoozedUntil).toLocaleString("en-US", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}
               </Badge>
             )}
           </div>
@@ -539,22 +539,22 @@ export function TaskDetailSlideOver({
               className="px-2 py-1 bg-surface-raised border border-border-strong text-text-primary rounded-field text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
               style={{ fontSize: "16px" }}
             >
-              <option value="pending">Pendente</option>
-              <option value="in_progress">Em Progresso</option>
-              <option value="completed">Concluída</option>
-              <option value="cancelled">Cancelada</option>
+              <option value="pending">Pending</option>
+              <option value="in_progress">In Progress</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
             </select>
           </FieldRow>
 
           {/* Assignee */}
-          <FieldRow label="Responsável">
+          <FieldRow label="Owner">
             <select
               value={task.assignedTo || ""}
               onChange={(e) => handleAssigneeChange(e.target.value)}
               className="px-2 py-1 bg-surface-raised border border-border-strong text-text-primary rounded-field text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
               style={{ fontSize: "16px" }}
             >
-              <option value="">Sem responsável</option>
+              <option value="">Unassigned</option>
               {teamMembers?.map((m) => (
                 <option key={m._id} value={m._id}>
                   {m.name}
@@ -572,7 +572,7 @@ export function TaskDetailSlideOver({
                   !isCompleted && task.dueDate < now ? "text-semantic-error" : "text-text-primary"
                 )}
               >
-                {new Date(task.dueDate).toLocaleDateString("pt-BR", {
+                {new Date(task.dueDate).toLocaleDateString("en-US", {
                   day: "2-digit",
                   month: "long",
                   year: "numeric",
@@ -587,7 +587,7 @@ export function TaskDetailSlideOver({
 
           {/* Recurrence */}
           {task.recurrence && (
-            <FieldRow label="Recorrência">
+            <FieldRow label="Recurrence">
               <span className="text-sm text-text-primary">
                 {RECURRENCE_LABELS[task.recurrence.pattern] || task.recurrence.pattern}
               </span>
@@ -613,7 +613,7 @@ export function TaskDetailSlideOver({
 
         {/* Description */}
         <div className="px-4 py-4">
-          <h4 className="text-sm font-semibold text-text-primary mb-2">Descrição</h4>
+          <h4 className="text-sm font-semibold text-text-primary mb-2">Description</h4>
           {editingDescription ? (
             <div className="space-y-2">
               <textarea
@@ -626,10 +626,10 @@ export function TaskDetailSlideOver({
               />
               <div className="flex gap-2">
                 <Button size="sm" onClick={handleSaveDescription}>
-                  Salvar
+                  Save
                 </Button>
                 <Button size="sm" variant="ghost" onClick={() => setEditingDescription(false)}>
-                  Cancelar
+                  Cancel
                 </Button>
               </div>
             </div>
@@ -641,7 +641,7 @@ export function TaskDetailSlideOver({
               }}
               className="w-full text-left text-sm text-text-secondary hover:text-text-primary transition-colors min-h-[32px]"
             >
-              {task.description || "Adicionar descrição..."}
+              {task.description || "Add description..."}
             </button>
           )}
         </div>
@@ -692,7 +692,7 @@ export function TaskDetailSlideOver({
                   <button
                     onClick={() => handleRemoveChecklistItem(item.id)}
                     className="opacity-0 group-hover:opacity-100 p-0.5 text-text-muted hover:text-semantic-error transition-all"
-                    aria-label="Remover item"
+                    aria-label="Remove item"
                   >
                     <X size={14} />
                   </button>
@@ -713,7 +713,7 @@ export function TaskDetailSlideOver({
                   task.checklist ? handleAddChecklistItem() : handleAddChecklistItemNoList();
                 }
               }}
-              placeholder="Adicionar item..."
+              placeholder="Add item..."
               className="flex-1 px-3 py-1.5 bg-surface-raised border border-border-strong text-text-primary rounded-field text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 placeholder:text-text-muted"
               style={{ fontSize: "16px" }}
             />
@@ -721,7 +721,7 @@ export function TaskDetailSlideOver({
               variant="ghost"
               size="sm"
               onClick={() => (task.checklist ? handleAddChecklistItem() : handleAddChecklistItemNoList())}
-              aria-label="Adicionar item ao checklist"
+              aria-label="Add item ao checklist"
             >
               <Plus size={16} />
             </Button>
@@ -730,14 +730,14 @@ export function TaskDetailSlideOver({
 
         {/* Comments */}
         <div className="px-4 py-4">
-          <h4 className="text-sm font-semibold text-text-primary mb-3">Comentários</h4>
+          <h4 className="text-sm font-semibold text-text-primary mb-3">Comments</h4>
 
           {comments === undefined ? (
             <div className="flex justify-center py-4">
               <Spinner size="sm" />
             </div>
           ) : comments.length === 0 ? (
-            <p className="text-sm text-text-muted mb-3">Nenhum comentário ainda.</p>
+            <p className="text-sm text-text-muted mb-3">No comments yet.</p>
           ) : (
             <div className="space-y-3 mb-3">
               {comments.map((comment) => {
@@ -756,7 +756,7 @@ export function TaskDetailSlideOver({
                           {author?.name || "Desconhecido"}
                         </span>
                         <span className="text-xs text-text-muted">
-                          {new Date(comment.createdAt).toLocaleDateString("pt-BR", {
+                          {new Date(comment.createdAt).toLocaleDateString("en-US", {
                             day: "2-digit",
                             month: "short",
                             hour: "2-digit",
@@ -779,7 +779,7 @@ export function TaskDetailSlideOver({
             <textarea
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
-              placeholder="Adicionar comentário..."
+              placeholder="Add comment..."
               rows={2}
               className="flex-1 px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none placeholder:text-text-muted"
               style={{ fontSize: "16px" }}
@@ -796,7 +796,7 @@ export function TaskDetailSlideOver({
               onClick={handleAddComment}
               disabled={sendingComment || !commentText.trim()}
               className="self-end"
-              aria-label="Enviar comentário"
+              aria-label="Send comment"
             >
               <Send size={14} />
             </Button>
@@ -807,8 +807,8 @@ export function TaskDetailSlideOver({
         <div className="px-4 py-4 text-xs text-text-muted space-y-1">
           {creator && (
             <p>
-              Criado por {creator.name} em{" "}
-              {new Date(task.createdAt).toLocaleDateString("pt-BR", {
+              Created by {creator.name} em{" "}
+              {new Date(task.createdAt).toLocaleDateString("en-US", {
                 day: "2-digit",
                 month: "long",
                 year: "numeric",
@@ -816,8 +816,8 @@ export function TaskDetailSlideOver({
             </p>
           )}
           <p>
-            Atualizado em{" "}
-            {new Date(task.updatedAt).toLocaleDateString("pt-BR", {
+            Updated at{" "}
+            {new Date(task.updatedAt).toLocaleDateString("en-US", {
               day: "2-digit",
               month: "long",
               year: "numeric",
@@ -832,9 +832,9 @@ export function TaskDetailSlideOver({
         open={showDeleteConfirm}
         onClose={() => setShowDeleteConfirm(false)}
         onConfirm={handleDelete}
-        title="Excluir Tarefa"
-        description="Esta ação não pode ser desfeita. Deseja excluir esta tarefa permanentemente?"
-        confirmLabel="Excluir"
+        title="Delete Task"
+        description="This action cannot be undone. Do you want to permanently delete this task?"
+        confirmLabel="Delete"
         variant="danger"
       />
     </SlideOver>

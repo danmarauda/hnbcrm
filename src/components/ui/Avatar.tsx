@@ -31,7 +31,7 @@ export function Avatar({ name, type = "human", size = "md", status, imageUrl, cl
           "rounded-full flex items-center justify-center font-semibold text-white bg-brand-600 overflow-hidden",
           sizes[size]
         )}
-        aria-label={`${name} (${type === "ai" ? "IA" : "Humano"})`}
+        aria-label={`${name} (${type === "ai" ? "AI" : "Human"})`}
       >
         {imageUrl ? (
           <img src={imageUrl} alt="" className="w-full h-full object-cover" />
@@ -57,7 +57,7 @@ export function Avatar({ name, type = "human", size = "md", status, imageUrl, cl
             status === "busy" && "bg-semantic-warning",
             status === "inactive" && "bg-text-muted"
           )}
-          aria-label={status === "active" ? "Ativo" : status === "busy" ? "Ocupado" : "Inativo"}
+          aria-label={status === "active" ? "Active" : status === "busy" ? "Ocupado" : "Inactive"}
         />
       )}
     </div>

@@ -73,7 +73,7 @@ export function WizardStep2Pipeline({
     const insertIndex = firstClosedIndex === -1 ? stages.length : firstClosedIndex;
     const newStages = [...stages];
     newStages.splice(insertIndex, 0, {
-      name: "Nova Etapa",
+      name: "New Stage",
       color: STAGE_COLORS[stages.length % STAGE_COLORS.length],
     });
     onStagesChange(newStages);
@@ -84,27 +84,27 @@ export function WizardStep2Pipeline({
       {/* Header */}
       <div className="text-center space-y-2">
         <h2 className="text-2xl font-bold text-text-primary">
-          Personalize seu Pipeline
+          Customize your Pipeline
         </h2>
         <p className="text-text-secondary">
-          Ajuste as etapas do seu funil de vendas
+          Adjust the stages of your sales funnel
         </p>
       </div>
 
       {/* Board Name */}
       <div>
         <Input
-          label="Nome do Pipeline"
+          label="Pipeline Name"
           value={boardName}
           onChange={(e) => onBoardNameChange(e.target.value)}
-          placeholder="Ex: Pipeline de Vendas"
+          placeholder="e.g.: Sales Pipeline"
         />
       </div>
 
       {/* Stages List */}
       <div className="space-y-2">
         <label className="block text-sm font-semibold text-text-primary">
-          Etapas
+          Stages
         </label>
         <div className="space-y-2">
           {stages.map((stage, index) => (
@@ -117,7 +117,7 @@ export function WizardStep2Pipeline({
                 onClick={() => handleColorCycle(index)}
                 className="w-5 h-5 rounded-full flex-shrink-0 transition-all hover:ring-2 hover:ring-brand-500/20 focus:outline-none focus:ring-2 focus:ring-brand-500"
                 style={{ backgroundColor: stage.color }}
-                aria-label="Mudar cor"
+                aria-label="Change color"
               />
 
               {/* Name Input */}
@@ -126,12 +126,12 @@ export function WizardStep2Pipeline({
                 value={stage.name}
                 onChange={(e) => handleNameChange(index, e.target.value)}
                 className="flex-1 bg-transparent text-sm text-text-primary border-b border-border-strong focus:border-brand-500 focus:outline-none transition-colors px-1 py-0.5"
-                placeholder="Nome da etapa"
+                placeholder="Stage name"
               />
 
               {/* Badges */}
-              {stage.isClosedWon && <Badge variant="success">Ganho</Badge>}
-              {stage.isClosedLost && <Badge variant="error">Perdido</Badge>}
+              {stage.isClosedWon && <Badge variant="success">Won</Badge>}
+              {stage.isClosedLost && <Badge variant="error">Lost</Badge>}
 
               {/* Actions */}
               <div className="flex items-center gap-1 flex-shrink-0">
@@ -142,7 +142,7 @@ export function WizardStep2Pipeline({
                     "p-1 rounded hover:bg-surface-overlay transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500",
                     index === 0 && "opacity-30 cursor-not-allowed"
                   )}
-                  aria-label="Mover para cima"
+                  aria-label="Move up"
                 >
                   <ChevronUp size={16} className="text-text-secondary" />
                 </button>
@@ -153,7 +153,7 @@ export function WizardStep2Pipeline({
                     "p-1 rounded hover:bg-surface-overlay transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500",
                     index === stages.length - 1 && "opacity-30 cursor-not-allowed"
                   )}
-                  aria-label="Mover para baixo"
+                  aria-label="Move down"
                 >
                   <ChevronDown size={16} className="text-text-secondary" />
                 </button>
@@ -161,7 +161,7 @@ export function WizardStep2Pipeline({
                   <button
                     onClick={() => handleDelete(index)}
                     className="p-1 rounded hover:bg-semantic-error/10 transition-colors focus:outline-none focus:ring-2 focus:ring-semantic-error"
-                    aria-label="Excluir"
+                    aria-label="Delete"
                   >
                     <X size={16} className="text-semantic-error" />
                   </button>
@@ -179,7 +179,7 @@ export function WizardStep2Pipeline({
           className="w-full"
         >
           <Plus size={16} />
-          Adicionar Etapa
+          Add Stage
         </Button>
       </div>
 

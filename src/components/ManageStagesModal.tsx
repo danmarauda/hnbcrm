@@ -102,9 +102,9 @@ export function ManageStagesModal({ boardId, organizationId, onClose }: ManageSt
       setLocalStages((prev) =>
         prev.map((s) => (s._id === stageId ? { ...s, ...updates, editing: false } : s))
       );
-      toast.success("Etapa atualizada!");
+      toast.success("Stage updated!");
     } catch (error) {
-      toast.error("Falha ao atualizar etapa");
+      toast.error("Failed to update stage");
     }
   };
 
@@ -112,12 +112,12 @@ export function ManageStagesModal({ boardId, organizationId, onClose }: ManageSt
     try {
       await deleteStage({ stageId });
       setLocalStages((prev) => prev.filter((s) => s._id !== stageId));
-      toast.success("Etapa excluída!");
+      toast.success("Stage deleted!");
     } catch (error) {
       toast.error(
         error instanceof Error && error.message.includes("leads")
-          ? "Não é possível excluir uma etapa com leads. Mova ou exclua todos os leads primeiro."
-          : "Falha ao excluir etapa"
+          ? "Cannot delete a stage that has leads. Move or delete those leads first."
+          : "Failed to delete stage"
       );
     }
   };
@@ -134,9 +134,9 @@ export function ManageStagesModal({ boardId, organizationId, onClose }: ManageSt
           color: newStageColor,
         }),
         {
-          loading: "Criando etapa...",
-          success: "Etapa criada!",
-          error: "Falha ao criar etapa",
+          loading: "Creating stage...",
+          success: "Stage created!",
+          error: "Failed to create stage",
         }
       );
       setNewStageName("");
@@ -157,7 +157,7 @@ export function ManageStagesModal({ boardId, organizationId, onClose }: ManageSt
         {
           loading: "Salvando ordem...",
           success: "Ordem salva!",
-          error: "Falha ao salvar ordem",
+          error: "Failed to salvar ordem",
         }
       );
     } catch (error) {
@@ -170,7 +170,7 @@ export function ManageStagesModal({ boardId, organizationId, onClose }: ManageSt
   }
 
   return (
-    <Modal open={true} onClose={onClose} title="Gerenciar Etapas">
+    <Modal open={true} onClose={onClose} title="Manage Stages">
       <div className="space-y-3">
         {localStages.map((stage, index) => (
           <div
@@ -190,7 +190,7 @@ export function ManageStagesModal({ boardId, organizationId, onClose }: ManageSt
                   handleUpdateStage(stage._id, { color: newColor });
                 }}
                 className="w-8 h-8 rounded cursor-pointer border border-border-strong"
-                title="Cor da etapa"
+                title="Stage color"
               />
 
               {/* Name Input */}
@@ -216,7 +216,7 @@ export function ManageStagesModal({ boardId, organizationId, onClose }: ManageSt
                     "p-1 rounded text-text-muted hover:text-text-primary hover:bg-surface-raised transition-colors",
                     index === 0 && "opacity-30 cursor-not-allowed"
                   )}
-                  aria-label="Mover para cima"
+                  aria-label="Move up"
                 >
                   <ChevronUp size={16} />
                 </button>
@@ -227,7 +227,7 @@ export function ManageStagesModal({ boardId, organizationId, onClose }: ManageSt
                     "p-1 rounded text-text-muted hover:text-text-primary hover:bg-surface-raised transition-colors",
                     index === localStages.length - 1 && "opacity-30 cursor-not-allowed"
                   )}
-                  aria-label="Mover para baixo"
+                  aria-label="Move down"
                 >
                   <ChevronDown size={16} />
                 </button>
@@ -237,7 +237,7 @@ export function ManageStagesModal({ boardId, organizationId, onClose }: ManageSt
               <button
                 onClick={() => setConfirmDeleteStageId(stage._id)}
                 className="p-1.5 rounded text-text-muted hover:text-semantic-error hover:bg-semantic-error/10 transition-colors"
-                aria-label="Excluir etapa"
+                aria-label="Delete stage"
               >
                 <X size={18} />
               </button>
@@ -262,7 +262,7 @@ export function ManageStagesModal({ boardId, organizationId, onClose }: ManageSt
                   }}
                   className="w-4 h-4 text-brand-600 bg-surface-raised border-border-strong rounded focus:ring-2 focus:ring-brand-500"
                 />
-                <span className="text-xs text-text-secondary">Fechado - Ganho</span>
+                <span className="text-xs text-text-secondary">Closed - Won</span>
               </label>
 
               <label className="flex items-center gap-2 cursor-pointer">
@@ -282,7 +282,7 @@ export function ManageStagesModal({ boardId, organizationId, onClose }: ManageSt
                   }}
                   className="w-4 h-4 text-brand-600 bg-surface-raised border-border-strong rounded focus:ring-2 focus:ring-brand-500"
                 />
-                <span className="text-xs text-text-secondary">Fechado - Perdido</span>
+                <span className="text-xs text-text-secondary">Closed - Lost</span>
               </label>
             </div>
           </div>
@@ -302,7 +302,7 @@ export function ManageStagesModal({ boardId, organizationId, onClose }: ManageSt
                 type="text"
                 value={newStageName}
                 onChange={(e) => setNewStageName(e.target.value)}
-                placeholder="Nome da etapa..."
+                placeholder="Stage name..."
                 className="flex-1 px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
                 style={{ fontSize: "16px" }}
                 autoFocus
@@ -311,7 +311,7 @@ export function ManageStagesModal({ boardId, organizationId, onClose }: ManageSt
             </div>
             <div className="flex gap-2">
               <Button type="submit" variant="primary" size="sm" className="flex-1">
-                Adicionar
+                Add
               </Button>
               <Button
                 type="button"
@@ -323,7 +323,7 @@ export function ManageStagesModal({ boardId, organizationId, onClose }: ManageSt
                 variant="secondary"
                 size="sm"
               >
-                Cancelar
+                Cancel
               </Button>
             </div>
           </form>
@@ -335,14 +335,14 @@ export function ManageStagesModal({ boardId, organizationId, onClose }: ManageSt
             className="w-full"
           >
             <Plus size={18} />
-            Adicionar Etapa
+            Add Stage
           </Button>
         )}
 
         {/* Save Order Button */}
         <div className="pt-4 border-t border-border">
           <Button onClick={handleSaveOrder} variant="primary" size="md" className="w-full">
-            Salvar Ordem
+            Save Ordem
           </Button>
         </div>
       </div>
@@ -353,9 +353,9 @@ export function ManageStagesModal({ boardId, organizationId, onClose }: ManageSt
         onConfirm={() => {
           if (confirmDeleteStageId) handleDeleteStage(confirmDeleteStageId);
         }}
-        title="Excluir Etapa"
-        description="Tem certeza que deseja excluir esta etapa? Leads vinculados precisarão ser movidos primeiro."
-        confirmLabel="Excluir"
+        title="Delete Stage"
+        description="Are you sure you want to delete this stage? Move linked leads first."
+        confirmLabel="Delete"
         variant="danger"
       />
     </Modal>

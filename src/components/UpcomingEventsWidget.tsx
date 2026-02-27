@@ -33,18 +33,18 @@ type TimeRange = "today" | "tomorrow" | "7d" | "30d";
 type EventTypeFilter = "all" | "meeting" | "call" | "follow_up" | "demo" | "task";
 
 const TIME_RANGE_PRESETS: { value: TimeRange; label: string }[] = [
-  { value: "today", label: "Hoje" },
-  { value: "tomorrow", label: "Amanhã" },
-  { value: "7d", label: "Próximos 7 Dias" },
-  { value: "30d", label: "Próximo Mês" },
+  { value: "today", label: "Today" },
+  { value: "tomorrow", label: "Tomorrow" },
+  { value: "7d", label: "Next 7 Dias" },
+  { value: "30d", label: "Next Month" },
 ];
 
 const EVENT_TYPE_FILTERS: { value: EventTypeFilter; label: string }[] = [
-  { value: "meeting", label: "Reuniões" },
-  { value: "call", label: "Ligações" },
+  { value: "meeting", label: "Meetings" },
+  { value: "call", label: "Calls" },
   { value: "follow_up", label: "Follow-ups" },
   { value: "demo", label: "Demos" },
-  { value: "task", label: "Tarefas" },
+  { value: "task", label: "Tasks" },
 ];
 
 // ---------------------------------------------------------------------------
@@ -69,9 +69,9 @@ function computeDateRange(preset: TimeRange): { start: number; end: number } {
   }
 }
 
-/** Format a timestamp to HH:MM in pt-BR locale. */
+/** Format a timestamp to HH:MM in en-US locale. */
 function formatTime(ts: number): string {
-  return new Date(ts).toLocaleTimeString("pt-BR", {
+  return new Date(ts).toLocaleTimeString("en-US", {
     hour: "2-digit",
     minute: "2-digit",
   });
@@ -102,7 +102,7 @@ function getDayGroupLabel(date: Date): string {
   if (diffDays === 1) return "AMANHA";
   if (diffDays >= 2 && diffDays <= 6) return WEEKDAYS_LONG[target.getDay()].toUpperCase();
 
-  return target.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" }).toUpperCase();
+  return target.toLocaleDateString("en-US", { day: "2-digit", month: "short" }).toUpperCase();
 }
 
 /** Get a sortable date key (YYYY-MM-DD) from a timestamp. */
@@ -178,7 +178,7 @@ export function UpcomingEventsWidget({
   const { data: teamMembers } = useQuery(crpc.teamMembers.getTeamMembers.queryOptions({ organizationId }));
   const { data: currentMember } = useQuery(crpc.teamMembers.getCurrentTeamMember.queryOptions({ organizationId }));
 
-  // Client-side filter for "Meus Eventos"
+  // Client-side filter for "My events"
   const events = useMemo(() => {
     if (!rawEvents) return undefined;
     let filtered = rawEvents;
@@ -220,19 +220,19 @@ export function UpcomingEventsWidget({
     // Navigate to calendar page — the calendar page will show the day
     const eventDate = new Date(event.startTime);
     const dateStr = `${eventDate.getFullYear()}-${String(eventDate.getMonth() + 1).padStart(2, "0")}-${String(eventDate.getDate()).padStart(2, "0")}`;
-    navigate(`/app/calendario?date=${dateStr}&event=${event._id}`);
+    navigate(`/app/calendar?date=${dateStr}&event=${event._id}`);
   };
 
   return (
     <Card>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-text-primary">Proximos Eventos</h3>
+        <h3 className="text-lg font-semibold text-text-primary">Upcoming Events</h3>
         <button
-          onClick={() => navigate("/app/calendario")}
+          onClick={() => navigate("/app/calendar")}
           className="flex items-center gap-1 text-sm text-brand-500 hover:text-brand-400 transition-colors font-medium"
         >
-          Ver calendario
+          View calendar
           <ChevronRight size={16} />
         </button>
       </div>
@@ -286,7 +286,7 @@ export function UpcomingEventsWidget({
                 : "bg-surface-overlay text-text-secondary hover:text-text-primary"
             )}
           >
-            Todos
+            All
           </button>
           <button
             onClick={() => setAssigneeFilter("mine")}
@@ -297,7 +297,7 @@ export function UpcomingEventsWidget({
                 : "bg-surface-overlay text-text-secondary hover:text-text-primary"
             )}
           >
-            Meus Eventos
+            My events
           </button>
           {teamMembers?.map((member: any) => (
             <button
@@ -340,16 +340,16 @@ export function UpcomingEventsWidget({
             <CalendarDays size={24} className="text-text-muted" />
           </div>
           <p className="text-sm font-medium text-text-primary mb-1">
-            Nenhum evento encontrado
+            No events found
           </p>
           <p className="text-xs text-text-muted text-center">
             {hasActiveFilters
-              ? "Tente ajustar os filtros."
-              : "Os eventos aparecerão aqui conforme forem agendados."}
+              ? "Try adjusting your filters."
+              : "Events will appear here as they are scheduled."}
           </p>
           {hasActiveFilters && (
             <Button variant="ghost" size="sm" className="mt-3" onClick={clearFilters}>
-              Limpar filtros
+              Clear filters
             </Button>
           )}
         </div>
@@ -375,7 +375,7 @@ export function UpcomingEventsWidget({
                   </span>
                   <div className="flex-1 h-px bg-border" />
                   <span className="text-[10px] text-text-muted">
-                    {group.events.length} {group.events.length === 1 ? "evento" : "eventos"}
+                    {group.events.length} {group.events.length === 1 ? "event" : "events"}
                   </span>
                 </div>
 
@@ -415,7 +415,7 @@ export function UpcomingEventsWidget({
                             <span className="text-xs font-medium text-text-secondary tabular-nums flex items-center gap-1">
                               <Clock size={12} className="text-text-muted" />
                               {event.allDay
-                                ? "Dia inteiro"
+                                ? "All day"
                                 : formatTime(event.startTime)}
                               {duration && (
                                 <span className="text-text-muted">
@@ -484,8 +484,8 @@ export function UpcomingEventsWidget({
                       )}
                     />
                     {isCollapsed
-                      ? `Mostrar mais ${group.events.length - 5} eventos`
-                      : "Mostrar menos"}
+                      ? `Show more ${group.events.length - 5} events?s`
+                      : "Show less"}
                   </button>
                 )}
               </div>
@@ -498,9 +498,9 @@ export function UpcomingEventsWidget({
               variant="ghost"
               size="sm"
               className="w-full"
-              onClick={() => navigate("/app/calendario")}
+              onClick={() => navigate("/app/calendar")}
             >
-              Ver todos no calendario
+              View all in calendar
               <ChevronRight size={14} />
             </Button>
           </div>

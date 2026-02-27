@@ -31,7 +31,7 @@ export function HandoffQueue() {
   if (!can("inbox", "view_own")) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-20">
-        <p className="text-text-secondary text-sm">Voce nao tem permissao para acessar os repasses.</p>
+        <p className="text-text-secondary text-sm">You do not have permission to access handoffs.</p>
       </div>
     );
   }
@@ -41,9 +41,9 @@ export function HandoffQueue() {
       await acceptHandoff({
         handoffId: handoffId as Id<"handoffs">,
       });
-      toast.success("Repasse aceito com sucesso");
+      toast.success("Handoff accepted successfully");
     } catch (error) {
-      toast.error("Falha ao aceitar repasse");
+      toast.error("Failed to accept handoff");
     }
   };
 
@@ -52,9 +52,9 @@ export function HandoffQueue() {
       await rejectHandoff({
         handoffId: handoffId as Id<"handoffs">,
       });
-      toast.success("Repasse rejeitado");
+      toast.success("Handoff rejected");
     } catch (error) {
-      toast.error("Falha ao rejeitar repasse");
+      toast.error("Failed to reject handoff");
     }
   };
 
@@ -71,16 +71,16 @@ export function HandoffQueue() {
       <SpotlightTooltip spotlightId="handoffs" organizationId={organizationId} />
 
       <div className="flex items-center justify-between">
-        <h2 className="text-xl md:text-2xl font-bold text-text-primary">Fila de Repasses</h2>
+        <h2 className="text-xl md:text-2xl font-bold text-text-primary">Handoff Queue</h2>
         <Badge variant="warning">
-          <span className="tabular-nums">{handoffs.length}</span> {handoffs.length === 1 ? "pendente" : "pendentes"}
+          <span className="tabular-nums">{handoffs.length}</span> {handoffs.length === 1 ? "pending" : "pending items"}
         </Badge>
       </div>
 
       {handoffs.length === 0 ? (
         <div className="text-center py-12">
-          <h3 className="text-lg font-medium text-text-primary mb-2">Nenhum repasse pendente</h3>
-          <p className="text-text-secondary">Todos os repasses foram processados.</p>
+          <h3 className="text-lg font-medium text-text-primary mb-2">No pending handoffs</h3>
+          <p className="text-text-secondary">All handoffs have been processed.</p>
         </div>
       ) : (
         <div className="grid gap-6">
@@ -97,7 +97,7 @@ export function HandoffQueue() {
                   </p>
                 </div>
                 <Badge variant="warning" className="shrink-0 self-start sm:self-auto">
-                  Pendente
+                  Pending
                 </Badge>
               </div>
 
@@ -144,20 +144,20 @@ export function HandoffQueue() {
               </div>
 
               <div className="mb-4">
-                <h4 className="text-sm font-medium text-text-primary mb-2">Motivo</h4>
+                <h4 className="text-sm font-medium text-text-primary mb-2">Reason</h4>
                 <p className="text-sm text-text-secondary">{handoff.reason}</p>
               </div>
 
               {handoff.summary && (
                 <div className="mb-4">
-                  <h4 className="text-sm font-medium text-text-primary mb-2">Resumo</h4>
+                  <h4 className="text-sm font-medium text-text-primary mb-2">Summary</h4>
                   <p className="text-sm text-text-secondary">{handoff.summary}</p>
                 </div>
               )}
 
               {handoff.suggestedActions.length > 0 && (
                 <div className="mb-6">
-                  <h4 className="text-sm font-medium text-text-primary mb-2">Ações Sugeridas</h4>
+                  <h4 className="text-sm font-medium text-text-primary mb-2">Suggested Actions</h4>
                   <ul className="space-y-1">
                     {handoff.suggestedActions.map((action, index) => (
                       <li key={index} className="text-sm text-text-secondary flex items-start gap-2">
@@ -171,7 +171,7 @@ export function HandoffQueue() {
 
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 border-t border-border">
                 <span className="text-xs text-text-muted tabular-nums">
-                  Solicitado em {new Date(handoff.createdAt).toLocaleDateString("pt-BR", {
+                  Requested on {new Date(handoff.createdAt).toLocaleDateString("en-US", {
                     day: "2-digit",
                     month: "2-digit",
                     year: "numeric",
@@ -185,7 +185,7 @@ export function HandoffQueue() {
                     size="md"
                     className="flex-1 sm:flex-none text-semantic-error border-semantic-error/30 hover:bg-semantic-error/10"
                   >
-                    Rejeitar
+                    Reject
                   </Button>
                   <Button
                     onClick={() => handleAccept(handoff._id)}
@@ -193,7 +193,7 @@ export function HandoffQueue() {
                     size="md"
                     className="flex-1 sm:flex-none"
                   >
-                    Aceitar
+                    Accept
                   </Button>
                 </div>
               </div>

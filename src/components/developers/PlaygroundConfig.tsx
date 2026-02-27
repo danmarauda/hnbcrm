@@ -24,7 +24,7 @@ export function PlaygroundConfig() {
       <div className="bg-surface-raised border-b border-border px-4 py-2 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3 min-w-0">
           <Settings size={16} className="text-brand-500 flex-shrink-0" />
-          <Badge variant="success" className="flex-shrink-0">Configurado</Badge>
+          <Badge variant="success" className="flex-shrink-0">Configured</Badge>
           <span className="text-xs text-text-muted font-mono truncate">
             {displayUrl}
           </span>
@@ -35,7 +35,7 @@ export function PlaygroundConfig() {
         </div>
         <Button variant="ghost" size="sm" onClick={() => setExpanded(true)}>
           <Pencil size={14} />
-          Editar
+          Edit
         </Button>
       </div>
     );
@@ -47,16 +47,16 @@ export function PlaygroundConfig() {
         <div className="flex items-start gap-4 flex-col md:flex-row md:items-end">
           <div className="flex items-center gap-2 mb-2 md:mb-0">
             <Settings size={20} className="text-brand-500" />
-            <h2 className="text-sm font-semibold text-text-primary">Configuracao</h2>
+            <h2 className="text-sm font-semibold text-text-primary">Configuration</h2>
             <Badge variant={isConfigured ? "success" : "warning"}>
-              {isConfigured ? "Configurado" : "Pendente"}
+              {isConfigured ? "Configured" : "Pending"}
             </Badge>
           </div>
 
           <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-2 w-full">
             <Input
               label="Base URL"
-              placeholder="https://seu-deployment.convex.site"
+              placeholder="https://your-deployment.convex.site"
               value={baseUrl}
               onChange={(e) => setBaseUrl(e.target.value)}
               className="font-mono text-sm"
@@ -64,7 +64,7 @@ export function PlaygroundConfig() {
             <Input
               label="API Key"
               type="password"
-              placeholder="sua_chave_aqui"
+              placeholder="your_api_key_here"
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
               className="font-mono text-sm"
@@ -79,7 +79,7 @@ export function PlaygroundConfig() {
               className="flex-shrink-0"
             >
               <ChevronUp size={14} />
-              Recolher
+              Collapse
             </Button>
           )}
         </div>

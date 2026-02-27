@@ -49,8 +49,8 @@ export const revokeApiKey = mutation({
   returns: v.null(),
   handler: async (ctx, args) => {
     const apiKey = await ctx.db.get(args.apiKeyId);
-    if (!apiKey) throw new Error("Chave de API não encontrada");
-    if (apiKey.organizationId !== args.organizationId) throw new Error("Chave de API não pertence a esta organização");
+    if (!apiKey) throw new Error("API key not found");
+    if (apiKey.organizationId !== args.organizationId) throw new Error("API key does not belong to this organization");
 
     const userMember = await requirePermission(ctx, args.organizationId, "apiKeys", "manage");
 

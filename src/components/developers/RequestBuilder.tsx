@@ -153,7 +153,7 @@ export function RequestBuilder({ endpoint, baseUrl, apiKey, onSendRequest }: Req
       try {
         JSON.parse(jsonBody);
       } catch {
-        setJsonError("JSON inválido");
+        setJsonError("Invalid JSON");
         return false;
       }
     }
@@ -164,13 +164,13 @@ export function RequestBuilder({ endpoint, baseUrl, apiKey, onSendRequest }: Req
         const isEmpty = value === undefined || value === "" || value === null;
 
         if (param.required && isEmpty) {
-          newErrors[param.name] = "Campo obrigatório";
+          newErrors[param.name] = "Required field";
           continue;
         }
 
         if (!isEmpty && param.type === "number") {
           if (isNaN(Number(value))) {
-            newErrors[param.name] = "Valor deve ser numérico";
+            newErrors[param.name] = "Value must be numeric";
           }
         }
 
@@ -179,7 +179,7 @@ export function RequestBuilder({ endpoint, baseUrl, apiKey, onSendRequest }: Req
             try {
               JSON.parse(value);
             } catch {
-              newErrors[param.name] = "JSON inválido";
+              newErrors[param.name] = "Invalid JSON";
             }
           }
         }
@@ -230,7 +230,7 @@ export function RequestBuilder({ endpoint, baseUrl, apiKey, onSendRequest }: Req
       onSendRequest(
         {
           status: 0,
-          data: { error: error instanceof Error ? error.message : "Erro desconhecido" },
+          data: { error: error instanceof Error ? error.message : "Unknown error" },
           time: 0,
         },
         { formData, mode, jsonBody }
@@ -246,7 +246,7 @@ export function RequestBuilder({ endpoint, baseUrl, apiKey, onSendRequest }: Req
         JSON.parse(jsonBody);
         setJsonError(null);
       } catch {
-        setJsonError("JSON inválido");
+        setJsonError("Invalid JSON");
       }
     } else {
       setJsonError(null);
@@ -259,7 +259,7 @@ export function RequestBuilder({ endpoint, baseUrl, apiKey, onSendRequest }: Req
       setJsonBody(JSON.stringify(parsed, null, 2));
       setJsonError(null);
     } catch {
-      setJsonError("JSON inválido");
+      setJsonError("Invalid JSON");
     }
   };
 
@@ -276,7 +276,7 @@ export function RequestBuilder({ endpoint, baseUrl, apiKey, onSendRequest }: Req
           <label className="block text-[13px] font-medium text-text-secondary mb-1">
             {param.name}
             <Badge variant="default" className="ml-2 text-[10px] px-1 py-0 font-normal">{param.type}</Badge>
-            {param.required && <Badge variant="error" className="ml-1 text-[10px] px-1.5">obrigatório</Badge>}
+            {param.required && <Badge variant="error" className="ml-1 text-[10px] px-1.5">required</Badge>}
           </label>
           <select
             value={String(value)}
@@ -285,7 +285,7 @@ export function RequestBuilder({ endpoint, baseUrl, apiKey, onSendRequest }: Req
               fieldError ? "border-semantic-error" : "border-border-strong"
             }`}
           >
-            <option value="">Selecione...</option>
+            <option value="">Select...</option>
             {param.enumValues.map((enumVal) => (
               <option key={enumVal} value={enumVal}>
                 {enumVal}
@@ -311,7 +311,7 @@ export function RequestBuilder({ endpoint, baseUrl, apiKey, onSendRequest }: Req
           <label htmlFor={fieldKey} className="text-[13px] font-medium text-text-secondary">
             {param.name}
             <Badge variant="default" className="ml-2 text-[10px] px-1 py-0 font-normal">boolean</Badge>
-            {param.required && <Badge variant="error" className="ml-1 text-[10px] px-1.5">obrigatório</Badge>}
+            {param.required && <Badge variant="error" className="ml-1 text-[10px] px-1.5">required</Badge>}
           </label>
         </div>
       );
@@ -323,7 +323,7 @@ export function RequestBuilder({ endpoint, baseUrl, apiKey, onSendRequest }: Req
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold text-text-primary">{param.name}</span>
             <Badge variant="default" className="text-[10px] px-1 py-0 font-normal">object</Badge>
-            {param.required && <Badge variant="error" className="text-[10px] px-1.5">obrigatório</Badge>}
+            {param.required && <Badge variant="error" className="text-[10px] px-1.5">required</Badge>}
           </div>
           <p className="text-[11px] text-text-muted -mt-1">{param.description}</p>
           <div className="pl-3 space-y-3 border-l-2 border-border-subtle">
@@ -339,7 +339,7 @@ export function RequestBuilder({ endpoint, baseUrl, apiKey, onSendRequest }: Req
           <label className="block text-[13px] font-medium text-text-secondary mb-1">
             {param.name}
             <Badge variant="default" className="ml-2 text-[10px] px-1 py-0 font-normal">{param.type}</Badge>
-            {param.required && <Badge variant="error" className="ml-1 text-[10px] px-1.5">obrigatório</Badge>}
+            {param.required && <Badge variant="error" className="ml-1 text-[10px] px-1.5">required</Badge>}
           </label>
           <textarea
             value={String(value)}
@@ -347,7 +347,7 @@ export function RequestBuilder({ endpoint, baseUrl, apiKey, onSendRequest }: Req
             onBlur={() => {
               const v = String(value).trim();
               if (v) {
-                try { JSON.parse(v); clearFieldError(param.name); } catch { setErrors((prev) => ({ ...prev, [param.name]: "JSON inválido" })); }
+                try { JSON.parse(v); clearFieldError(param.name); } catch { setErrors((prev) => ({ ...prev, [param.name]: "Invalid JSON" })); }
               }
             }}
             placeholder={param.description}
@@ -367,7 +367,7 @@ export function RequestBuilder({ endpoint, baseUrl, apiKey, onSendRequest }: Req
         <div className="flex items-center gap-2 mb-1">
           <span className="text-[13px] font-medium text-text-secondary">{param.name}</span>
           <Badge variant="default" className="text-[10px] px-1 py-0 font-normal">{param.type}</Badge>
-          {param.required && <Badge variant="error" className="text-[10px] px-1.5">obrigatório</Badge>}
+          {param.required && <Badge variant="error" className="text-[10px] px-1.5">required</Badge>}
         </div>
         <Input
           type={param.type === "number" ? "text" : "text"}
@@ -417,7 +417,7 @@ export function RequestBuilder({ endpoint, baseUrl, apiKey, onSendRequest }: Req
           <div className="flex-1" />
           <Button variant="ghost" size="sm" onClick={handleCopyCurl} className="flex-shrink-0">
             <Copy size={14} />
-            {showCopied ? "Copiado!" : "cURL"}
+            {showCopied ? "Copied!" : "cURL"}
           </Button>
           <Button
             variant="primary"
@@ -427,7 +427,7 @@ export function RequestBuilder({ endpoint, baseUrl, apiKey, onSendRequest }: Req
             className={`flex-shrink-0 ${shakeBtn ? "animate-shake" : ""}`}
           >
             <Send size={14} />
-            {isLoading ? "Enviando..." : "Enviar"}
+            {isLoading ? "Sending..." : "Send"}
           </Button>
         </div>
         <p className="text-[11px] text-text-muted">{endpoint.description}</p>

@@ -26,9 +26,9 @@ interface LeadDocumentsProps {
 
 const CATEGORY_LABELS: Record<string, string> = {
   contract: "Contrato",
-  proposal: "Proposta",
+  proposal: "Proposal",
   invoice: "Fatura",
-  other: "Outro",
+  other: "Other",
 };
 
 function formatFileSize(bytes: number): string {
@@ -53,18 +53,18 @@ export function LeadDocuments({ leadId, organizationId }: LeadDocumentsProps) {
   const { mutateAsync: removeDocument } = useMutation(crpc.leads.removeLeadDocument.mutationOptions());
 
   const handleDelete = async (documentId: Id<"leadDocuments">, name: string) => {
-    if (!confirm(`Remover o documento "${name}"?`)) return;
+    if (!confirm(`Remove the document "${name}"?`)) return;
     try {
       await removeDocument({ documentId });
       toast.success("Documento removido");
     } catch (error: any) {
-      toast.error(error.message || "Falha ao remover documento");
+      toast.error(error.message || "Failed to remove document");
     }
   };
 
   const handleDownload = (url: string | null, name: string) => {
     if (!url) {
-      toast.error("URL do arquivo indisponível");
+      toast.error("File URL unavailable");
       return;
     }
     const a = document.createElement("a");
@@ -89,7 +89,7 @@ export function LeadDocuments({ leadId, organizationId }: LeadDocumentsProps) {
           onClick={() => setShowUploadModal(true)}
         >
           <Plus size={14} />
-          Adicionar
+          Add
         </Button>
       </div>
 
@@ -100,7 +100,7 @@ export function LeadDocuments({ leadId, organizationId }: LeadDocumentsProps) {
       ) : documents.length === 0 ? (
         <div className="bg-surface-sunken rounded-card p-4 text-center">
           <FileText size={24} className="mx-auto text-text-muted mb-2" />
-          <p className="text-sm text-text-muted">Nenhum documento</p>
+          <p className="text-sm text-text-muted">No documents</p>
         </div>
       ) : (
         <div className="space-y-1">
@@ -126,7 +126,7 @@ export function LeadDocuments({ leadId, organizationId }: LeadDocumentsProps) {
                     )}
                     <span>-</span>
                     <span>
-                      {new Date(doc.createdAt).toLocaleDateString("pt-BR", {
+                      {new Date(doc.createdAt).toLocaleDateString("en-US", {
                         day: "2-digit",
                         month: "short",
                       })}
@@ -143,7 +143,7 @@ export function LeadDocuments({ leadId, organizationId }: LeadDocumentsProps) {
                 <button
                   onClick={() => handleDelete(doc.documentId, doc.title || doc.name)}
                   className="p-1.5 rounded-full text-text-muted hover:text-semantic-error hover:bg-semantic-error/10 transition-colors opacity-0 group-hover:opacity-100"
-                  aria-label="Remover"
+                  aria-label="Remove"
                 >
                   <Trash2 size={14} />
                 </button>
@@ -227,7 +227,7 @@ function UploadDocumentModal({
         body: selectedFile,
       });
 
-      if (!response.ok) throw new Error("Falha no upload do arquivo");
+      if (!response.ok) throw new Error("File upload failed");
 
       const { storageId } = await response.json();
 
@@ -250,16 +250,16 @@ function UploadDocumentModal({
         category: category || undefined,
       });
 
-      toast.success("Documento adicionado com sucesso");
+      toast.success("Document added successfully");
       handleClose();
     } catch (error: any) {
-      toast.error(error.message || "Falha ao enviar documento");
+      toast.error(error.message || "Failed to upload document");
       setUploading(false);
     }
   };
 
   return (
-    <Modal open={open} onClose={handleClose} title="Adicionar Documento">
+    <Modal open={open} onClose={handleClose} title="Add Documento">
       <div className="space-y-4">
         {/* File input */}
         <div>
@@ -292,7 +292,7 @@ function UploadDocumentModal({
                 </span>
               </span>
             ) : (
-              "Clique para selecionar um arquivo..."
+              "Click to select a file..."
             )}
           </button>
         </div>
@@ -300,13 +300,13 @@ function UploadDocumentModal({
         {/* Title */}
         <div>
           <label className="block text-[13px] font-medium text-text-secondary mb-1">
-            Título <span className="text-text-muted font-normal">(opcional)</span>
+            Title <span className="text-text-muted font-normal">(optional)</span>
           </label>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Nome descritivo do documento"
+            placeholder="Descriptive document name"
             className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 placeholder:text-text-muted"
             style={{ fontSize: "16px" }}
           />
@@ -315,7 +315,7 @@ function UploadDocumentModal({
         {/* Category */}
         <div>
           <label className="block text-[13px] font-medium text-text-secondary mb-1">
-            Categoria <span className="text-text-muted font-normal">(opcional)</span>
+            Category <span className="text-text-muted font-normal">(optional)</span>
           </label>
           <select
             value={category}
@@ -323,11 +323,11 @@ function UploadDocumentModal({
             className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
             style={{ fontSize: "16px" }}
           >
-            <option value="">Selecione...</option>
+            <option value="">Select...</option>
             <option value="contract">Contrato</option>
-            <option value="proposal">Proposta</option>
+            <option value="proposal">Proposal</option>
             <option value="invoice">Fatura</option>
-            <option value="other">Outro</option>
+            <option value="other">Other</option>
           </select>
         </div>
 
@@ -339,7 +339,7 @@ function UploadDocumentModal({
             onClick={handleClose}
             className="flex-1"
           >
-            Cancelar
+            Cancel
           </Button>
           <Button
             variant="primary"
@@ -348,7 +348,7 @@ function UploadDocumentModal({
             disabled={!selectedFile || uploading}
             className="flex-1"
           >
-            {uploading ? "Enviando..." : "Enviar"}
+            {uploading ? "Sending..." : "Send"}
           </Button>
         </div>
       </div>

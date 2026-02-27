@@ -211,7 +211,7 @@ export const deleteBoard = mutation({
       .first();
 
     if (leadInBoard) {
-      throw new Error("Não é possível excluir pipeline com leads. Mova ou exclua os leads primeiro.");
+      throw new Error("Cannot delete a pipeline with leads. Move or delete leads first.");
     }
 
     const now = Date.now();
@@ -312,7 +312,7 @@ export const deleteStage = mutation({
       .first();
 
     if (leadInStage) {
-      throw new Error("Não é possível excluir etapa com leads. Mova os leads primeiro.");
+      throw new Error("Cannot delete a stage with leads. Move leads first.");
     }
 
     const now = Date.now();

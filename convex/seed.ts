@@ -485,8 +485,8 @@ export const seedMockData = mutation({
     // Create sample contact field definitions
     const contactFieldDefs = [
       { name: "NPS Score", key: "nps_score", type: "number" as const, isRequired: false, order: 0 },
-      { name: "Idioma Preferido", key: "preferred_language", type: "select" as const, options: ["Portugues", "Ingles", "Espanhol", "Frances"], isRequired: false, order: 1 },
-      { name: "Aceita Marketing", key: "marketing_consent", type: "boolean" as const, isRequired: false, order: 2 },
+      { name: "Preferred Language", key: "preferred_language", type: "select" as const, options: ["Portuguese", "English", "Spanish", "French"], isRequired: false, order: 1 },
+      { name: "Marketing Consent", key: "marketing_consent", type: "boolean" as const, isRequired: false, order: 2 },
     ];
 
     for (const fd of contactFieldDefs) {
@@ -522,36 +522,36 @@ export const seedMockData = mutation({
       tags?: string[];
     }> = [
       // Overdue tasks
-      { title: "Ligar para James Wilson sobre migracao", description: "Discutir precos e timeline de migracao do Salesforce", type: "task", status: "pending", priority: "high", activityType: "call", dueDate: daysAgo(2), leadIdx: 0, contactIdx: 0, assignedTo: marcus, createdBy: sarah, tags: ["follow-up", "enterprise"] },
-      { title: "Enviar proposta atualizada Global Retail", description: "Maria precisa da proposta com integracao POS atualizada", type: "task", status: "in_progress", priority: "urgent", activityType: "email", dueDate: daysAgo(1), leadIdx: 2, contactIdx: 1, assignedTo: marcus, createdBy: marcus, tags: ["proposta"] },
+      { title: "Call James Wilson about migration", description: "Discuss Salesforce migration pricing and timeline", type: "task", status: "pending", priority: "high", activityType: "call", dueDate: daysAgo(2), leadIdx: 0, contactIdx: 0, assignedTo: marcus, createdBy: sarah, tags: ["follow-up", "enterprise"] },
+      { title: "Send updated Global Retail proposal", description: "Maria needs the proposal with updated POS integration", type: "task", status: "in_progress", priority: "urgent", activityType: "email", dueDate: daysAgo(1), leadIdx: 2, contactIdx: 1, assignedTo: marcus, createdBy: marcus, tags: ["proposal"] },
 
       // Due today
-      { title: "Follow-up StartupXYZ pós-demo", type: "task", status: "pending", priority: "medium", activityType: "follow_up", dueDate: now, leadIdx: 3, contactIdx: 2, assignedTo: emily, createdBy: emily, tags: ["startup"] },
-      { title: "Lembrete: reuniao compliance MegaHealth", description: "Segunda 10am — revisar BAA e SOC 2", type: "reminder", status: "pending", priority: "high", dueDate: now, leadIdx: 5, assignedTo: sarah, createdBy: sarah },
+      { title: "Follow-up StartupXYZ post-demo", type: "task", status: "pending", priority: "medium", activityType: "follow_up", dueDate: now, leadIdx: 3, contactIdx: 2, assignedTo: emily, createdBy: emily, tags: ["startup"] },
+      { title: "Reminder: MegaHealth compliance meeting", description: "Monday 10am — review BAA and SOC 2", type: "reminder", status: "pending", priority: "high", dueDate: now, leadIdx: 5, assignedTo: sarah, createdBy: sarah },
 
       // Future tasks
-      { title: "Pesquisar concorrentes LogisticsPro", description: "Levantar precos e features de concorrentes no segmento de fleet management", type: "task", status: "in_progress", priority: "medium", activityType: "research", dueDate: daysAgo(-2), leadIdx: 7, assignedTo: alex, createdBy: sarah,
+      { title: "Research LogisticsPro competitors", description: "Collect competitor pricing and features in the fleet management segment", type: "task", status: "in_progress", priority: "medium", activityType: "research", dueDate: daysAgo(-2), leadIdx: 7, assignedTo: alex, createdBy: sarah,
         checklist: [
-          { id: "c1", title: "Pesquisar Samsara", completed: true },
-          { id: "c2", title: "Pesquisar Motive", completed: true },
-          { id: "c3", title: "Pesquisar Fleetio", completed: false },
+          { id: "c1", title: "Research Samsara", completed: true },
+          { id: "c2", title: "Research Motive", completed: true },
+          { id: "c3", title: "Research Fleetio", completed: false },
           { id: "c4", title: "Montar comparativo", completed: false },
         ],
         tags: ["research", "logistics"],
       },
-      { title: "Agendar kickoff EduLearn", description: "Lisa quer comecar implementacao na proxima semana", type: "task", status: "pending", priority: "medium", activityType: "meeting", dueDate: daysAgo(-3), leadIdx: 8, contactIdx: 7, assignedTo: alex, createdBy: alex },
-      { title: "Revisar qualificacao FinancePlus", type: "task", status: "pending", priority: "low", activityType: "todo", dueDate: daysAgo(-5), leadIdx: 4, contactIdx: 3, assignedTo: alex, createdBy: sarah },
+      { title: "Schedule EduLearn kickoff", description: "Lisa wants to start implementation next week", type: "task", status: "pending", priority: "medium", activityType: "meeting", dueDate: daysAgo(-3), leadIdx: 8, contactIdx: 7, assignedTo: alex, createdBy: alex },
+      { title: "Review FinancePlus qualification", type: "task", status: "pending", priority: "low", activityType: "todo", dueDate: daysAgo(-5), leadIdx: 4, contactIdx: 3, assignedTo: alex, createdBy: sarah },
 
       // Completed tasks
-      { title: "Qualificar lead TechCorp via IA", type: "task", status: "completed", priority: "medium", activityType: "todo", dueDate: daysAgo(3), completedAt: daysAgo(2, 5), leadIdx: 0, assignedTo: clawAI, createdBy: clawAI, tags: ["ai-auto"] },
-      { title: "Enviar case studies para Carlos Rivera", type: "task", status: "completed", priority: "medium", activityType: "email", dueDate: daysAgo(4), completedAt: daysAgo(3, 8), leadIdx: 6, contactIdx: 10, assignedTo: marcus, createdBy: marcus },
+      { title: "Qualificar lead TechCorp via AI", type: "task", status: "completed", priority: "medium", activityType: "todo", dueDate: daysAgo(3), completedAt: daysAgo(2, 5), leadIdx: 0, assignedTo: clawAI, createdBy: clawAI, tags: ["ai-auto"] },
+      { title: "Send case studies to Carlos Rivera", type: "task", status: "completed", priority: "medium", activityType: "email", dueDate: daysAgo(4), completedAt: daysAgo(3, 8), leadIdx: 6, contactIdx: 10, assignedTo: marcus, createdBy: marcus },
 
       // Standalone tasks (no lead)
-      { title: "Atualizar templates de email", description: "Revisar e atualizar templates de outreach para Q1", type: "task", status: "pending", priority: "low", activityType: "todo", dueDate: daysAgo(-7), assignedTo: emily, createdBy: sarah, tags: ["interno"] },
-      { title: "Lembrete semanal: revisar pipeline", type: "reminder", status: "pending", priority: "low", dueDate: daysAgo(-1), assignedTo: sarah, createdBy: sarah },
+      { title: "Update email templates", description: "Review and update outreach templates for Q1", type: "task", status: "pending", priority: "low", activityType: "todo", dueDate: daysAgo(-7), assignedTo: emily, createdBy: sarah, tags: ["interno"] },
+      { title: "Weekly reminder: review pipeline", type: "reminder", status: "pending", priority: "low", dueDate: daysAgo(-1), assignedTo: sarah, createdBy: sarah },
 
       // Cancelled task
-      { title: "Agendar demo para RealEstate Co", description: "Cancelado — lead perdido", type: "task", status: "cancelled", priority: "medium", activityType: "meeting", dueDate: daysAgo(1), leadIdx: 9, contactIdx: 8, assignedTo: emily, createdBy: emily },
+      { title: "Agendar demo para RealEstate Co", description: "Cancelled — lead lost", type: "task", status: "cancelled", priority: "medium", activityType: "meeting", dueDate: daysAgo(1), leadIdx: 9, contactIdx: 8, assignedTo: emily, createdBy: emily },
     ];
 
     const taskIds: Id<"tasks">[] = [];
@@ -583,12 +583,12 @@ export const seedMockData = mutation({
 
     // ─── 10. TASK COMMENTS ──────────────────────────────────────────
     const taskCommentDefs = [
-      { taskIdx: 0, authorId: sarah, authorType: "human" as const, content: "Marcus, priorize essa ligacao — James esta esperando retorno desde ontem." },
-      { taskIdx: 0, authorId: marcus, authorType: "human" as const, content: "Entendido, vou ligar hoje a tarde." },
-      { taskIdx: 1, authorId: clawAI, authorType: "ai" as const, content: "Lead Global Retail tem qualification score 75. Sugiro incluir ROI calculator na proposta." },
-      { taskIdx: 4, authorId: alex, authorType: "human" as const, content: "Samsara e Motive pesquisados. Falta Fleetio e montar o comparativo final." },
-      { taskIdx: 4, authorId: sarah, authorType: "human" as const, content: "Boa! Inclua precos por veiculo no comparativo, Ahmed vai querer ver isso." },
-      { taskIdx: 7, authorId: clawAI, authorType: "ai" as const, content: "Qualificacao concluida automaticamente. BANT: budget indefinido, authority sim, need sim, timeline sim. Score: 65." },
+      { taskIdx: 0, authorId: sarah, authorType: "human" as const, content: "Marcus, prioritize this call — James has been waiting for a response since yesterday." },
+      { taskIdx: 0, authorId: marcus, authorType: "human" as const, content: "Understood, I'll call this afternoon." },
+      { taskIdx: 1, authorId: clawAI, authorType: "ai" as const, content: "Global Retail lead has a qualification score of 75. I suggest including an ROI calculator in the proposal." },
+      { taskIdx: 4, authorId: alex, authorType: "human" as const, content: "Samsara and Motive researched. Fleetio and the final comparison are still pending." },
+      { taskIdx: 4, authorId: sarah, authorType: "human" as const, content: "Great. Include per-vehicle pricing in the comparison; Ahmed will want to see it." },
+      { taskIdx: 7, authorId: clawAI, authorType: "ai" as const, content: "Qualification completed automatically. BANT: budget undefined, authority yes, need yes, timeline yes. Score: 65." },
     ];
 
     let totalTaskComments = 0;
@@ -624,24 +624,24 @@ export const seedMockData = mutation({
       notes?: string;
     }> = [
       // Past completed events
-      { title: "Demo TechCorp CRM", description: "Demonstracao do CRM para equipe da TechCorp", eventType: "demo", startTime: daysAgo(3, -10), endTime: daysAgo(3, -11), allDay: false, status: "completed", leadIdx: 0, contactIdx: 0, assignedTo: marcus, createdBy: sarah, attendees: [marcus, sarah], meetingUrl: "https://meet.example.com/techcorp", notes: "Demo bem recebida, James quer proposta" },
-      { title: "Ligacao follow-up Global Retail", eventType: "call", startTime: daysAgo(2, -14), endTime: daysAgo(2, -14.5), allDay: false, status: "completed", leadIdx: 2, contactIdx: 1, assignedTo: marcus, createdBy: marcus, notes: "Maria confirmou interesse na integracao POS" },
-      { title: "Reuniao compliance MegaHealth", description: "Revisar BAA e documentacao SOC 2 com equipe juridica", eventType: "meeting", startTime: daysAgo(1, -10), endTime: daysAgo(1, -11), allDay: false, status: "completed", leadIdx: 5, contactIdx: 4, assignedTo: sarah, createdBy: sarah, attendees: [sarah, alex], location: "Sala de reunioes 3", meetingUrl: "https://meet.example.com/megahealth" },
+      { title: "Demo TechCorp CRM", description: "CRM demo for the TechCorp team", eventType: "demo", startTime: daysAgo(3, -10), endTime: daysAgo(3, -11), allDay: false, status: "completed", leadIdx: 0, contactIdx: 0, assignedTo: marcus, createdBy: sarah, attendees: [marcus, sarah], meetingUrl: "https://meet.example.com/techcorp", notes: "Demo well received, James wants a proposal" },
+      { title: "Global Retail follow-up call", eventType: "call", startTime: daysAgo(2, -14), endTime: daysAgo(2, -14.5), allDay: false, status: "completed", leadIdx: 2, contactIdx: 1, assignedTo: marcus, createdBy: marcus, notes: "Maria confirmed interest in POS integration" },
+      { title: "MegaHealth compliance meeting", description: "Review BAA and SOC 2 documentation with the legal team", eventType: "meeting", startTime: daysAgo(1, -10), endTime: daysAgo(1, -11), allDay: false, status: "completed", leadIdx: 5, contactIdx: 4, assignedTo: sarah, createdBy: sarah, attendees: [sarah, alex], location: "Meeting room 3", meetingUrl: "https://meet.example.com/megahealth" },
 
       // Today's events
-      { title: "Call com David Lee - StartupXYZ", description: "Discutir plano startup e precos", eventType: "call", startTime: daysAgo(0, -14), endTime: daysAgo(0, -14.5), allDay: false, status: "scheduled", leadIdx: 3, contactIdx: 2, assignedTo: emily, createdBy: emily, notes: "Preparar comparativo de precos" },
-      { title: "Revisao semanal de pipeline", description: "Revisao do pipeline com toda a equipe", eventType: "meeting", startTime: daysAgo(0, -16), endTime: daysAgo(0, -17), allDay: false, status: "scheduled", assignedTo: sarah, createdBy: sarah, attendees: [sarah, marcus, emily, alex], location: "Sala principal", meetingUrl: "https://meet.example.com/pipeline-review" },
+      { title: "Call with David Lee - StartupXYZ", description: "Discuss startup plan and pricing", eventType: "call", startTime: daysAgo(0, -14), endTime: daysAgo(0, -14.5), allDay: false, status: "scheduled", leadIdx: 3, contactIdx: 2, assignedTo: emily, createdBy: emily, notes: "Prepare a pricing comparison" },
+      { title: "Weekly pipeline review", description: "Pipeline review with the full team", eventType: "meeting", startTime: daysAgo(0, -16), endTime: daysAgo(0, -17), allDay: false, status: "scheduled", assignedTo: sarah, createdBy: sarah, attendees: [sarah, marcus, emily, alex], location: "Main room", meetingUrl: "https://meet.example.com/pipeline-review" },
 
       // Future events
-      { title: "Demo FinancePlus Compliance", description: "Demo personalizada do modulo de compliance", eventType: "demo", startTime: daysAgo(-1, -10), endTime: daysAgo(-1, -11.5), allDay: false, status: "scheduled", leadIdx: 4, contactIdx: 3, assignedTo: alex, createdBy: sarah, attendees: [alex, sarah], meetingUrl: "https://meet.example.com/financeplus" },
-      { title: "Follow-up proposta LogisticsPro", eventType: "follow_up", startTime: daysAgo(-2, -11), endTime: daysAgo(-2, -11.5), allDay: false, status: "scheduled", leadIdx: 7, contactIdx: 6, assignedTo: sarah, createdBy: sarah, notes: "Ahmed quer desconto 15%, oferecer 12% com contrato 2 anos" },
-      { title: "Kickoff implementacao EduLearn", description: "Reuniao de kickoff com equipe de implementacao e Lisa Thompson", eventType: "meeting", startTime: daysAgo(-3, -10), endTime: daysAgo(-3, -12), allDay: false, status: "scheduled", leadIdx: 8, contactIdx: 7, assignedTo: alex, createdBy: alex, attendees: [alex, sarah, marcus], location: "Virtual", meetingUrl: "https://meet.example.com/edulearn-kickoff" },
+      { title: "Demo FinancePlus Compliance", description: "Personalized compliance module demo", eventType: "demo", startTime: daysAgo(-1, -10), endTime: daysAgo(-1, -11.5), allDay: false, status: "scheduled", leadIdx: 4, contactIdx: 3, assignedTo: alex, createdBy: sarah, attendees: [alex, sarah], meetingUrl: "https://meet.example.com/financeplus" },
+      { title: "LogisticsPro proposal follow-up", eventType: "follow_up", startTime: daysAgo(-2, -11), endTime: daysAgo(-2, -11.5), allDay: false, status: "scheduled", leadIdx: 7, contactIdx: 6, assignedTo: sarah, createdBy: sarah, notes: "Ahmed wants a 15% discount; offer 12% with a 2-year contract" },
+      { title: "EduLearn implementation kickoff", description: "Kickoff meeting with implementation team and Lisa Thompson", eventType: "meeting", startTime: daysAgo(-3, -10), endTime: daysAgo(-3, -12), allDay: false, status: "scheduled", leadIdx: 8, contactIdx: 7, assignedTo: alex, createdBy: alex, attendees: [alex, sarah, marcus], location: "Virtual", meetingUrl: "https://meet.example.com/edulearn-kickoff" },
 
       // All-day event
-      { title: "Treinamento interno - CRM avancado", description: "Workshop de funcionalidades avancadas do CRM para toda equipe", eventType: "other", startTime: daysAgo(-5), endTime: daysAgo(-5) + 24 * 60 * 60 * 1000, allDay: true, status: "scheduled", assignedTo: sarah, createdBy: sarah, attendees: [sarah, marcus, emily, alex, clawAI] },
+      { title: "Internal training - advanced CRM", description: "Advanced CRM features workshop for the full team", eventType: "other", startTime: daysAgo(-5), endTime: daysAgo(-5) + 24 * 60 * 60 * 1000, allDay: true, status: "scheduled", assignedTo: sarah, createdBy: sarah, attendees: [sarah, marcus, emily, alex, clawAI] },
 
       // Cancelled event
-      { title: "Demo RealEstate Co", description: "Cancelado - lead perdido por restricoes de orcamento", eventType: "demo", startTime: daysAgo(1, -15), endTime: daysAgo(1, -16), allDay: false, status: "cancelled", leadIdx: 9, contactIdx: 8, assignedTo: emily, createdBy: emily },
+      { title: "RealEstate Co demo", description: "Cancelled - lead lost due to budget constraints", eventType: "demo", startTime: daysAgo(1, -15), endTime: daysAgo(1, -16), allDay: false, status: "cancelled", leadIdx: 9, contactIdx: 8, assignedTo: emily, createdBy: emily },
     ];
 
     const calendarEventIds: Id<"calendarEvents">[] = [];

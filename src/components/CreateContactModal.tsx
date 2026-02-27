@@ -69,7 +69,7 @@ export function CreateContactModal({ organizationId, onClose }: CreateContactMod
       !phone.trim() &&
       !company.trim()
     ) {
-      toast.error("Forneça pelo menos um nome, email, telefone ou empresa");
+      toast.error("Provide at least a name, email, phone, or company");
       return;
     }
 
@@ -79,7 +79,7 @@ export function CreateContactModal({ organizationId, onClose }: CreateContactMod
     for (const field of requiredFields) {
       const value = customFields[field.key];
       if (value === undefined || value === null || value === "") {
-        toast.error(`Campo obrigatório: ${field.name}`);
+        toast.error(`Required field: ${field.name}`);
         setSubmitting(false);
         return;
       }
@@ -115,12 +115,12 @@ export function CreateContactModal({ organizationId, onClose }: CreateContactMod
     });
 
     toast.promise(createPromise, {
-      loading: "Criando contato...",
+      loading: "Creating contact...",
       success: () => {
         onClose();
-        return "Contato criado com sucesso";
+        return "Contact created successfully";
       },
-      error: "Falha ao criar contato",
+      error: "Failed to create contact",
     });
 
     try {
@@ -131,12 +131,12 @@ export function CreateContactModal({ organizationId, onClose }: CreateContactMod
   };
 
   return (
-    <Modal open={true} onClose={onClose} title="Criar Novo Contato">
+    <Modal open={true} onClose={onClose} title="Create New Contact">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="block text-[13px] font-medium text-text-secondary mb-1">
-              Nome
+              Name
             </label>
             <input
               type="text"
@@ -175,7 +175,7 @@ export function CreateContactModal({ organizationId, onClose }: CreateContactMod
 
         <div>
           <label className="block text-[13px] font-medium text-text-secondary mb-1">
-            Telefone
+            Phone
           </label>
           <input
             type="text"
@@ -201,7 +201,7 @@ export function CreateContactModal({ organizationId, onClose }: CreateContactMod
 
         <div>
           <label className="block text-[13px] font-medium text-text-secondary mb-1">
-            Cargo
+            Job title
           </label>
           <input
             type="text"
@@ -241,13 +241,13 @@ export function CreateContactModal({ organizationId, onClose }: CreateContactMod
 
         <div>
           <label className="block text-[13px] font-medium text-text-secondary mb-1">
-            Tags (separadas por vírgula)
+            Tags (comma-separated)
           </label>
           <input
             type="text"
             value={tags}
             onChange={(e) => setTags(e.target.value)}
-            placeholder="cliente, vip, parceiro"
+            placeholder="customer, vip, partner"
             className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 placeholder:text-text-muted"
             style={{ fontSize: "16px" }}
           />
@@ -257,7 +257,7 @@ export function CreateContactModal({ organizationId, onClose }: CreateContactMod
         {requiredFields.length > 0 && (
           <div className="space-y-3">
             <div className="text-sm font-semibold text-text-primary border-t border-border pt-3">
-              Campos Obrigatórios
+              Campos Requireds
             </div>
             <CustomFieldsRenderer
               fieldDefinitions={requiredFields}
@@ -268,7 +268,7 @@ export function CreateContactModal({ organizationId, onClose }: CreateContactMod
           </div>
         )}
 
-        {/* Expandable "Mais campos" section */}
+        {/* Expandable "More fields" section */}
         <div className="border-t border-border pt-3">
           <button
             type="button"
@@ -280,7 +280,7 @@ export function CreateContactModal({ organizationId, onClose }: CreateContactMod
             ) : (
               <ChevronDown size={16} />
             )}
-            Mais campos
+            More fields
           </button>
         </div>
 
@@ -345,11 +345,11 @@ export function CreateContactModal({ organizationId, onClose }: CreateContactMod
 
             {/* Location Section */}
             <div className="space-y-3">
-              <div className="text-sm font-semibold text-text-primary">Localização</div>
+              <div className="text-sm font-semibold text-text-primary">Location</div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[13px] font-medium text-text-secondary mb-1">
-                    Cidade
+                    City
                   </label>
                   <input
                     type="text"
@@ -361,7 +361,7 @@ export function CreateContactModal({ organizationId, onClose }: CreateContactMod
                 </div>
                 <div>
                   <label className="block text-[13px] font-medium text-text-secondary mb-1">
-                    Estado
+                    State
                   </label>
                   <input
                     type="text"
@@ -374,7 +374,7 @@ export function CreateContactModal({ organizationId, onClose }: CreateContactMod
               </div>
               <div>
                 <label className="block text-[13px] font-medium text-text-secondary mb-1">
-                  País
+                  Country
                 </label>
                 <input
                   type="text"
@@ -391,13 +391,13 @@ export function CreateContactModal({ organizationId, onClose }: CreateContactMod
               <div className="text-sm font-semibold text-text-primary">Dados Profissionais</div>
               <div>
                 <label className="block text-[13px] font-medium text-text-secondary mb-1">
-                  Setor
+                  Industry
                 </label>
                 <input
                   type="text"
                   value={industry}
                   onChange={(e) => setIndustry(e.target.value)}
-                  placeholder="Tecnologia, Saúde, etc."
+                  placeholder="Technology, Healthcare, etc."
                   className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 placeholder:text-text-muted"
                   style={{ fontSize: "16px" }}
                 />
@@ -412,12 +412,12 @@ export function CreateContactModal({ organizationId, onClose }: CreateContactMod
                   className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                   style={{ fontSize: "16px" }}
                 >
-                  <option value="">Selecionar...</option>
-                  <option value="1-10">1-10 funcionários</option>
-                  <option value="11-50">11-50 funcionários</option>
-                  <option value="51-200">51-200 funcionários</option>
-                  <option value="201-1000">201-1000 funcionários</option>
-                  <option value="1000+">1000+ funcionários</option>
+                  <option value="">Select...</option>
+                  <option value="1-10">1-10 employees</option>
+                  <option value="11-50">11-50 employees</option>
+                  <option value="51-200">51-200 employees</option>
+                  <option value="201-1000">201-1000 employees</option>
+                  <option value="1000+">1000+ employees</option>
                 </select>
               </div>
               <div>
@@ -458,7 +458,7 @@ export function CreateContactModal({ organizationId, onClose }: CreateContactMod
             size="md"
             className="flex-1"
           >
-            Cancelar
+            Cancel
           </Button>
           <Button
             type="submit"
@@ -467,7 +467,7 @@ export function CreateContactModal({ organizationId, onClose }: CreateContactMod
             size="md"
             className="flex-1"
           >
-            {submitting ? "Criando..." : "Criar Contato"}
+            {submitting ? "Creating..." : "Create Contact"}
           </Button>
         </div>
       </form>

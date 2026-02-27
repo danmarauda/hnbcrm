@@ -30,7 +30,7 @@ export async function requireAuth(
 
 /**
  * Require auth + check a specific permission level.
- * Throws "Permissão insuficiente" if the member lacks the required permission.
+ * Throws "Insufficient permissions" if the member lacks the required permission.
  */
 export async function requirePermission(
   ctx: QueryCtx | MutationCtx,
@@ -44,7 +44,7 @@ export async function requirePermission(
     (member as any).permissions as Permissions | undefined
   );
   if (!hasPermission(permissions, category, requiredLevel)) {
-    throw new Error("Permissão insuficiente");
+    throw new Error("Insufficient permissions");
   }
   return member;
 }

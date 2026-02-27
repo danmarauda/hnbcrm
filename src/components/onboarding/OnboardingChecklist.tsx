@@ -16,10 +16,10 @@ interface OnboardingChecklistProps {
 }
 
 const ITEM_NAV: Record<string, { tab: Tab; label: string }> = {
-  pipelineCustomized: { tab: "board", label: "Concluído!" },
+  pipelineCustomized: { tab: "board", label: "Completed!" },
   firstLeadCreated: { tab: "board", label: "Pipeline" },
-  firstContactAdded: { tab: "contacts", label: "Contatos" },
-  teamMemberInvited: { tab: "team", label: "Equipe" },
+  firstContactAdded: { tab: "contacts", label: "Contacts" },
+  teamMemberInvited: { tab: "team", label: "Team" },
   webhookOrApiKey: { tab: "settings", label: "Config" },
   customFieldsExplored: { tab: "settings", label: "Config" },
 };
@@ -76,7 +76,7 @@ export function OnboardingChecklist({
           <button
             onClick={() => setExpanded(!expanded)}
             className="md:hidden p-1.5 text-text-muted hover:text-text-primary rounded-lg hover:bg-surface-overlay transition-colors"
-            aria-label={expanded ? "Recolher" : "Expandir"}
+            aria-label={expanded ? "Collapse" : "Expandir"}
           >
             {expanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
           </button>
@@ -137,7 +137,7 @@ export function OnboardingChecklist({
               {/* Action */}
               {isCompleted ? (
                 <span className="text-xs text-semantic-success font-medium">
-                  Concluído!
+                  Completed!
                 </span>
               ) : nav ? (
                 <span className="flex items-center gap-1 text-xs text-brand-500 font-medium">
@@ -154,7 +154,7 @@ export function OnboardingChecklist({
       {allDone && (
         <div className="mt-4 pt-3 border-t border-border text-center">
           <p className="text-sm text-semantic-success font-medium">
-            Parabéns! Todos os passos concluídos!
+            Great! All steps are complete!
           </p>
         </div>
       )}

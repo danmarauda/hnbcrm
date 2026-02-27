@@ -84,7 +84,7 @@ export const inviteHumanMember = action({
       internal.teamMembers.internalVerifyTeamManager,
       { organizationId: args.organizationId }
     );
-    if (!callerMember) throw new Error("Permissão insuficiente");
+    if (!callerMember) throw new Error("Insufficient permissions");
 
     // Check if the email is already a member of this org
     const existingMemberInOrg: any = await ctx.runQuery(
@@ -92,7 +92,7 @@ export const inviteHumanMember = action({
       { organizationId: args.organizationId, email: args.email }
     );
     if (existingMemberInOrg) {
-      throw new Error("Este usuário já é membro desta organização");
+      throw new Error("This user is already a member of this organization");
     }
 
     // Check if the user already has a BA account (linked to any teamMember)

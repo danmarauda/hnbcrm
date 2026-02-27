@@ -33,30 +33,30 @@ export const ENTITY_ICONS: Record<string, any> = {
 
 // Action badge mapping
 export const ACTION_LABELS: Record<string, { label: string; variant: string }> = {
-  create: { label: "Criar", variant: "success" },
-  update: { label: "Atualizar", variant: "info" },
-  delete: { label: "Excluir", variant: "error" },
-  move: { label: "Mover", variant: "brand" },
-  assign: { label: "Atribuir", variant: "info" },
-  handoff: { label: "Repassar", variant: "warning" },
+  create: { label: "Create", variant: "success" },
+  update: { label: "Update", variant: "info" },
+  delete: { label: "Delete", variant: "error" },
+  move: { label: "Move", variant: "brand" },
+  assign: { label: "Assign", variant: "info" },
+  handoff: { label: "Handoff", variant: "warning" },
 };
 
 // Field label mapping for diff table
 export const FIELD_LABELS: Record<string, string> = {
-  stageId: "Etapa",
-  assignedTo: "Responsável",
+  stageId: "Stage",
+  assignedTo: "Owner",
   status: "Status",
-  priority: "Prioridade",
-  title: "Título",
-  name: "Nome",
-  value: "Valor",
+  priority: "Priority",
+  title: "Title",
+  name: "Name",
+  value: "Value",
   email: "Email",
-  phone: "Telefone",
-  company: "Empresa",
-  temperature: "Temperatura",
+  phone: "Phone",
+  company: "Company",
+  temperature: "Temperature",
   tags: "Tags",
-  qualification: "Qualificação",
-  contactId: "Contato",
+  qualification: "Qualification",
+  contactId: "Contact",
 };
 
 // Date grouping utility
@@ -68,11 +68,11 @@ export function getDateGroup(timestamp: number): string {
   const weekAgo = new Date(today.getTime() - 7 * 86400000);
   const monthAgo = new Date(today.getTime() - 30 * 86400000);
 
-  if (date >= today) return "Hoje";
-  if (date >= yesterday) return "Ontem";
-  if (date >= weekAgo) return "Esta Semana";
-  if (date >= monthAgo) return "Este Mês";
-  return "Anteriores";
+  if (date >= today) return "Today";
+  if (date >= yesterday) return "Yesterday";
+  if (date >= weekAgo) return "This Week";
+  if (date >= monthAgo) return "This Month";
+  return "Older";
 }
 
 // Relative time utility
@@ -80,61 +80,58 @@ export function formatRelativeTime(timestamp: number): string {
   const now = Date.now();
   const diff = now - timestamp;
   const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "agora";
-  if (mins < 60) return `${mins}min atrás`;
+  if (mins < 1) return "now";
+  if (mins < 60) return `${mins}min ago`;
   const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours}h atrás`;
+  if (hours < 24) return `${hours}h ago`;
   const days = Math.floor(hours / 24);
-  if (days < 7) return `${days}d atrás`;
+  if (days < 7) return `${days}d ago`;
   const weeks = Math.floor(days / 7);
-  if (weeks < 5) return `${weeks}sem atrás`;
-  return new Date(timestamp).toLocaleDateString("pt-BR");
+  if (weeks < 5) return `${weeks}w ago`;
+  return new Date(timestamp).toLocaleDateString("en-US");
 }
 
 // Client-side description fallback
-export const ACTION_VERBS_PTBR: Record<string, string> = {
-  create: "Criou",
-  update: "Atualizou",
-  delete: "Excluiu",
-  move: "Moveu",
-  assign: "Atribuiu",
-  handoff: "Repassou",
+export const ACTION_VERBS: Record<string, string> = {
+  create: "Created",
+  update: "Updated",
+  delete: "Deleted",
+  move: "Moved",
+  assign: "Assigned",
+  handoff: "Handed off",
 };
 
-export const ENTITY_LABELS_PTBR: Record<string, { article: string; label: string }> = {
-  lead: { article: "o", label: "lead" },
-  contact: { article: "o", label: "contato" },
-  organization: { article: "a", label: "organização" },
-  teamMember: { article: "o", label: "membro" },
-  handoff: { article: "o", label: "repasse" },
-  message: { article: "a", label: "mensagem" },
-  board: { article: "o", label: "quadro" },
-  stage: { article: "a", label: "etapa" },
-  webhook: { article: "o", label: "webhook" },
-  leadSource: { article: "a", label: "fonte de lead" },
-  fieldDefinition: { article: "o", label: "campo personalizado" },
-  apiKey: { article: "a", label: "chave de API" },
-  savedView: { article: "a", label: "visualização salva" },
+export const ENTITY_LABELS: Record<string, string> = {
+  lead: "lead",
+  contact: "contact",
+  organization: "organization",
+  teamMember: "member",
+  handoff: "handoff",
+  message: "message",
+  board: "board",
+  stage: "stage",
+  webhook: "webhook",
+  leadSource: "lead source",
+  fieldDefinition: "custom field",
+  apiKey: "API key",
+  savedView: "saved view",
 };
 
 export function buildClientDescription(log: any): string {
-  const verb = ACTION_VERBS_PTBR[log.action] || log.action;
-  const entity = ENTITY_LABELS_PTBR[log.entityType];
-  const article = entity?.article || "o";
-  const label = entity?.label || log.entityType;
+  const verb = ACTION_VERBS[log.action] || log.action;
+  const label = ENTITY_LABELS[log.entityType] || log.entityType;
   const meta = log.metadata as Record<string, unknown> | undefined;
   const name = (meta?.title as string) || (meta?.name as string) || "";
-  const nameStr = name ? ` '${name}'` : "";
-  return `${verb} ${article} ${label}${nameStr}`;
+  return name ? `${verb} ${label} '${name}'` : `${verb} ${label}`;
 }
 
 // Value formatter for diff
 export function formatDiffValue(val: unknown): string {
   if (val === undefined || val === null) return "—";
-  if (typeof val === "boolean") return val ? "Sim" : "Não";
+  if (typeof val === "boolean") return val ? "Yes" : "No";
   if (typeof val === "number") return String(val);
   if (Array.isArray(val)) return val.join(", ") || "—";
-  if (typeof val === "object") return "Atualizado";
+  if (typeof val === "object") return "Updated";
   return String(val);
 }
 

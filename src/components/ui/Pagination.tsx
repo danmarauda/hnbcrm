@@ -29,7 +29,7 @@ export function Pagination({
   return (
     <nav
       role="navigation"
-      aria-label="Paginação"
+      aria-label="Pagination"
       className={cn(
         "flex flex-col sm:flex-row items-center justify-between gap-2 py-3 px-4",
         className
@@ -45,10 +45,10 @@ export function Pagination({
           size="sm"
           disabled={!hasPrev}
           onClick={() => onPageChange(page - 1)}
-          aria-label="Página anterior"
+          aria-label="Page anterior"
         >
           <ChevronLeft size={16} />
-          <span className="hidden sm:inline ml-1">Anterior</span>
+          <span className="hidden sm:inline ml-1">Previous</span>
         </Button>
 
         <span className="text-sm text-text-secondary font-medium tabular-nums min-w-[3rem] text-center">
@@ -60,9 +60,9 @@ export function Pagination({
           size="sm"
           disabled={!hasNext}
           onClick={() => onPageChange(page + 1)}
-          aria-label="Próxima página"
+          aria-label="Next page"
         >
-          <span className="hidden sm:inline mr-1">Próximo</span>
+          <span className="hidden sm:inline mr-1">Next</span>
           <ChevronRight size={16} />
         </Button>
       </div>

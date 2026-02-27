@@ -66,13 +66,13 @@ export function AvatarUpload({
 
     // Validate type
     if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-      toast.error("Formato invalido. Use JPEG, PNG, WebP ou GIF.");
+      toast.error("Invalid format. Use JPEG, PNG, WebP, or GIF.");
       return;
     }
 
     // Validate size
     if (file.size > MAX_FILE_SIZE) {
-      toast.error("Imagem muito grande. Maximo 5MB.");
+      toast.error("Image too large. Maximum 5MB.");
       return;
     }
 
@@ -89,7 +89,7 @@ export function AvatarUpload({
       });
 
       if (!response.ok) {
-        throw new Error("Falha no upload");
+        throw new Error("Upload failed");
       }
 
       const { storageId } = await response.json();
@@ -108,9 +108,9 @@ export function AvatarUpload({
 
       // 4. Notify parent
       onPhotoChange(fileId);
-      toast.success("Foto atualizada!");
+      toast.success("Photo updated!");
     } catch (error: any) {
-      toast.error(error.message || "Falha ao enviar foto.");
+      toast.error(error.message || "Failed to upload photo.");
     } finally {
       setUploading(false);
     }

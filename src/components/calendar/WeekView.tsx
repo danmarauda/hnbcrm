@@ -93,7 +93,7 @@ export function WeekView({ weekStart, events, onEventClick, onSlotClick }: WeekV
         <div className="flex border-b border-border bg-surface-raised max-h-16 md:max-h-24 overflow-y-auto">
           <div className="w-10 md:w-14 shrink-0 border-r border-border px-0.5 md:px-1 py-1 md:py-2">
             <div className="text-[8px] md:text-[10px] text-text-muted font-medium leading-tight">
-              Dia Inteiro
+              All Day
             </div>
           </div>
           {allDayEventsByDay.map((dayEvents, index) => (

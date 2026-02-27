@@ -141,12 +141,12 @@ export const getOnboardingChecklist = query({
       .first();
 
     const items = [
-      { id: "pipelineCustomized", label: "Personalizar pipeline", completed: pipelineCustomized },
-      { id: "firstLeadCreated", label: "Criar primeiro lead", completed: firstLeadCreated },
-      { id: "firstContactAdded", label: "Adicionar primeiro contato", completed: firstContactAdded },
-      { id: "teamMemberInvited", label: "Convidar membro da equipe", completed: teamMemberInvited },
-      { id: "webhookOrApiKey", label: "Configurar webhook ou API key", completed: webhookOrApiKey },
-      { id: "customFieldsExplored", label: "Explorar campos personalizados", completed: customFieldsExplored },
+      { id: "pipelineCustomized", label: "Customize pipeline", completed: pipelineCustomized },
+      { id: "firstLeadCreated", label: "Create primeiro lead", completed: firstLeadCreated },
+      { id: "firstContactAdded", label: "Add first contact", completed: firstContactAdded },
+      { id: "teamMemberInvited", label: "Invite team member", completed: teamMemberInvited },
+      { id: "webhookOrApiKey", label: "Configure webhook or API key", completed: webhookOrApiKey },
+      { id: "customFieldsExplored", label: "Explore custom fields", completed: customFieldsExplored },
     ];
 
     const completedCount = items.filter((item) => item.completed).length;
@@ -405,8 +405,8 @@ export const setupPipelineFromWizard = mutation({
       { name: "Website", type: "website" },
       { name: "Redes Sociais", type: "social" },
       { name: "Campanha Email", type: "email" },
-      { name: "Telefone", type: "phone" },
-      { name: "Indicacao", type: "referral" },
+      { name: "Phone", type: "phone" },
+      { name: "Referral", type: "referral" },
       { name: "API", type: "api" },
     ];
 

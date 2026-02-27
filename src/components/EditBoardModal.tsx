@@ -42,9 +42,9 @@ export function EditBoardModal({ board, onClose }: EditBoardModalProps) {
           color,
         }),
         {
-          loading: "Atualizando pipeline...",
-          success: "Pipeline atualizado!",
-          error: "Falha ao atualizar pipeline",
+          loading: "Updating pipeline...",
+          success: "Pipeline updated!",
+          error: "Failed to update pipeline",
         }
       );
       onClose();
@@ -56,11 +56,11 @@ export function EditBoardModal({ board, onClose }: EditBoardModalProps) {
   };
 
   return (
-    <Modal open={true} onClose={onClose} title="Editar Pipeline">
+    <Modal open={true} onClose={onClose} title="Edit Pipeline">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-[13px] font-medium text-text-secondary mb-1">
-            Nome <span className="text-semantic-error">*</span>
+            Name <span className="text-semantic-error">*</span>
           </label>
           <input
             type="text"
@@ -74,12 +74,12 @@ export function EditBoardModal({ board, onClose }: EditBoardModalProps) {
 
         <div>
           <label className="block text-[13px] font-medium text-text-secondary mb-1">
-            Descrição
+            Description
           </label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Opcional: descrição do pipeline..."
+            placeholder="Optional: pipeline description..."
             rows={3}
             className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 placeholder:text-text-muted resize-none"
             style={{ fontSize: "16px" }}
@@ -116,10 +116,10 @@ export function EditBoardModal({ board, onClose }: EditBoardModalProps) {
             className="flex-1"
             disabled={submitting}
           >
-            Cancelar
+            Cancel
           </Button>
           <Button type="submit" variant="primary" size="md" className="flex-1" disabled={submitting}>
-            {submitting ? "Salvando..." : "Salvar"}
+            {submitting ? "Salvando..." : "Save"}
           </Button>
         </div>
       </form>

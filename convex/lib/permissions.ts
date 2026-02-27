@@ -136,26 +136,26 @@ export function getLevelsForCategory(category: PermissionCategory): string[] {
 // PT-BR labels for categories
 export const CATEGORY_LABELS: Record<PermissionCategory, string> = {
   leads: "Leads",
-  contacts: "Contatos",
-  inbox: "Caixa de Entrada",
-  tasks: "Tarefas",
-  reports: "Relatórios",
-  team: "Equipe",
-  settings: "Configurações",
-  auditLogs: "Auditoria",
+  contacts: "Contacts",
+  inbox: "Inbox",
+  tasks: "Tasks",
+  reports: "Reports",
+  team: "Team",
+  settings: "Settings",
+  auditLogs: "Audit",
   apiKeys: "Chaves API",
 };
 
 // PT-BR labels for levels
 export const LEVEL_LABELS: Record<string, string> = {
-  none: "Nenhum",
-  view_own: "Ver Próprios",
+  none: "None",
+  view_own: "View Own",
   view_all: "Ver Todos",
-  edit_own: "Editar Próprios",
-  edit_all: "Editar Todos",
+  edit_own: "Edit Own",
+  edit_all: "Edit Todos",
   full: "Total",
   view: "Visualizar",
-  edit: "Editar",
+  edit: "Edit",
   reply: "Responder",
-  manage: "Gerenciar",
+  manage: "Manage",
 };

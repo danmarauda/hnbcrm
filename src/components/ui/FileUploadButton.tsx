@@ -73,7 +73,7 @@ export function FileUploadButton({
 
     // Validate count
     if (uploadedFiles.length + filesToUpload.length > MAX_FILES) {
-      toast.error(`Maximo de ${MAX_FILES} arquivos por mensagem`);
+      toast.error(`Maximum of  files per message`);
       if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
@@ -97,7 +97,7 @@ export function FileUploadButton({
         });
 
         if (!response.ok) {
-          throw new Error(`Falha ao enviar ${file.name}`);
+          throw new Error(`Failed to upload ${file.name}`);
         }
 
         const { storageId } = await response.json();
@@ -125,7 +125,7 @@ export function FileUploadButton({
 
       onFilesUploaded(newFiles);
     } catch (error: any) {
-      toast.error(error.message || "Falha ao enviar arquivo");
+      toast.error(error.message || "Failed to upload file");
     } finally {
       setUploading(false);
       setProgress(0);
@@ -159,7 +159,7 @@ export function FileUploadButton({
                 type="button"
                 onClick={() => handleRemoveFile(file.fileId)}
                 className="shrink-0 p-0.5 rounded hover:bg-surface-raised text-text-muted hover:text-semantic-error transition-colors"
-                aria-label={`Remover ${file.name}`}
+                aria-label={`Remove ${file.name}`}
               >
                 <X size={12} />
               </button>
@@ -179,12 +179,12 @@ export function FileUploadButton({
         )}
         title={
           uploading
-            ? `Enviando... ${progress}%`
+            ? `Sending... ${progress}%`
             : uploadedFiles.length >= MAX_FILES
-            ? `Maximo de ${MAX_FILES} arquivos`
-            : "Anexar arquivo"
+            ? `Maximum of  files`
+            : "Attach file"
         }
-        aria-label="Anexar arquivo"
+        aria-label="Attach file"
       >
         {uploading ? (
           <Loader2 size={18} className="animate-spin" />

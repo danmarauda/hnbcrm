@@ -269,7 +269,7 @@ export const createEvent = mutation({
         type: "event_created",
         actorId: userMember._id,
         actorType: userMember.type === "ai" ? "ai" : "human",
-        content: `Evento "${args.title}" criado`,
+        content: `Event "" created`,
         metadata: { eventId, eventType: args.eventType },
         createdAt: now,
       });
@@ -502,7 +502,7 @@ export const completeEvent = mutation({
         type: "event_completed",
         actorId: userMember._id,
         actorType: userMember.type === "ai" ? "ai" : "human",
-        content: `Evento "${event.title}" concluido`,
+        content: `Event "${event.title}" completed`,
         metadata: { eventId: args.eventId },
         createdAt: now,
       });
@@ -769,7 +769,7 @@ export const internalCreateEvent = internalMutation({
         type: "event_created",
         actorId: teamMember._id,
         actorType: teamMember.type === "ai" ? "ai" : "human",
-        content: `Evento "${args.title}" criado`,
+        content: `Event "" created`,
         metadata: { eventId, eventType: args.eventType },
         createdAt: now,
       });
@@ -997,7 +997,7 @@ export const internalCompleteEvent = internalMutation({
         type: "event_completed",
         actorId: teamMember._id,
         actorType: teamMember.type === "ai" ? "ai" : "human",
-        content: `Evento "${event.title}" concluido`,
+        content: `Event "${event.title}" completed`,
         metadata: { eventId: args.eventId },
         createdAt: now,
       });

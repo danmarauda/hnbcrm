@@ -158,7 +158,7 @@ export const updateTeamMemberStatus = mutation({
   returns: v.null(),
   handler: async (ctx, args) => {
     const teamMember = await ctx.db.get(args.teamMemberId);
-    if (!teamMember) throw new Error("Membro não encontrado");
+    if (!teamMember) throw new Error("Member not found");
 
     const userMember = await requireAuth(ctx, teamMember.organizationId);
 
@@ -166,7 +166,7 @@ export const updateTeamMemberStatus = mutation({
     if (userMember._id !== args.teamMemberId) {
       const perms = resolvePermissions(userMember.role as Role, (userMember as any).permissions);
       if (!hasPermission(perms, "team", "manage")) {
-        throw new Error("Permissão insuficiente");
+        throw new Error("Insufficient permissions");
       }
     }
 
@@ -209,7 +209,7 @@ export const updateTeamMember = mutation({
   returns: v.null(),
   handler: async (ctx, args) => {
     const teamMember = await ctx.db.get(args.teamMemberId);
-    if (!teamMember) throw new Error("Membro não encontrado");
+    if (!teamMember) throw new Error("Member not found");
 
     const userMember = await requirePermission(ctx, teamMember.organizationId, "team", "manage");
 
@@ -225,7 +225,7 @@ export const updateTeamMember = mutation({
     if (args.role !== undefined && args.role !== teamMember.role) {
       // Guard: can't elevate beyond own role
       if (ROLE_RANK[args.role] > ROLE_RANK[userMember.role]) {
-        throw new Error("Não é possível atribuir um cargo superior ao seu");
+        throw new Error("It is not possible atribuir um cargo superior ao seu");
       }
 
       // Guard: can't demote last admin
@@ -238,7 +238,7 @@ export const updateTeamMember = mutation({
           (m) => m.role === "admin" && m.status === "active" && m._id !== args.teamMemberId
         );
         if (activeAdmins.length === 0) {
-          throw new Error("Não é possível rebaixar o último administrador");
+          throw new Error("Cannot demote the last administrator");
         }
       }
 
@@ -290,13 +290,13 @@ export const removeTeamMember = mutation({
   returns: v.null(),
   handler: async (ctx, args) => {
     const teamMember = await ctx.db.get(args.teamMemberId);
-    if (!teamMember) throw new Error("Membro não encontrado");
+    if (!teamMember) throw new Error("Member not found");
 
     const userMember = await requirePermission(ctx, teamMember.organizationId, "team", "manage");
 
     // Guard: can't remove self
     if (userMember._id === args.teamMemberId) {
-      throw new Error("Não é possível remover a si mesmo");
+      throw new Error("It is not possible remover a si mesmo");
     }
 
     // Guard: can't remove last admin
@@ -309,7 +309,7 @@ export const removeTeamMember = mutation({
         (m) => m.role === "admin" && m.status === "active" && m._id !== args.teamMemberId
       );
       if (activeAdmins.length === 0) {
-        throw new Error("Não é possível remover o último administrador");
+        throw new Error("Cannot remove the last administrator");
       }
     }
 
@@ -351,12 +351,12 @@ export const reactivateTeamMember = mutation({
   returns: v.null(),
   handler: async (ctx, args) => {
     const teamMember = await ctx.db.get(args.teamMemberId);
-    if (!teamMember) throw new Error("Membro não encontrado");
+    if (!teamMember) throw new Error("Member not found");
 
     const userMember = await requirePermission(ctx, teamMember.organizationId, "team", "manage");
 
     if (teamMember.status !== "inactive") {
-      throw new Error("Membro já está ativo");
+      throw new Error("Member is already active");
     }
 
     const now = Date.now();
@@ -397,7 +397,7 @@ export const updateMemberAvatar = mutation({
   returns: v.null(),
   handler: async (ctx, args) => {
     const teamMember = await ctx.db.get(args.teamMemberId);
-    if (!teamMember) throw new Error("Membro não encontrado");
+    if (!teamMember) throw new Error("Member not found");
 
     const userMember = await requireAuth(ctx, teamMember.organizationId);
     const now = Date.now();
@@ -406,7 +406,7 @@ export const updateMemberAvatar = mutation({
     if (userMember._id !== args.teamMemberId) {
       const perms = resolvePermissions(userMember.role as Role, (userMember as any).permissions);
       if (!hasPermission(perms, "team", "manage")) {
-        throw new Error("Permissão insuficiente");
+        throw new Error("Insufficient permissions");
       }
     }
 

@@ -47,7 +47,7 @@ export async function checkUploadQuota(
   // Check individual file size
   if (args.fileSize > quota.maxFileSize) {
     throw new Error(
-      `Arquivo muito grande (${formatFileSize(args.fileSize)}). Máximo permitido para o plano ${tier}: ${formatFileSize(quota.maxFileSize)}`
+      `File too large (${formatFileSize(args.fileSize)}). Maximum allowed for ${tier}: ${formatFileSize(quota.maxFileSize)}`
     );
   }
 
@@ -62,7 +62,7 @@ export async function checkUploadQuota(
   // Check if adding this file would exceed total storage quota
   if (totalUsed + args.fileSize > quota.totalStorage) {
     throw new Error(
-      `Cota de armazenamento excedida. Usando ${formatFileSize(totalUsed)} de ${formatFileSize(quota.totalStorage)}. Este arquivo (${formatFileSize(args.fileSize)}) excederia o limite.`
+      `Storage quota exceeded. Using ${formatFileSize(totalUsed)} of ${formatFileSize(quota.totalStorage)}. This file (${formatFileSize(args.fileSize)}) would exceed the limit.`
     );
   }
 
@@ -72,7 +72,7 @@ export async function checkUploadQuota(
 
   if (recentUploads.length >= quota.uploadsPerDay) {
     throw new Error(
-      `Limite diário de uploads atingido (${quota.uploadsPerDay} uploads nas últimas 24 horas). Plano: ${tier}.`
+      `Daily upload limit reached (${quota.uploadsPerDay} uploads in the last 24 hours). Plan: ${tier}.`
     );
   }
 }

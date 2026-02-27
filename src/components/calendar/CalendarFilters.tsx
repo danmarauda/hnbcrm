@@ -46,10 +46,10 @@ export function CalendarFilters({
             ? "bg-brand-500/10 text-brand-500 border border-brand-500"
             : "bg-surface-raised text-text-secondary border border-border hover:bg-surface-overlay"
         )}
-        aria-label="Filtros"
+        aria-label="Filters"
       >
         <Filter size={16} />
-        <span className="hidden md:inline">Filtros</span>
+        <span className="hidden md:inline">Filters</span>
         {hasFilters && (
           <span className="flex items-center justify-center w-5 h-5 rounded-full bg-brand-500 text-white text-xs font-bold">
             {(selectedMemberId ? 1 : 0) + selectedEventTypes.length}
@@ -68,14 +68,14 @@ export function CalendarFilters({
             {/* Team member filter */}
             <div>
               <label className="block text-sm font-medium text-text-primary mb-2">
-                Responsavel
+                Assignee
               </label>
               <select
                 value={selectedMemberId || ""}
                 onChange={(e) => onMemberChange(e.target.value || null)}
                 className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-lg focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-sm"
               >
-                <option value="">Todos</option>
+                <option value="">All</option>
                 {teamMembers.map((member) => (
                   <option key={member._id} value={member._id}>
                     {member.name}
@@ -87,7 +87,7 @@ export function CalendarFilters({
             {/* Event type filter */}
             <div>
               <label className="block text-sm font-medium text-text-primary mb-2">
-                Tipo de Evento
+                Event Type
               </label>
               <div className="flex flex-wrap gap-2">
                 {Object.entries(EVENT_TYPE_LABELS).map(([type, label]) => (
@@ -116,7 +116,7 @@ export function CalendarFilters({
                 className="w-full"
               >
                 <X size={16} />
-                Limpar Filtros
+                Clear Filters
               </Button>
             )}
           </div>

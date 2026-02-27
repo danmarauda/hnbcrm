@@ -24,8 +24,8 @@ export function AuthPage() {
   return (
     <>
       <SEO
-        title="Entrar"
-        description="Acesse sua conta HNBCRM"
+        title="Sign in"
+        description="Access your HNBCRM account"
         noindex={true}
       />
       <div className="flex items-center justify-center min-h-screen px-4 bg-gradient-to-b from-surface-overlay to-surface-base">
@@ -36,7 +36,7 @@ export function AuthPage() {
             className="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-text-primary transition-colors mb-6"
           >
             <ArrowLeft size={16} />
-            Voltar ao inicio
+            Back to home
           </Link>
           <img
             src="/orange_icon_logo_transparent-bg-528x488.png"
@@ -47,7 +47,7 @@ export function AuthPage() {
             HNBCRM
           </h1>
           <p className="text-lg md:text-xl text-text-secondary">
-            CRM multi-tenant com colaboração humano-IA
+            Multi-tenant CRM with human-AI collaboration
           </p>
         </div>
         <div className="animate-fade-in-up">

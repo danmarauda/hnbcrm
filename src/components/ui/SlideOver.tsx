@@ -60,7 +60,7 @@ export function SlideOver({ open, onClose, title, children, className }: SlideOv
           <button
             onClick={onClose}
             className="md:hidden p-1.5 -ml-1.5 rounded-full text-text-muted hover:text-text-primary hover:bg-surface-overlay transition-colors"
-            aria-label="Voltar"
+            aria-label="Back"
           >
             <ArrowLeft size={20} />
           </button>
@@ -73,7 +73,7 @@ export function SlideOver({ open, onClose, title, children, className }: SlideOv
           <button
             onClick={onClose}
             className="hidden md:block p-1.5 rounded-full text-text-muted hover:text-text-primary hover:bg-surface-overlay transition-colors ml-auto"
-            aria-label="Fechar"
+            aria-label="Close"
           >
             <X size={20} />
           </button>

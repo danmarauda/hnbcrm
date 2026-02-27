@@ -101,10 +101,10 @@ function DraggableCard({ lead, onClick }: { lead: Lead; onClick: () => void }) {
 
   const getPriorityLabel = (priority: string): string => {
     const labels: Record<string, string> = {
-      urgent: "Urgente",
-      high: "Alta",
-      medium: "Média",
-      low: "Baixa",
+      urgent: "Urgent",
+      high: "High",
+      medium: "Medium",
+      low: "Low",
     };
     return labels[priority] || priority;
   };
@@ -147,12 +147,12 @@ function DraggableCard({ lead, onClick }: { lead: Lead; onClick: () => void }) {
           {lead.contact.company && ` • ${lead.contact.company}`}
         </p>
       ) : (
-        <p className="text-xs text-text-muted mb-2 pl-2 italic">Sem contato</p>
+        <p className="text-xs text-text-muted mb-2 pl-2 italic">Sem contact</p>
       )}
 
       <div className="flex items-center justify-between mb-3 pl-2">
         <span className="text-lg font-semibold text-brand-400 tabular-nums">
-          R$ {lead.value.toLocaleString("pt-BR")}
+          $ {lead.value.toLocaleString("en-US")}
         </span>
 
         {lead.assignee && (
@@ -232,28 +232,28 @@ function DroppableColumn({
           <div className="flex items-center gap-2">
             <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: stage.color }} />
             <h3 className="font-semibold text-text-primary">{stage.name}</h3>
-            {stage.isClosedWon && <Badge variant="success">Ganho</Badge>}
-            {stage.isClosedLost && <Badge variant="error">Perdido</Badge>}
+            {stage.isClosedWon && <Badge variant="success">Won</Badge>}
+            {stage.isClosedLost && <Badge variant="error">Lost</Badge>}
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={onStageMenu}
               className="p-1 rounded-full text-text-muted hover:text-brand-500 hover:bg-surface-raised transition-colors"
-              aria-label="Menu da etapa"
+              aria-label="Stage menu"
             >
               <MoreHorizontal size={16} />
             </button>
             <button
               onClick={onQuickAdd}
               className="p-1 rounded-full text-text-muted hover:text-brand-500 hover:bg-surface-raised transition-colors"
-              aria-label="Adicionar lead rápido"
+              aria-label="Add quick lead"
             >
               <Plus size={16} />
             </button>
           </div>
         </div>
         <div className="text-xs text-text-muted tabular-nums">
-          {leads.length} leads · R$ {totalValue.toLocaleString("pt-BR")}
+          {leads.length} leads · $ {totalValue.toLocaleString("en-US")}
         </div>
       </div>
 
@@ -299,9 +299,9 @@ function QuickAddForm({
           temperature: "cold",
         }),
         {
-          loading: "Criando lead...",
-          success: "Lead criado!",
-          error: "Falha ao criar lead",
+          loading: "Creating lead...",
+          success: "Lead created!",
+          error: "Failed to create lead",
         }
       );
       onClose();
@@ -317,7 +317,7 @@ function QuickAddForm({
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Título do lead..."
+          placeholder="Lead title..."
           className="w-full px-3 py-2 bg-surface-sunken border border-border-strong text-text-primary rounded-field focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 placeholder:text-text-muted text-sm"
           style={{ fontSize: "16px" }}
           autoFocus
@@ -326,14 +326,14 @@ function QuickAddForm({
           type="number"
           value={value}
           onChange={(e) => setValue(Number(e.target.value))}
-          placeholder="Valor (R$)"
+          placeholder="Valor ($)"
           min={0}
           className="w-full px-3 py-2 bg-surface-sunken border border-border-strong text-text-primary rounded-field focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 placeholder:text-text-muted text-sm"
           style={{ fontSize: "16px" }}
         />
         <div className="flex gap-2">
           <Button type="submit" variant="primary" size="sm" className="flex-1">
-            Criar
+            Create
           </Button>
           <Button type="button" onClick={onClose} variant="secondary" size="sm">
             <X size={16} />
@@ -403,7 +403,7 @@ function StageEditPopover({
       >
         {/* Name field */}
         <div>
-          <label className="block text-xs font-medium text-text-secondary mb-1.5">Nome</label>
+          <label className="block text-xs font-medium text-text-secondary mb-1.5">Name</label>
           <input
             type="text"
             value={name}
@@ -417,7 +417,7 @@ function StageEditPopover({
 
         {/* Color picker */}
         <div>
-          <label className="block text-xs font-medium text-text-secondary mb-1.5">Cor</label>
+          <label className="block text-xs font-medium text-text-secondary mb-1.5">Color</label>
           <div className="grid grid-cols-6 gap-2">
             {PRESET_COLORS.map((color) => (
               <button
@@ -430,7 +430,7 @@ function StageEditPopover({
                     : "hover:scale-110"
                 )}
                 style={{ backgroundColor: color }}
-                aria-label={`Cor ${color}`}
+                aria-label={`Color ${color}`}
               />
             ))}
           </div>
@@ -441,7 +441,7 @@ function StageEditPopover({
               value={selectedColor}
               onChange={(e) => handleColorSelect(e.target.value)}
               className="w-8 h-8 rounded cursor-pointer border border-border-strong"
-              title="Cor personalizada"
+              title="Color personalizada"
             />
             <span className="text-xs text-text-muted">Personalizada</span>
           </div>
@@ -458,7 +458,7 @@ function StageEditPopover({
               }}
               className="w-4 h-4 text-brand-600 bg-surface-raised border-border-strong rounded focus:ring-2 focus:ring-brand-500"
             />
-            <span className="text-xs text-text-secondary">Fechado - Ganho</span>
+            <span className="text-xs text-text-secondary">Closed - Won</span>
           </label>
           <label className="flex items-center gap-2 cursor-pointer">
             <input
@@ -469,7 +469,7 @@ function StageEditPopover({
               }}
               className="w-4 h-4 text-brand-600 bg-surface-raised border-border-strong rounded focus:ring-2 focus:ring-brand-500"
             />
-            <span className="text-xs text-text-secondary">Fechado - Perdido</span>
+            <span className="text-xs text-text-secondary">Closed - Lost</span>
           </label>
         </div>
 
@@ -480,7 +480,7 @@ function StageEditPopover({
             className="w-full px-3 py-2 text-left text-sm text-semantic-error hover:bg-semantic-error/10 rounded-field transition-colors flex items-center gap-2"
           >
             <Trash2 size={14} />
-            Excluir Etapa
+            Delete Stage
           </button>
         </div>
 
@@ -491,9 +491,9 @@ function StageEditPopover({
             onDelete(stage._id);
             onClose();
           }}
-          title="Excluir Etapa"
-          description={`Tem certeza que deseja excluir a etapa "${stage.name}"? Leads vinculados precisarão ser movidos primeiro.`}
-          confirmLabel="Excluir"
+          title="Delete Stage"
+          description={`Are you sure you want to delete stage "${stage.name}"? Linked leads must be moved first.`}
+          confirmLabel="Delete"
           variant="danger"
         />
       </div>
@@ -531,7 +531,7 @@ function AddStageColumn({
           className="w-full h-32 bg-surface-sunken rounded-card border-2 border-dashed border-border hover:border-brand-500 text-text-muted hover:text-brand-500 transition-all flex flex-col items-center justify-center gap-2"
         >
           <Plus size={24} />
-          <span className="text-sm font-medium">Adicionar Etapa</span>
+          <span className="text-sm font-medium">Add Stage</span>
         </button>
       </div>
     );
@@ -540,20 +540,20 @@ function AddStageColumn({
   return (
     <div className="flex-shrink-0 w-80">
       <form onSubmit={handleSubmit} className="bg-surface-sunken rounded-card p-4 border border-border">
-        <h4 className="text-sm font-semibold text-text-primary mb-3">Nova Etapa</h4>
+        <h4 className="text-sm font-semibold text-text-primary mb-3">New Stage</h4>
         <div className="space-y-3">
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Nome da etapa"
+            placeholder="Stage name"
             className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 placeholder:text-text-muted text-sm"
             style={{ fontSize: "16px" }}
             autoFocus
             required
           />
           <div>
-            <label className="block text-xs text-text-muted mb-1">Cor</label>
+            <label className="block text-xs text-text-muted mb-1">Color</label>
             <input
               type="color"
               value={color}
@@ -563,7 +563,7 @@ function AddStageColumn({
           </div>
           <div className="flex gap-2">
             <Button type="submit" variant="primary" size="sm" className="flex-1">
-              Criar
+              Create
             </Button>
             <Button
               type="button"
@@ -709,9 +709,9 @@ export function KanbanBoard() {
 
     // Normal move (non-closed stage)
     toast.promise(moveLeadToStage({ leadId, stageId }), {
-      loading: "Movendo lead...",
+      loading: "Moving lead...",
       success: "Lead movido!",
-      error: "Falha ao mover lead",
+      error: "Failed to move lead",
     });
   };
 
@@ -720,14 +720,14 @@ export function KanbanBoard() {
 
     try {
       await deleteBoard({ boardId: selectedBoardId });
-      toast.success("Pipeline excluído!");
+      toast.success("Pipeline deleted!");
       setSelectedBoardId(null);
       setShowSettingsMenu(false);
     } catch (error) {
       toast.error(
         error instanceof Error && error.message.includes("leads")
-          ? "Não é possível excluir um pipeline com leads. Mova ou exclua todos os leads primeiro."
-          : "Falha ao excluir pipeline"
+          ? "Cannot delete a pipeline with leads. Move or delete all leads first."
+          : "Failed to delete pipeline"
       );
     }
   };
@@ -742,11 +742,11 @@ export function KanbanBoard() {
 
     // Default stages
     const defaultStages = [
-      { name: "Novo Lead", color: "#71717A" },
-      { name: "Qualificado", color: "#3B82F6" },
-      { name: "Proposta", color: "#EAB308" },
-      { name: "Negociação", color: "#FB923C" },
-      { name: "Fechado", color: "#22C55E", isClosedWon: true },
+      { name: "New Lead", color: "#71717A" },
+      { name: "Qualified", color: "#3B82F6" },
+      { name: "Proposal", color: "#EAB308" },
+      { name: "Negotiation", color: "#FB923C" },
+      { name: "Closed", color: "#22C55E", isClosedWon: true },
     ];
 
     try {
@@ -758,9 +758,9 @@ export function KanbanBoard() {
           stages: defaultStages,
         }),
         {
-          loading: "Criando pipeline...",
-          success: "Pipeline criado!",
-          error: "Falha ao criar pipeline",
+          loading: "Creating pipeline...",
+          success: "Pipeline created!",
+          error: "Failed to create pipeline",
         }
       );
       setShowCreateBoard(false);
@@ -783,11 +783,11 @@ export function KanbanBoard() {
   if (boards.length === 0) {
     return (
       <div className="text-center py-12">
-        <h3 className="text-lg font-medium text-text-primary mb-2">Nenhum pipeline encontrado</h3>
-        <p className="text-text-secondary mb-4">Crie seu primeiro pipeline de vendas para começar.</p>
+        <h3 className="text-lg font-medium text-text-primary mb-2">No pipeline found</h3>
+        <p className="text-text-secondary mb-4">Create your first sales pipeline to get started.</p>
         <Button onClick={() => setShowCreateBoard(true)} variant="primary" size="md">
           <Plus size={20} />
-          Criar Pipeline
+          Create Pipeline
         </Button>
       </div>
     );
@@ -828,10 +828,10 @@ export function KanbanBoard() {
               <button
                 onClick={() => setShowCreateBoard(true)}
                 className="px-4 py-2 rounded-full font-semibold whitespace-nowrap bg-surface-overlay text-brand-400 hover:bg-surface-raised transition-all duration-150 flex items-center gap-1"
-                aria-label="Criar pipeline"
+                aria-label="Create pipeline"
               >
                 <Plus size={16} />
-                Novo
+                New
               </button>
             </div>
 
@@ -841,7 +841,7 @@ export function KanbanBoard() {
                 <button
                   onClick={() => setShowSettingsMenu(!showSettingsMenu)}
                   className="p-2 rounded-full text-text-secondary hover:text-text-primary hover:bg-surface-raised transition-colors"
-                  aria-label="Configurações do pipeline"
+                  aria-label="Pipeline settings"
                 >
                   <Settings2 size={20} />
                 </button>
@@ -860,7 +860,7 @@ export function KanbanBoard() {
                         }}
                         className="w-full px-4 py-2 text-left text-sm text-text-primary hover:bg-surface-raised transition-colors"
                       >
-                        Editar Pipeline
+                        Edit Pipeline
                       </button>
                       <button
                         onClick={() => {
@@ -869,7 +869,7 @@ export function KanbanBoard() {
                         }}
                         className="w-full px-4 py-2 text-left text-sm text-text-primary hover:bg-surface-raised transition-colors"
                       >
-                        Gerenciar Etapas
+                        Manage Stages
                       </button>
                       <button
                         onClick={() => {
@@ -878,7 +878,7 @@ export function KanbanBoard() {
                         }}
                         className="w-full px-4 py-2 text-left text-sm text-semantic-error hover:bg-semantic-error/10 transition-colors"
                       >
-                        Excluir Pipeline
+                        Delete Pipeline
                       </button>
                     </div>
                   </>
@@ -894,7 +894,7 @@ export function KanbanBoard() {
                 className="whitespace-nowrap"
               >
                 <Plus size={20} />
-                Criar Lead
+                Create Lead
               </Button>
             )}
           </div>
@@ -906,7 +906,7 @@ export function KanbanBoard() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Buscar leads..."
+            placeholder="Search leads..."
             className="flex-1 min-w-[200px] px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 placeholder:text-text-muted text-sm"
             style={{ fontSize: "16px" }}
           />
@@ -919,10 +919,10 @@ export function KanbanBoard() {
               style={{ fontSize: "16px" }}
             >
               <option value="all">Todas Prioridades</option>
-              <option value="urgent">Urgente</option>
-              <option value="high">Alta</option>
-              <option value="medium">Média</option>
-              <option value="low">Baixa</option>
+              <option value="urgent">Urgent</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
             </select>
             <ChevronDown size={16} className="absolute right-2 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none" />
           </div>
@@ -949,8 +949,8 @@ export function KanbanBoard() {
               className="appearance-none pl-3 pr-8 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm cursor-pointer"
               style={{ fontSize: "16px" }}
             >
-              <option value="all">Todos Responsáveis</option>
-              <option value="unassigned">Não atribuído</option>
+              <option value="all">All Owners</option>
+              <option value="unassigned">Unassigned</option>
               {teamMembers?.map((member) => (
                 <option key={member._id} value={member._id}>
                   {member.name}
@@ -1004,17 +1004,17 @@ export function KanbanBoard() {
                           toast.promise(
                             updateStage({ stageId, ...updates }),
                             {
-                              loading: "Atualizando...",
-                              success: "Etapa atualizada!",
-                              error: "Falha ao atualizar",
+                              loading: "Updating...",
+                              success: "Stage updated!",
+                              error: "Failed to update",
                             }
                           );
                         }}
                         onDelete={(stageId) => {
                           toast.promise(deleteStage({ stageId }), {
                             loading: "Excluindo...",
-                            success: "Etapa excluída!",
-                            error: (e) => e.message || "Falha ao excluir",
+                            success: "Stage deleted!",
+                            error: (e) => e.message || "Failed to delete",
                           });
                         }}
                       />
@@ -1031,9 +1031,9 @@ export function KanbanBoard() {
                     toast.promise(
                       createStage({ boardId: selectedBoardId, name, color }),
                       {
-                        loading: "Criando etapa...",
-                        success: "Etapa criada!",
-                        error: "Falha ao criar etapa",
+                        loading: "Creating stage...",
+                        success: "Stage created!",
+                        error: "Failed to create stage",
                       }
                     );
                   }}
@@ -1049,7 +1049,7 @@ export function KanbanBoard() {
             <div className="bg-surface-raised p-4 rounded-card border border-brand-500 shadow-elevated opacity-90 w-80">
               <h4 className="font-medium text-text-primary mb-2">{draggedLead.title}</h4>
               <span className="text-lg font-semibold text-brand-400 tabular-nums">
-                R$ {draggedLead.value.toLocaleString("pt-BR")}
+                $ {draggedLead.value.toLocaleString("en-US")}
               </span>
             </div>
           ) : null}
@@ -1099,23 +1099,23 @@ export function KanbanBoard() {
             onClick={() => setShowCreateBoard(false)}
           />
           <div className="relative z-10 w-full bg-surface-overlay border border-border rounded-t-xl sm:rounded-xl sm:max-w-md sm:mx-4 p-6">
-            <h2 className="text-lg font-semibold text-text-primary mb-4">Nova Pipeline</h2>
+            <h2 className="text-lg font-semibold text-text-primary mb-4">New Pipeline</h2>
             <form onSubmit={handleCreateBoard} className="space-y-4">
               <div>
                 <label className="block text-[13px] font-medium text-text-secondary mb-1">
-                  Nome <span className="text-semantic-error">*</span>
+                  Name <span className="text-semantic-error">*</span>
                 </label>
                 <input
                   type="text"
                   name="name"
-                  placeholder="ex: Vendas B2B"
+                  placeholder="e.g.: B2B Sales"
                   className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 placeholder:text-text-muted"
                   style={{ fontSize: "16px" }}
                   required
                 />
               </div>
               <div>
-                <label className="block text-[13px] font-medium text-text-secondary mb-1">Cor</label>
+                <label className="block text-[13px] font-medium text-text-secondary mb-1">Color</label>
                 <input
                   type="color"
                   name="color"
@@ -1124,7 +1124,7 @@ export function KanbanBoard() {
                 />
               </div>
               <div className="text-xs text-text-muted bg-surface-sunken p-3 rounded-field">
-                Etapas padrão: Novo Lead, Qualificado, Proposta, Negociação, Fechado
+                Default stages: New Lead, Qualified, Proposal, Negotiation, Closed
               </div>
               <div className="flex gap-2 pt-2">
                 <Button
@@ -1134,10 +1134,10 @@ export function KanbanBoard() {
                   size="md"
                   className="flex-1"
                 >
-                  Cancelar
+                  Cancel
                 </Button>
                 <Button type="submit" variant="primary" size="md" className="flex-1">
-                  Criar
+                  Create
                 </Button>
               </div>
             </form>
@@ -1150,9 +1150,9 @@ export function KanbanBoard() {
         open={showDeleteBoardConfirm}
         onClose={() => setShowDeleteBoardConfirm(false)}
         onConfirm={handleDeleteBoard}
-        title="Excluir Pipeline"
-        description="Tem certeza que deseja excluir este pipeline? Esta ação não pode ser desfeita."
-        confirmLabel="Excluir"
+        title="Delete Pipeline"
+        description="Are you sure you want to delete this pipeline? This action cannot be undone."
+        confirmLabel="Delete"
         variant="danger"
       />
 

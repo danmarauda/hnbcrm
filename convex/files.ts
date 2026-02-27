@@ -111,7 +111,7 @@ export const saveFile = mutation({
           fileType: args.fileType,
         },
       },
-      description: `Arquivo enviado: ${args.name}`,
+      description: `File uploaded: `,
       severity: "low",
       createdAt: Date.now(),
     });
@@ -158,7 +158,7 @@ export const deleteFile = mutation({
   handler: async (ctx, args) => {
     const file = await ctx.db.get(args.fileId);
     if (!file) {
-      throw new Error("Arquivo não encontrado");
+      throw new Error("File not found");
     }
 
     // Auth: Requires edit permission
@@ -185,7 +185,7 @@ export const deleteFile = mutation({
           fileType: file.fileType,
         },
       },
-      description: `Arquivo removido: ${file.name}`,
+      description: `File removed: `,
       severity: "medium",
       createdAt: Date.now(),
     });
@@ -398,7 +398,7 @@ export const internalSaveFile = internalMutation({
           fileType: args.fileType,
         },
       },
-      description: `Arquivo enviado via API: ${args.name}`,
+      description: `File uploaded via API: `,
       severity: "low",
       createdAt: Date.now(),
     });
@@ -434,7 +434,7 @@ export const internalDeleteFile = internalMutation({
   handler: async (ctx, args) => {
     const file = await ctx.db.get(args.fileId);
     if (!file || file.organizationId !== args.organizationId) {
-      throw new Error("Arquivo não encontrado");
+      throw new Error("File not found");
     }
 
     // Delete from storage
@@ -458,7 +458,7 @@ export const internalDeleteFile = internalMutation({
           fileType: file.fileType,
         },
       },
-      description: `Arquivo removido via API: ${file.name}`,
+      description: `File removed via API: `,
       severity: "medium",
       createdAt: Date.now(),
     });

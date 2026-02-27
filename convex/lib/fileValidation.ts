@@ -105,23 +105,23 @@ export function validateFileUpload(args: {
 }): void {
   // Check MIME type
   if (!validateMimeType(args.mimeType)) {
-    throw new Error(`Tipo de arquivo não permitido: ${args.mimeType}`);
+    throw new Error(`File type not allowed: ${args.mimeType}`);
   }
 
   // Check size
   const maxSize = getMaxFileSize(args.mimeType);
   if (!maxSize) {
-    throw new Error(`Tipo de arquivo não permitido: ${args.mimeType}`);
+    throw new Error(`File type not allowed: ${args.mimeType}`);
   }
 
   if (args.size > maxSize) {
     throw new Error(
-      `Arquivo muito grande (${formatFileSize(args.size)}). Máximo permitido: ${formatFileSize(maxSize)}`
+      `File too large (${formatFileSize(args.size)}). Maximum allowed: ${formatFileSize(maxSize)}`
     );
   }
 
   // Check name
   if (!args.name || args.name.trim().length === 0) {
-    throw new Error("Nome do arquivo é obrigatório");
+    throw new Error("File name is required");
   }
 }

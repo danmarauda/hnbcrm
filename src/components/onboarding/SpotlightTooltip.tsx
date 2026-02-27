@@ -47,7 +47,7 @@ export function SpotlightTooltip({
         <button
           onClick={handleDismiss}
           className="p-1 text-text-muted hover:text-text-primary rounded-lg hover:bg-surface-raised transition-colors flex-shrink-0"
-          aria-label="Fechar dica"
+          aria-label="Close dica"
         >
           <X size={16} />
         </button>

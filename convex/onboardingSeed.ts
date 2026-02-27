@@ -36,7 +36,7 @@ export const generateSampleData = internalMutation({
       .first();
 
     if (!board) {
-      throw new Error("Nenhum board encontrado. Execute setupPipelineFromWizard antes.");
+      throw new Error("No board found. Run setupPipelineFromWizard first.");
     }
 
     const allStages = await ctx.db
@@ -97,7 +97,7 @@ export const generateSampleData = internalMutation({
         status: "active" as const,
       },
       {
-        name: "Claw IA",
+        name: "Claw AI",
         email: undefined,
         role: "ai" as const,
         type: "ai" as const,
@@ -199,7 +199,7 @@ export const generateSampleData = internalMutation({
         email: "rafael@logimais.com.br",
         phone: "(41) 95432-1098",
         company: "LogiMais Transportes",
-        title: "Gerente de Compras",
+        title: "Manager de Compras",
         city: "Curitiba",
         state: "PR",
         country: "Brasil",
@@ -220,7 +220,7 @@ export const generateSampleData = internalMutation({
         city: "Porto Alegre",
         state: "RS",
         country: "Brasil",
-        industry: "Educacao",
+        industry: "Education",
         companySize: "51-200",
         linkedinUrl: "https://linkedin.com/in/fernandalima",
         tags: ["novo", "B2C", "potencial"],
@@ -248,7 +248,7 @@ export const generateSampleData = internalMutation({
         email: "patricia@bellamode.com.br",
         phone: "(71) 92109-8765",
         company: "Bella Mode",
-        title: "Gerente de Marketing",
+        title: "Manager de Marketing",
         city: "Salvador",
         state: "BA",
         country: "Brasil",
@@ -266,7 +266,7 @@ export const generateSampleData = internalMutation({
         email: "thiago@financeplus.com.br",
         phone: "(85) 91098-7654",
         company: "FinancePlus",
-        title: "Analista Financeiro",
+        title: "Financial Analyst",
         city: "Fortaleza",
         state: "CE",
         country: "Brasil",
@@ -361,7 +361,7 @@ export const generateSampleData = internalMutation({
     }> = [
       // Stage 0 — Lead 1 (contact: Ana Silva / TechBR)
       {
-        title: `Contato Inicial — ${contactDefs[0].company}`,
+        title: `Contact Inicial — ${contactDefs[0].company}`,
         contactIdx: 0,
         stageId: stage0._id,
         assignedTo: pedro,
@@ -376,7 +376,7 @@ export const generateSampleData = internalMutation({
       },
       // Stage 0 — Lead 2 (contact: Patricia Rodrigues / Bella Mode)
       {
-        title: `Contato Inicial — ${contactDefs[6].company}`,
+        title: `Contact Inicial — ${contactDefs[6].company}`,
         contactIdx: 6,
         stageId: stage0._id,
         assignedTo: clawIA,
@@ -391,7 +391,7 @@ export const generateSampleData = internalMutation({
       },
       // Stage 1 — Lead 3 (contact: Carlos Oliveira / InovaCom)
       {
-        title: `Proposta — ${contactDefs[1].company}`,
+        title: `Proposal — ${contactDefs[1].company}`,
         contactIdx: 1,
         stageId: stage1._id,
         assignedTo: maria,
@@ -399,14 +399,14 @@ export const generateSampleData = internalMutation({
         priority: "high",
         temperature: "warm",
         sourceId: sourceEmail,
-        tags: ["qualificado", "marketing"],
+        tags: ["qualified", "marketing"],
         qualification: { budget: true, authority: true, need: true, timeline: false, score: 70 },
         conversationStatus: "active",
         hoursCreatedAgo: 72,
       },
       // Stage 2 — Lead 4 (contact: Rafael Costa / LogiMais)
       {
-        title: `Negociacao — ${contactDefs[3].company}`,
+        title: `Negotiation — ${contactDefs[3].company}`,
         contactIdx: 3,
         stageId: stage2._id,
         assignedTo: maria,
@@ -535,20 +535,20 @@ export const generateSampleData = internalMutation({
       {
         direction: "inbound",
         senderType: "contact",
-        content: "Ola, vi o anuncio de voces e gostaria de saber mais sobre a solucao de CRM. Temos uma equipe de 30 pessoas e precisamos organizar nosso pipeline de vendas.",
+        content: "Hello, I saw your ad and would like to learn more about your CRM solution. We have a 30-person team and need to organize our sales pipeline.",
         minutesOffset: 0,
       },
       {
         direction: "outbound",
         senderType: "human",
         senderId: pedro,
-        content: "Ola Ana! Obrigado pelo interesse. Nossa plataforma atende perfeitamente equipes desse tamanho. Posso te enviar uma apresentacao com os planos disponiveis?",
+        content: "Hi Ana! Thanks for your interest. Our platform is a great fit for teams of this size. Can I send you a presentation with the available plans?",
         minutesOffset: 12,
       },
       {
         direction: "inbound",
         senderType: "contact",
-        content: "Sim, por favor! Pode mandar por aqui mesmo. Tambem gostaria de agendar uma demonstracao para a proxima semana, se possivel.",
+        content: "Yes, please! You can send it here. I would also like to schedule a demo for next week, if possible.",
         minutesOffset: 25,
       },
     ]);
@@ -558,14 +558,14 @@ export const generateSampleData = internalMutation({
       {
         direction: "inbound",
         senderType: "contact",
-        content: "Bom dia, estamos avaliando plataformas de CRM para nossa agencia de marketing digital. Precisamos de integracao com WhatsApp e automacao de follow-up. Qual o investimento para 15 usuarios?",
+        content: "Good morning, we are evaluating CRM platforms for our digital marketing agency. We need WhatsApp integration and follow-up automation. What is the price for 15 users?",
         minutesOffset: 0,
       },
       {
         direction: "outbound",
         senderType: "human",
         senderId: maria,
-        content: "Ola Carlos! Obrigada pelo contato. Temos o plano profissional que inclui integracao WhatsApp nativa e automacoes avancadas. Para 15 usuarios, o investimento fica em torno de R$ 2.900/mes. Posso preparar uma proposta detalhada?",
+        content: "Hi Carlos! Thanks for reaching out. We have a professional plan with native WhatsApp integration and advanced automations. For 15 users, pricing is around ,900/month. I can prepare a detailed proposal.",
         minutesOffset: 45,
       },
     ]);
@@ -575,27 +575,27 @@ export const generateSampleData = internalMutation({
       {
         direction: "inbound",
         senderType: "contact",
-        content: "Boa tarde. Somos uma transportadora com mais de 200 motoristas e precisamos de um sistema para gerenciar leads e propostas comerciais. Voces atendem o setor de logistica?",
+        content: "Good afternoon. We are a transportation company with more than 200 drivers and need a system to manage leads and commercial proposals. Do you support the logistics sector?",
         minutesOffset: 0,
       },
       {
         direction: "outbound",
         senderType: "ai",
         senderId: clawIA,
-        content: "Ola Rafael! Sim, atendemos diversas empresas do setor de logistica. Baseado no perfil da LogiMais, recomendo agendar uma demonstracao personalizada para mostrar como gerenciamos pipelines de alta volumetria. Vou encaminhar para nossa gerente comercial, Maria Santos.",
+        content: "Hi Rafael! Yes, we support several companies in the logistics sector. Based on LogiMais' profile, I recommend a personalized demo to show how we manage high-volume pipelines. I'll route this to our sales manager, Maria Santos.",
         minutesOffset: 1,
       },
       {
         direction: "outbound",
         senderType: "human",
         senderId: maria,
-        content: "Oi Rafael! Maria aqui. Ja atendemos 3 transportadoras com perfil similar ao de voces. O sistema suporta integracao com TMS e acompanhamento de propostas em tempo real. Podemos marcar uma call para quinta?",
+        content: "Hi Rafael! Maria here. We already support three transportation companies with a profile similar to yours. The system supports TMS integration and real-time proposal tracking. Can we schedule a call for Thursday?",
         minutesOffset: 18,
       },
       {
         direction: "inbound",
         senderType: "contact",
-        content: "Perfeito, quinta as 14h funciona. Vou chamar nosso diretor comercial tambem. Podem enviar o link da reuniao?",
+        content: "Perfect, Thursday at 2pm works. I'll also invite our commercial director. Can you send the meeting link?",
         minutesOffset: 35,
       },
     ]);
@@ -607,13 +607,13 @@ export const generateSampleData = internalMutation({
       organizationId,
       leadId: leadIds[4],
       fromMemberId: clawIA,
-      reason: "Cliente solicitou atendimento humano para negociacao de preco",
+      reason: "Customer requested human support for price negotiation",
       summary:
-        "Lead com alto potencial, demonstrou interesse no plano enterprise. Solicita desconto para contrato anual.",
+        "High-potential lead, showed interest in the enterprise plan. Requested a discount for an annual contract.",
       suggestedActions: [
-        "Oferecer desconto de 15% para contrato anual",
-        "Agendar reuniao com gerente comercial",
-        "Enviar case de sucesso do setor",
+        "Offer a 15% discount for an annual contract",
+        "Schedule a meeting with the sales manager",
+        "Send an industry case study",
       ],
       status: "pending",
       createdAt: handoffCreatedAt,
@@ -624,13 +624,13 @@ export const generateSampleData = internalMutation({
       handoffState: {
         status: "pending",
         fromMemberId: clawIA,
-        reason: "Cliente solicitou atendimento humano para negociacao de preco",
+        reason: "Customer requested human support for price negotiation",
         summary:
-          "Lead com alto potencial, demonstrou interesse no plano enterprise. Solicita desconto para contrato anual.",
+          "High-potential lead, showed interest in the enterprise plan. Requested a discount for an annual contract.",
         suggestedActions: [
-          "Oferecer desconto de 15% para contrato anual",
-          "Agendar reuniao com gerente comercial",
-          "Enviar case de sucesso do setor",
+          "Offer a 15% discount for an annual contract",
+          "Schedule a meeting with the sales manager",
+          "Send an industry case study",
         ],
         requestedAt: handoffCreatedAt,
       },
@@ -658,7 +658,7 @@ export const generateSampleData = internalMutation({
         leadIdx: 0,
         type: "created",
         actorType: "system",
-        content: "Lead criado via website",
+        content: "Lead created via website",
         hoursAgoVal: 8,
       },
       {
@@ -675,7 +675,7 @@ export const generateSampleData = internalMutation({
         type: "message_sent",
         actorType: "human",
         actorId: pedro,
-        content: "Resposta enviada via WhatsApp",
+        content: "Response enviada via WhatsApp",
         hoursAgoVal: 7,
       },
 
@@ -684,7 +684,7 @@ export const generateSampleData = internalMutation({
         leadIdx: 1,
         type: "created",
         actorType: "system",
-        content: "Lead criado via redes sociais",
+        content: "Lead created via social media",
         hoursAgoVal: 4,
       },
       {
@@ -692,8 +692,8 @@ export const generateSampleData = internalMutation({
         type: "assignment",
         actorType: "ai",
         actorId: clawIA,
-        content: "Auto-atribuido a Claw IA para triagem inicial",
-        metadata: { assignedTo: "Claw IA" },
+        content: "Auto-assigned to Claw AI for initial triage",
+        metadata: { assignedTo: "Claw AI" },
         hoursAgoVal: 3.8,
       },
 
@@ -702,7 +702,7 @@ export const generateSampleData = internalMutation({
         leadIdx: 2,
         type: "created",
         actorType: "system",
-        content: "Lead criado via campanha de email",
+        content: "Lead created via email campaign",
         hoursAgoVal: 72,
       },
       {
@@ -719,7 +719,7 @@ export const generateSampleData = internalMutation({
         type: "stage_change",
         actorType: "human",
         actorId: maria,
-        content: `Movido para ${stage1.name}`,
+        content: `Moved to ${stage1.name}`,
         metadata: { from: stage0.name, to: stage1.name },
         hoursAgoVal: 48,
       },
@@ -728,7 +728,7 @@ export const generateSampleData = internalMutation({
         type: "message_sent",
         actorType: "human",
         actorId: maria,
-        content: "Proposta comercial enviada por email",
+        content: "Proposal comercial enviada por email",
         hoursAgoVal: 46,
       },
 
@@ -737,7 +737,7 @@ export const generateSampleData = internalMutation({
         leadIdx: 3,
         type: "created",
         actorType: "system",
-        content: "Lead criado via indicacao",
+        content: "Lead created via referral",
         hoursAgoVal: 120,
       },
       {
@@ -754,7 +754,7 @@ export const generateSampleData = internalMutation({
         type: "stage_change",
         actorType: "human",
         actorId: maria,
-        content: `Movido para ${stage2.name}`,
+        content: `Moved to ${stage2.name}`,
         metadata: { from: stage1.name, to: stage2.name },
         hoursAgoVal: 72,
       },
@@ -763,7 +763,7 @@ export const generateSampleData = internalMutation({
         type: "qualification_update",
         actorType: "human",
         actorId: maria,
-        content: "BANT atualizado: orcamento confirmado, autoridade confirmada",
+        content: "BANT updated: budget confirmed, authority confirmed",
         metadata: { score: 85 },
         hoursAgoVal: 68,
       },
@@ -772,7 +772,7 @@ export const generateSampleData = internalMutation({
         type: "message_sent",
         actorType: "ai",
         actorId: clawIA,
-        content: "Resposta inicial via webchat pela IA",
+        content: "Initial response via webchat by AI",
         hoursAgoVal: 119,
       },
 
@@ -781,7 +781,7 @@ export const generateSampleData = internalMutation({
         leadIdx: 4,
         type: "created",
         actorType: "system",
-        content: "Lead criado via telefone",
+        content: "Lead created via phone",
         hoursAgoVal: 144,
       },
       {
@@ -798,7 +798,7 @@ export const generateSampleData = internalMutation({
         type: "stage_change",
         actorType: "human",
         actorId: pedro,
-        content: `Movido para ${stage3.name}`,
+        content: `Moved to ${stage3.name}`,
         metadata: { from: stage2.name, to: stage3.name },
         hoursAgoVal: 48,
       },
@@ -807,7 +807,7 @@ export const generateSampleData = internalMutation({
         type: "handoff",
         actorType: "ai",
         actorId: clawIA,
-        content: "IA solicitou handoff para negociacao de preco",
+        content: "AI requested handoff for price negotiation",
         hoursAgoVal: 6,
       },
 
@@ -816,7 +816,7 @@ export const generateSampleData = internalMutation({
         leadIdx: 5,
         type: "created",
         actorType: "system",
-        content: "Lead criado via indicacao",
+        content: "Lead created via referral",
         hoursAgoVal: 168,
       },
       {
@@ -833,7 +833,7 @@ export const generateSampleData = internalMutation({
         type: "stage_change",
         actorType: "human",
         actorId: maria,
-        content: `Movido para ${closedWonStage.name} — contrato assinado!`,
+        content: `Moved to ${closedWonStage.name} — contract signed!`,
         metadata: { to: closedWonStage.name },
         hoursAgoVal: 24,
       },
@@ -843,7 +843,7 @@ export const generateSampleData = internalMutation({
         actorType: "human",
         actorId: maria,
         content:
-          "Cliente fechou contrato anual de R$ 60.000. Otimo potencial para upsell no proximo trimestre. Agendar reuniao de kick-off.",
+          "Customer signed an annual ,000 contract. Strong upsell potential next quarter. Schedule a kickoff meeting.",
         hoursAgoVal: 22,
       },
     ];

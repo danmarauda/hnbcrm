@@ -1,16 +1,16 @@
 import type { Tab } from "@/components/layout/BottomTabBar";
 
 export const TAB_ROUTES: Record<Tab, string> = {
-  dashboard: "/app/painel",
+  dashboard: "/app/dashboard",
   board: "/app/pipeline",
-  contacts: "/app/contatos",
-  inbox: "/app/entrada",
-  tasks: "/app/tarefas",
-  calendar: "/app/calendario",
-  handoffs: "/app/repasses",
-  team: "/app/equipe",
-  audit: "/app/auditoria",
-  settings: "/app/configuracoes",
+  contacts: "/app/contacts",
+  inbox: "/app/inbox",
+  tasks: "/app/tasks",
+  calendar: "/app/calendar",
+  handoffs: "/app/handoffs",
+  team: "/app/team",
+  audit: "/app/audit",
+  settings: "/app/settings",
 };
 
 export const PATH_TO_TAB: Record<string, Tab> = Object.fromEntries(

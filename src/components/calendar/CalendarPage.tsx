@@ -93,7 +93,7 @@ export function CalendarPage() {
 
     // Prevent dragging tasks
     if (eventData._source === "task") {
-      toast.error("Tarefas não podem ser arrastadas no calendário. Edite na página de Tarefas.");
+      toast.error("Tasks cannot be dragged in the calendar. Edit them in the Tasks page.");
       return;
     }
 
@@ -111,9 +111,9 @@ export function CalendarPage() {
           eventId: eventId as Id<"calendarEvents">,
           newStartTime: newStart.getTime(),
         });
-        toast.success("Evento reagendado!");
+        toast.success("Event rescheduled!");
       } catch (error) {
-        toast.error("Erro ao reagendar evento");
+        toast.error("Failed to reschedule event");
         console.error(error);
       }
       return;
@@ -132,9 +132,9 @@ export function CalendarPage() {
           eventId: eventId as Id<"calendarEvents">,
           newStartTime: newStart.getTime(),
         });
-        toast.success("Evento reagendado!");
+        toast.success("Event rescheduled!");
       } catch (error) {
-        toast.error("Erro ao reagendar evento");
+        toast.error("Failed to reschedule event");
         console.error(error);
       }
     }
@@ -242,7 +242,7 @@ export function CalendarPage() {
         <button
           onClick={handleCreateEvent}
           className="md:hidden fixed bottom-20 right-4 z-30 w-14 h-14 rounded-full bg-brand-500 text-white shadow-lg flex items-center justify-center hover:bg-brand-600 active:scale-95 transition-all"
-          aria-label="Novo Evento"
+          aria-label="New Event"
         >
           <Plus size={24} />
         </button>

@@ -16,20 +16,20 @@ export function SignInForm() {
     try {
       if (flow === "signIn") {
         const { error } = await authClient.signIn.email({ email, password });
-        if (error) throw new Error(error.message ?? "Erro ao entrar");
+        if (error) throw new Error(error.message ?? "Sign-in failed");
       } else {
         const { error } = await authClient.signUp.email({ email, password, name: email.split("@")[0] });
-        if (error) throw new Error(error.message ?? "Erro ao cadastrar");
+        if (error) throw new Error(error.message ?? "Sign-up failed");
       }
     } catch (err: any) {
       const msg = err?.message ?? "";
       if (msg.toLowerCase().includes("invalid") || msg.toLowerCase().includes("password")) {
-        toast.error("Senha inválida. Tente novamente.");
+        toast.error("Invalid password. Try again.");
       } else {
         toast.error(
           flow === "signIn"
-            ? "Não foi possível entrar. Você quis se cadastrar?"
-            : "Não foi possível cadastrar. Você quis entrar?"
+            ? "Could not sign in. Did you mean to sign up?"
+            : "Could not sign up. Did you mean to sign in?"
         );
       }
     } finally {
@@ -51,38 +51,38 @@ export function SignInForm() {
           className="auth-input-field"
           type="password"
           name="password"
-          placeholder="Senha"
+          placeholder="Password"
           required
         />
         <button className="auth-button" type="submit" disabled={submitting}>
-          {flow === "signIn" ? "Entrar" : "Cadastrar"}
+          {flow === "signIn" ? "Sign in" : "Sign up"}
         </button>
         <div className="text-center text-sm">
           <span className="text-text-secondary">
-            {flow === "signIn" ? "Não tem conta? " : "Já tem conta? "}
+            {flow === "signIn" ? "Don't have an account? " : "Already have an account? "}
           </span>
           <button
             type="button"
             className="text-brand-500 hover:text-brand-400 hover:underline font-medium cursor-pointer"
             onClick={() => setFlow(flow === "signIn" ? "signUp" : "signIn")}
           >
-            {flow === "signIn" ? "Cadastrar" : "Entrar"}
+            {flow === "signIn" ? "Sign up" : "Sign in"}
           </button>
         </div>
       </form>
       <div className="flex items-center justify-center my-3">
         <hr className="my-4 grow border-border" />
-        <span className="mx-4 text-text-muted">ou</span>
+        <span className="mx-4 text-text-muted">or</span>
         <hr className="my-4 grow border-border" />
       </div>
       <button
         className="auth-button"
         onClick={async () => {
           const { error } = await authClient.signIn.anonymous();
-          if (error) toast.error("Erro ao entrar anonimamente");
+          if (error) toast.error("Anonymous sign-in failed");
         }}
       >
-        Entrar anonimamente
+        Sign in anonymously
       </button>
     </div>
   );

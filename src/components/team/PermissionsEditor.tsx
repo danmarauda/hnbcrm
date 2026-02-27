@@ -66,7 +66,7 @@ export function PermissionsEditor({
             size="sm"
             onClick={handleResetToDefaults}
           >
-            Restaurar padrao
+            Restore default
           </Button>
         )}
       </div>
@@ -75,10 +75,10 @@ export function PermissionsEditor({
         {/* Header */}
         <div className="hidden md:grid md:grid-cols-[180px_1fr] bg-surface-sunken border-b border-border px-4 py-2.5">
           <span className="text-xs font-medium text-text-muted uppercase tracking-wide">
-            Categoria
+            Category
           </span>
           <span className="text-xs font-medium text-text-muted uppercase tracking-wide">
-            Nivel de Acesso
+            Access Level
           </span>
         </div>
 

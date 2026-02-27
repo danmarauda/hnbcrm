@@ -209,26 +209,26 @@ export const getAuditLogFilters = query({
 
     const entityTypes = [
       { value: "lead", label: "Leads" },
-      { value: "contact", label: "Contatos" },
-      { value: "organization", label: "Organizações" },
+      { value: "contact", label: "Contacts" },
+      { value: "organization", label: "Organizations" },
       { value: "teamMember", label: "Membros" },
-      { value: "handoff", label: "Repasses" },
+      { value: "handoff", label: "Handoffs" },
       { value: "message", label: "Mensagens" },
       { value: "board", label: "Quadros" },
-      { value: "stage", label: "Etapas" },
+      { value: "stage", label: "Stages" },
       { value: "webhook", label: "Webhooks" },
       { value: "leadSource", label: "Fontes de Lead" },
       { value: "fieldDefinition", label: "Campos Personalizados" },
       { value: "apiKey", label: "Chaves de API" },
-      { value: "savedView", label: "Visualizações Salvas" },
+      { value: "savedView", label: "Saved Views" },
     ];
 
     const actions = [
-      { value: "create", label: "Criar" },
-      { value: "update", label: "Atualizar" },
-      { value: "delete", label: "Excluir" },
+      { value: "create", label: "Create" },
+      { value: "update", label: "Update" },
+      { value: "delete", label: "Delete" },
       { value: "move", label: "Mover" },
-      { value: "assign", label: "Atribuir" },
+      { value: "assign", label: "Assign" },
       { value: "handoff", label: "Repassar" },
     ];
 

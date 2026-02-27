@@ -1,32 +1,32 @@
 /**
- * Generates human-readable PT-BR descriptions for audit log entries.
+ * Generates human-readable English descriptions for audit log entries.
  */
 
-const ENTITY_LABELS: Record<string, { article: string; label: string }> = {
-  lead: { article: "o", label: "lead" },
-  contact: { article: "o", label: "contato" },
-  organization: { article: "a", label: "organização" },
-  teamMember: { article: "o", label: "membro" },
-  handoff: { article: "o", label: "repasse" },
-  message: { article: "a", label: "mensagem" },
-  board: { article: "o", label: "quadro" },
-  stage: { article: "a", label: "etapa" },
-  webhook: { article: "o", label: "webhook" },
-  leadSource: { article: "a", label: "fonte de lead" },
-  fieldDefinition: { article: "o", label: "campo personalizado" },
-  apiKey: { article: "a", label: "chave de API" },
-  savedView: { article: "a", label: "visualização salva" },
-  task: { article: "a", label: "tarefa" },
-  calendarEvent: { article: "o", label: "evento" },
+const ENTITY_LABELS: Record<string, string> = {
+  lead: "lead",
+  contact: "contact",
+  organization: "organization",
+  teamMember: "member",
+  handoff: "handoff",
+  message: "message",
+  board: "board",
+  stage: "stage",
+  webhook: "webhook",
+  leadSource: "lead source",
+  fieldDefinition: "custom field",
+  apiKey: "API key",
+  savedView: "saved view",
+  task: "task",
+  calendarEvent: "calendar event",
 };
 
 const ACTION_VERBS: Record<string, string> = {
-  create: "Criou",
-  update: "Atualizou",
-  delete: "Excluiu",
-  move: "Moveu",
-  assign: "Atribuiu",
-  handoff: "Repassou",
+  create: "Created",
+  update: "Updated",
+  delete: "Deleted",
+  move: "Moved",
+  assign: "Assigned",
+  handoff: "Handed off",
 };
 
 interface BuildDescriptionArgs {
@@ -46,9 +46,7 @@ export function buildAuditDescription({
   changes,
 }: BuildDescriptionArgs): string {
   const verb = ACTION_VERBS[action] || action;
-  const entity = ENTITY_LABELS[entityType];
-  const article = entity?.article || "o";
-  const label = entity?.label || entityType;
+  const label = ENTITY_LABELS[entityType] || entityType;
 
   const name =
     (metadata?.title as string) ||
@@ -59,21 +57,21 @@ export function buildAuditDescription({
 
   // Special cases
   if (action === "move" && metadata?.fromStageName && metadata?.toStageName) {
-    return `${verb} ${article} ${label}${nameStr} de '${metadata.fromStageName}' para '${metadata.toStageName}'`;
+    return `${verb} ${label}${nameStr} from '${metadata.fromStageName}' to '${metadata.toStageName}'`;
   }
 
   if (action === "assign" && metadata?.assigneeName) {
-    return `${verb} ${article} ${label}${nameStr} para ${metadata.assigneeName}`;
+    return `${verb} ${label}${nameStr} to ${metadata.assigneeName}`;
   }
 
   if (action === "handoff") {
-    const parts = [verb, article, label];
+    const parts = [verb, label];
     if (nameStr) parts.push(nameStr.trim());
     if (metadata?.fromMemberName && metadata?.toMemberName) {
-      return `${parts.join(" ")} de ${metadata.fromMemberName} para ${metadata.toMemberName}`;
+      return `${parts.join(" ")} from ${metadata.fromMemberName} to ${metadata.toMemberName}`;
     }
     if (metadata?.toMemberName) {
-      return `${parts.join(" ")} para ${metadata.toMemberName}`;
+      return `${parts.join(" ")} to ${metadata.toMemberName}`;
     }
     return parts.join(" ");
   }
@@ -81,12 +79,12 @@ export function buildAuditDescription({
   if (action === "update" && changes?.after) {
     const fields = Object.keys(changes.after);
     if (fields.length === 1) {
-      return `${verb} ${article} ${label}${nameStr} (${fields[0]})`;
+      return `${verb} ${label}${nameStr} (${fields[0]})`;
     }
     if (fields.length > 1) {
-      return `${verb} ${article} ${label}${nameStr} (${fields.length} campos)`;
+      return `${verb} ${label}${nameStr} (${fields.length} fields)`;
     }
   }
 
-  return `${verb} ${article} ${label}${nameStr}`;
+  return `${verb} ${label}${nameStr}`;
 }

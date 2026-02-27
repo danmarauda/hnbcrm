@@ -36,7 +36,7 @@ export function OrganizationSelector({ selectedOrgId, onSelectOrg }: Organizatio
           "lg:min-w-48"
         )}
       >
-        <option value="">Selecionar Organização</option>
+        <option value="">Select Organization</option>
         {organizations.filter(Boolean).map((org) => {
           if (!org) return null;
           return (

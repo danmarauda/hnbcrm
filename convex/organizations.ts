@@ -1,4 +1,4 @@
-import { v } from "convex/values";
+import { v, ConvexError } from "convex/values";
 import { authComponent } from "./auth";
 import { query, mutation, internalQuery } from "./_generated/server";
 import { requireAuth } from "./lib/auth";
@@ -47,7 +47,7 @@ export const createOrganization = mutation({
       .withIndex("by_slug", (q) => q.eq("slug", args.slug))
       .first();
     
-    if (existing) throw new Error("Organization slug already exists");
+    if (existing) throw new ConvexError("This slug is already in use. Choose another identifier.");
 
     const now = Date.now();
     

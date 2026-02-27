@@ -9,27 +9,27 @@ export const EVENT_TYPE_COLORS: Record<string, { bg: string; border: string; tex
 };
 
 export const EVENT_TYPE_LABELS: Record<string, string> = {
-  call: "Ligacao",
-  meeting: "Reuniao",
+  call: "Call",
+  meeting: "Meeting",
   follow_up: "Follow-up",
   demo: "Demo",
-  task: "Tarefa",
-  reminder: "Lembrete",
-  other: "Outro",
+  task: "Task",
+  reminder: "Reminder",
+  other: "Other",
 };
 
 export const EVENT_STATUS_LABELS: Record<string, string> = {
   scheduled: "Agendado",
-  completed: "Concluido",
+  completed: "Completed",
   cancelled: "Cancelado",
 };
 
 export const RECURRENCE_OPTIONS = [
-  { value: "none", label: "Nenhuma" },
+  { value: "none", label: "None" },
   { value: "daily", label: "Diaria" },
-  { value: "weekly", label: "Semanal" },
-  { value: "biweekly", label: "Quinzenal" },
-  { value: "monthly", label: "Mensal" },
+  { value: "weekly", label: "Weekly" },
+  { value: "biweekly", label: "Biweekly" },
+  { value: "monthly", label: "Monthly" },
 ];
 
 export const WEEKDAYS_SHORT = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"];

@@ -60,7 +60,7 @@ export function CreateLeadModal({ organizationId, boardId, onClose }: CreateLead
 
       if (contactMode === "create") {
         if (!firstName.trim() && !lastName.trim() && !email.trim()) {
-          setError("Forneça pelo menos um nome ou email.");
+          setError("Provide at least a name or email.");
           setSubmitting(false);
           return;
         }
@@ -75,7 +75,7 @@ export function CreateLeadModal({ organizationId, boardId, onClose }: CreateLead
         });
       } else if (contactMode === "select") {
         if (!selectedContactId) {
-          setError("Selecione um contato.");
+          setError("Select a contact.");
           setSubmitting(false);
           return;
         }
@@ -96,15 +96,15 @@ export function CreateLeadModal({ organizationId, boardId, onClose }: CreateLead
 
       onClose();
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Falha ao criar lead");
-      setError(err instanceof Error ? err.message : "Falha ao criar lead.");
+      toast.error(err instanceof Error ? err.message : "Failed to create lead");
+      setError(err instanceof Error ? err.message : "Failed to create lead.");
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <Modal open={true} onClose={onClose} title="Criar Novo Lead">
+    <Modal open={true} onClose={onClose} title="Create New Lead">
       {error && (
         <div className="mb-4 p-3 bg-semantic-error/10 text-semantic-error text-sm rounded-lg border border-semantic-error/20">
           {error}
@@ -115,13 +115,13 @@ export function CreateLeadModal({ organizationId, boardId, onClose }: CreateLead
         {/* Title */}
         <div>
           <label className="block text-[13px] font-medium text-text-secondary mb-1">
-            Título <span className="text-semantic-error">*</span>
+            Title <span className="text-semantic-error">*</span>
           </label>
           <input
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="ex: Negócio SaaS Enterprise"
+            placeholder="ex: Business SaaS Enterprise"
             className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 placeholder:text-text-muted"
             style={{ fontSize: "16px" }}
             required
@@ -130,7 +130,7 @@ export function CreateLeadModal({ organizationId, boardId, onClose }: CreateLead
 
         {/* Contact Selection */}
         <div>
-          <label className="block text-[13px] font-medium text-text-secondary mb-2">Contato</label>
+          <label className="block text-[13px] font-medium text-text-secondary mb-2">Contact</label>
 
           {/* Mode selector */}
           <div className="flex gap-2 mb-3">
@@ -147,7 +147,7 @@ export function CreateLeadModal({ organizationId, boardId, onClose }: CreateLead
                   : "bg-surface-raised text-text-secondary border-2 border-border hover:border-border-strong"
               )}
             >
-              Sem contato
+              Sem contact
             </button>
             <button
               type="button"
@@ -162,7 +162,7 @@ export function CreateLeadModal({ organizationId, boardId, onClose }: CreateLead
                   : "bg-surface-raised text-text-secondary border-2 border-border hover:border-border-strong"
               )}
             >
-              Selecionar
+              Select
             </button>
             <button
               type="button"
@@ -177,7 +177,7 @@ export function CreateLeadModal({ organizationId, boardId, onClose }: CreateLead
                   : "bg-surface-raised text-text-secondary border-2 border-border hover:border-border-strong"
               )}
             >
-              Criar novo
+              Create new
             </button>
           </div>
 
@@ -189,17 +189,17 @@ export function CreateLeadModal({ organizationId, boardId, onClose }: CreateLead
                 className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
                 style={{ fontSize: "16px" }}
               >
-                <option value="">Selecione um contato...</option>
+                <option value="">Select a contact...</option>
                 {contacts?.map((contact) => (
                   <option key={contact._id} value={contact._id}>
-                    {[contact.firstName, contact.lastName].filter(Boolean).join(" ") || contact.email || contact.phone || "Sem nome"}
+                    {[contact.firstName, contact.lastName].filter(Boolean).join(" ") || contact.email || contact.phone || "No name"}
                     {contact.company ? ` (${contact.company})` : ""}
                   </option>
                 ))}
               </select>
               {contacts && contacts.length >= 500 && (
                 <p className="text-xs text-text-muted mt-1">
-                  Mostrando os primeiros 500 contatos.
+                  Showing the first 500 contacts.
                 </p>
               )}
             </>
@@ -209,7 +209,7 @@ export function CreateLeadModal({ organizationId, boardId, onClose }: CreateLead
             <div className="space-y-3 p-3 bg-surface-sunken rounded-card border border-border">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-text-secondary mb-1">Nome</label>
+                  <label className="block text-xs font-medium text-text-secondary mb-1">Name</label>
                   <input
                     type="text"
                     value={firstName}
@@ -240,7 +240,7 @@ export function CreateLeadModal({ organizationId, boardId, onClose }: CreateLead
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-text-secondary mb-1">Telefone</label>
+                <label className="block text-xs font-medium text-text-secondary mb-1">Phone</label>
                 <input
                   type="text"
                   value={phone}
@@ -285,10 +285,10 @@ export function CreateLeadModal({ organizationId, boardId, onClose }: CreateLead
             className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
             style={{ fontSize: "16px" }}
           >
-            <option value="low">Baixa</option>
-            <option value="medium">Média</option>
-            <option value="high">Alta</option>
-            <option value="urgent">Urgente</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="urgent">Urgent</option>
           </select>
         </div>
 
@@ -309,14 +309,14 @@ export function CreateLeadModal({ organizationId, boardId, onClose }: CreateLead
 
         {/* Assigned To */}
         <div>
-          <label className="block text-[13px] font-medium text-text-secondary mb-1">Atribuído a</label>
+          <label className="block text-[13px] font-medium text-text-secondary mb-1">Assigned to</label>
           <select
             value={assignedTo}
             onChange={(e) => setAssignedTo(e.target.value)}
             className="w-full px-3 py-2 bg-surface-raised border border-border-strong text-text-primary rounded-field focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500"
             style={{ fontSize: "16px" }}
           >
-            <option value="">Não atribuído</option>
+            <option value="">Unassigned</option>
             {teamMembers?.map((member) => (
               <option key={member._id} value={member._id}>
                 {member.name} ({member.role})
@@ -334,7 +334,7 @@ export function CreateLeadModal({ organizationId, boardId, onClose }: CreateLead
             size="md"
             className="flex-1"
           >
-            Cancelar
+            Cancel
           </Button>
           <Button
             type="submit"
@@ -343,7 +343,7 @@ export function CreateLeadModal({ organizationId, boardId, onClose }: CreateLead
             size="md"
             className="flex-1"
           >
-            {submitting ? "Criando..." : "Criar Lead"}
+            {submitting ? "Creating..." : "Create Lead"}
           </Button>
         </div>
       </form>

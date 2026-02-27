@@ -29,7 +29,7 @@ export function Settings() {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-20">
         <ShieldAlert size={48} className="text-text-muted" />
-        <p className="text-text-secondary text-sm">Voce nao tem permissao para acessar as configuracoes.</p>
+        <p className="text-text-secondary text-sm">You do not have permission to access settings.</p>
       </div>
     );
   }
@@ -38,14 +38,14 @@ export function Settings() {
   const sections = [
     { id: "general", name: "Geral" },
     { id: "apikeys", name: "Chaves API" },
-    { id: "fields", name: "Campos Personalizados" },
+    { id: "fields", name: "Campos Customs" },
     { id: "sources", name: "Fontes de Leads" },
     { id: "webhooks", name: "Webhooks" },
   ];
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-text-primary">Configurações</h2>
+      <h2 className="text-2xl font-bold text-text-primary">Settings</h2>
 
       {/* Section tabs */}
       <div className="flex gap-2 flex-wrap">
@@ -106,19 +106,19 @@ function OrgProfileSection({ organizationId }: { organizationId: Id<"organizatio
           aiConfig: org?.settings?.aiConfig,
         },
       });
-      toast.success("Organização atualizada com sucesso");
+      toast.success("Organization updated successfully");
     } catch (error) {
-      toast.error("Falha ao atualizar organização");
+      toast.error("Failed to update organization");
     }
     setSaving(false);
   };
 
   return (
     <Card>
-      <h3 className="text-lg font-semibold text-text-primary mb-4">Perfil da Organização</h3>
+      <h3 className="text-lg font-semibold text-text-primary mb-4">Perfil da Organization</h3>
       <div className="space-y-4 max-w-md">
         <Input
-          label="Nome da Organização"
+          label="Organization Name"
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -126,7 +126,7 @@ function OrgProfileSection({ organizationId }: { organizationId: Id<"organizatio
 
         <div>
           <label className="block text-[13px] font-medium text-text-secondary mb-1.5">
-            Fuso Horário
+            Time Zone
           </label>
           <select
             value={timezone}
@@ -138,7 +138,7 @@ function OrgProfileSection({ organizationId }: { organizationId: Id<"organizatio
             <option value="America/Chicago">Central Time</option>
             <option value="America/Denver">Mountain Time</option>
             <option value="America/Los_Angeles">Pacific Time</option>
-            <option value="America/Sao_Paulo">São Paulo</option>
+            <option value="America/Sao_Paulo">Sao Paulo</option>
             <option value="Europe/London">London</option>
             <option value="Europe/Berlin">Berlin</option>
             <option value="Asia/Tokyo">Tokyo</option>
@@ -155,7 +155,7 @@ function OrgProfileSection({ organizationId }: { organizationId: Id<"organizatio
             className="w-full bg-surface-raised border border-border-strong text-text-primary rounded-field px-3.5 py-2.5 text-sm focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
           >
             <option value="USD">USD ($)</option>
-            <option value="BRL">BRL (R$)</option>
+            <option value="BRL">BRL ($)</option>
             <option value="EUR">EUR (€)</option>
             <option value="GBP">GBP (£)</option>
             <option value="CAD">CAD</option>
@@ -164,7 +164,7 @@ function OrgProfileSection({ organizationId }: { organizationId: Id<"organizatio
         </div>
 
         <Button onClick={handleSave} disabled={saving}>
-          {saving ? "Salvando..." : "Salvar"}
+          {saving ? "Saving..." : "Save"}
         </Button>
       </div>
     </Card>
@@ -200,7 +200,7 @@ function ApiKeysSection({ organizationId }: { organizationId: Id<"organizations"
 
     const agentId = selectedAgentId || aiAgents[0]?._id;
     if (!agentId) {
-      toast.error("Nenhum agente IA encontrado. Crie um membro IA primeiro.");
+      toast.error("No AI agent found. Create an AI member first.");
       return;
     }
 
@@ -218,7 +218,7 @@ function ApiKeysSection({ organizationId }: { organizationId: Id<"organizations"
       setExpiresAt("");
       setShowCreateApiKey(false);
     } catch (error) {
-      toast.error("Falha ao criar chave API");
+      toast.error("Failed to create API key");
     }
   };
 
@@ -228,10 +228,10 @@ function ApiKeysSection({ organizationId }: { organizationId: Id<"organizations"
         apiKeyId: apiKeyId as Id<"apiKeys">,
         organizationId,
       });
-      toast.success("Chave revogada com sucesso");
+      toast.success("API key revoked successfully");
       setConfirmRevokeId(null);
     } catch (error) {
-      toast.error("Falha ao revogar chave");
+      toast.error("Failed to revoke key");
     }
   };
 
@@ -240,7 +240,7 @@ function ApiKeysSection({ organizationId }: { organizationId: Id<"organizations"
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-text-primary">Chaves API</h3>
         <Button onClick={() => setShowCreateApiKey(true)}>
-          Criar Chave
+          Create Key
         </Button>
       </div>
 
@@ -258,21 +258,21 @@ function ApiKeysSection({ organizationId }: { organizationId: Id<"organizations"
                 <h4 className="font-medium text-text-primary">{key.name}</h4>
                 <p className="text-sm text-text-secondary">
                   {key.teamMemberName && <span className="text-text-muted">{key.teamMemberName} &bull; </span>}
-                  Criada em {new Date(key.createdAt).toLocaleDateString("pt-BR")}
-                  {key.lastUsed && ` \u2022 Ultimo uso ${new Date(key.lastUsed).toLocaleDateString("pt-BR")}`}
-                  {key.expiresAt && ` \u2022 Expira ${new Date(key.expiresAt).toLocaleDateString("pt-BR")}`}
+                  Created on {new Date(key.createdAt).toLocaleDateString("en-US")}
+                  {key.lastUsed && ` \u2022 Last used ${new Date(key.lastUsed).toLocaleDateString("en-US")}`}
+                  {key.expiresAt && ` \u2022 Expires ${new Date(key.expiresAt).toLocaleDateString("en-US")}`}
                 </p>
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <Badge variant={key.isActive ? "success" : "default"}>
-                  {key.isActive ? "Ativa" : "Revogada"}
+                  {key.isActive ? "Active" : "Revoked"}
                 </Badge>
                 {key.isActive && (
                   <button
                     onClick={() => setConfirmRevokeId(key._id)}
                     className="text-sm text-semantic-error hover:text-semantic-error/80"
                   >
-                    Revogar
+                    Revoke
                   </button>
                 )}
               </div>
@@ -280,7 +280,7 @@ function ApiKeysSection({ organizationId }: { organizationId: Id<"organizations"
           ))}
         </div>
       ) : apiKeys ? (
-        <p className="text-text-secondary">Nenhuma chave API criada.</p>
+        <p className="text-text-secondary">No API keys created.</p>
       ) : null}
 
       <ConfirmDialog
@@ -289,30 +289,30 @@ function ApiKeysSection({ organizationId }: { organizationId: Id<"organizations"
         onConfirm={() => {
           if (confirmRevokeId) handleRevoke(confirmRevokeId);
         }}
-        title="Revogar Chave API"
-        description="Tem certeza que deseja revogar esta chave? Todas as integracoes que a utilizam pararao de funcionar imediatamente."
-        confirmLabel="Revogar"
+        title="Revoke API Key"
+        description="Are you sure you want to revoke this key? Any integrations using it will stop working immediately."
+        confirmLabel="Revoke"
         variant="danger"
       />
 
       <Modal
         open={showCreateApiKey}
         onClose={() => setShowCreateApiKey(false)}
-        title="Criar Chave API"
+        title="Create API Key"
       >
         <form onSubmit={handleCreateApiKey} className="space-y-4">
           <Input
-            label="Nome da Chave"
+            label="Key Name"
             type="text"
             value={newApiKeyName}
             onChange={(e) => setNewApiKeyName(e.target.value)}
-            placeholder="ex: Chave de Producao"
+            placeholder="e.g. Production Key"
             required
           />
           {aiAgents.length > 1 && (
             <div>
               <label className="block text-[13px] font-medium text-text-secondary mb-1.5">
-                Agente IA
+                AI Agent
               </label>
               <select
                 value={selectedAgentId}
@@ -329,7 +329,7 @@ function ApiKeysSection({ organizationId }: { organizationId: Id<"organizations"
           )}
           <div>
             <label className="block text-[13px] font-medium text-text-secondary mb-1.5">
-              Expiracao (opcional)
+              Expiration (optional)
             </label>
             <input
               type="date"
@@ -342,7 +342,7 @@ function ApiKeysSection({ organizationId }: { organizationId: Id<"organizations"
           </div>
           {aiAgents.length === 0 && (
             <p className="text-sm text-semantic-warning">
-              Nenhum agente IA encontrado. Crie um membro IA na pagina de Equipe primeiro.
+              No AI agent found. Create an AI team member on the Team page first.
             </p>
           )}
           <div className="flex gap-2 pt-4">
@@ -352,10 +352,10 @@ function ApiKeysSection({ organizationId }: { organizationId: Id<"organizations"
               onClick={() => setShowCreateApiKey(false)}
               className="flex-1"
             >
-              Cancelar
+              Cancel
             </Button>
             <Button type="submit" className="flex-1" disabled={aiAgents.length === 0}>
-              Criar Chave
+              Create Key
             </Button>
           </div>
         </form>
@@ -444,11 +444,11 @@ function CustomFieldsSection({ organizationId }: { organizationId: Id<"organizat
   return (
     <Card>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-text-primary">Campos Personalizados</h3>
+        <h3 className="text-lg font-semibold text-text-primary">Campos Customs</h3>
         <Button
           onClick={() => { setShowForm(true); setEditingId(null); setForm({ name: "", key: "", type: "text", options: "", isRequired: false }); }}
         >
-          Adicionar Campo
+          Add Field
         </Button>
       </div>
 
@@ -474,7 +474,7 @@ function CustomFieldsSection({ organizationId }: { organizationId: Id<"organizat
               : "bg-surface-overlay text-text-secondary hover:bg-surface-raised"
           )}
         >
-          Contatos
+          Contacts
         </button>
       </div>
 
@@ -493,19 +493,19 @@ function CustomFieldsSection({ organizationId }: { organizationId: Id<"organizat
                 <span className="text-sm text-text-muted">({field.key})</span>
                 <Badge variant="info">{field.type}</Badge>
                 {field.entityType && (
-                  <Badge variant="brand">{field.entityType === "lead" ? "Lead" : "Contato"}</Badge>
+                  <Badge variant="brand">{field.entityType === "lead" ? "Lead" : "Contact"}</Badge>
                 )}
-                {field.isRequired && <Badge variant="error">Obrigatório</Badge>}
+                {field.isRequired && <Badge variant="error">Required</Badge>}
               </div>
               <div className="flex gap-2">
-                <button onClick={() => handleEdit(field)} className="text-sm text-brand-500 hover:text-brand-400">Editar</button>
-                <button onClick={() => setConfirmDeleteId(field._id)} className="text-sm text-semantic-error hover:text-semantic-error/80">Excluir</button>
+                <button onClick={() => handleEdit(field)} className="text-sm text-brand-500 hover:text-brand-400">Edit</button>
+                <button onClick={() => setConfirmDeleteId(field._id)} className="text-sm text-semantic-error hover:text-semantic-error/80">Delete</button>
               </div>
             </div>
           ))}
         </div>
       ) : fieldDefs ? (
-        <p className="text-text-secondary">Nenhum campo personalizado definido.</p>
+        <p className="text-text-secondary">No custom fields defined.</p>
       ) : null}
 
       <ConfirmDialog
@@ -514,20 +514,20 @@ function CustomFieldsSection({ organizationId }: { organizationId: Id<"organizat
         onConfirm={() => {
           if (confirmDeleteId) handleDelete(confirmDeleteId);
         }}
-        title="Excluir Campo Personalizado"
-        description="Tem certeza que deseja excluir este campo personalizado? Esta ação não pode ser desfeita."
-        confirmLabel="Excluir"
+        title="Delete Custom Field"
+        description="Are you sure you want to delete this custom field? This action cannot be undone."
+        confirmLabel="Delete"
         variant="danger"
       />
 
       <Modal
         open={showForm}
         onClose={() => { setShowForm(false); setEditingId(null); }}
-        title={editingId ? "Editar Campo Personalizado" : "Adicionar Campo Personalizado"}
+        title={editingId ? "Edit Custom Field" : "Add Field Custom"}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
-            label="Nome"
+            label="Name"
             type="text"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -535,7 +535,7 @@ function CustomFieldsSection({ organizationId }: { organizationId: Id<"organizat
           />
           {!editingId && (
             <Input
-              label="Chave"
+              label="Key"
               type="text"
               value={form.key}
               onChange={(e) => setForm({ ...form, key: e.target.value })}
@@ -556,20 +556,20 @@ function CustomFieldsSection({ organizationId }: { organizationId: Id<"organizat
           </div>
           {(form.type === "select" || form.type === "multiselect") && (
             <Input
-              label="Opções (separadas por vírgula)"
+              label="Options (comma-separated)"
               type="text"
               value={form.options}
               onChange={(e) => setForm({ ...form, options: e.target.value })}
-              placeholder="Opção 1, Opção 2, Opção 3"
+              placeholder="Option 1, Option 2, Option 3"
             />
           )}
           <label className="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" checked={form.isRequired} onChange={(e) => setForm({ ...form, isRequired: e.target.checked })} className="rounded border-border-strong bg-surface-raised text-brand-600 focus:ring-brand-500" />
-            <span className="text-sm text-text-secondary">Obrigatório</span>
+            <span className="text-sm text-text-secondary">Required</span>
           </label>
           <div className="flex gap-2 pt-4">
-            <Button type="button" variant="secondary" onClick={() => { setShowForm(false); setEditingId(null); }} className="flex-1">Cancelar</Button>
-            <Button type="submit" className="flex-1">Salvar</Button>
+            <Button type="button" variant="secondary" onClick={() => { setShowForm(false); setEditingId(null); }} className="flex-1">Cancel</Button>
+            <Button type="submit" className="flex-1">Save</Button>
           </div>
         </form>
       </Modal>
@@ -637,7 +637,7 @@ function LeadSourcesSection({ organizationId }: { organizationId: Id<"organizati
         <Button
           onClick={() => { setShowForm(true); setEditingId(null); setForm({ name: "", type: "website" }); }}
         >
-          Adicionar Fonte
+          Add Source
         </Button>
       </div>
 
@@ -655,18 +655,18 @@ function LeadSourcesSection({ organizationId }: { organizationId: Id<"organizati
                 <span className="font-medium text-text-primary">{source.name}</span>
                 <Badge variant="brand">{source.type}</Badge>
                 <Badge variant={source.isActive ? "success" : "default"}>
-                  {source.isActive ? "Ativa" : "Inativa"}
+                  {source.isActive ? "Active" : "Inactive"}
                 </Badge>
               </div>
               <div className="flex gap-2">
-                <button onClick={() => handleEdit(source)} className="text-sm text-brand-500 hover:text-brand-400">Editar</button>
-                <button onClick={() => setConfirmDeleteId(source._id)} className="text-sm text-semantic-error hover:text-semantic-error/80">Excluir</button>
+                <button onClick={() => handleEdit(source)} className="text-sm text-brand-500 hover:text-brand-400">Edit</button>
+                <button onClick={() => setConfirmDeleteId(source._id)} className="text-sm text-semantic-error hover:text-semantic-error/80">Delete</button>
               </div>
             </div>
           ))}
         </div>
       ) : sources ? (
-        <p className="text-text-secondary">Nenhuma fonte de leads configurada.</p>
+        <p className="text-text-secondary">No lead sources configured.</p>
       ) : null}
 
       <ConfirmDialog
@@ -675,20 +675,20 @@ function LeadSourcesSection({ organizationId }: { organizationId: Id<"organizati
         onConfirm={() => {
           if (confirmDeleteId) handleDelete(confirmDeleteId);
         }}
-        title="Excluir Fonte de Leads"
-        description="Tem certeza que deseja excluir esta fonte de leads? Esta ação não pode ser desfeita."
-        confirmLabel="Excluir"
+        title="Delete Lead Source"
+        description="Are you sure you want to delete this lead source? This action cannot be undone."
+        confirmLabel="Delete"
         variant="danger"
       />
 
       <Modal
         open={showForm}
         onClose={() => { setShowForm(false); setEditingId(null); }}
-        title={editingId ? "Editar Fonte de Leads" : "Adicionar Fonte de Leads"}
+        title={editingId ? "Edit Lead Source" : "Add Source de Leads"}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
-            label="Nome"
+            label="Name"
             type="text"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -707,8 +707,8 @@ function LeadSourcesSection({ organizationId }: { organizationId: Id<"organizati
             </select>
           </div>
           <div className="flex gap-2 pt-4">
-            <Button type="button" variant="secondary" onClick={() => { setShowForm(false); setEditingId(null); }} className="flex-1">Cancelar</Button>
-            <Button type="submit" className="flex-1">Salvar</Button>
+            <Button type="button" variant="secondary" onClick={() => { setShowForm(false); setEditingId(null); }} className="flex-1">Cancel</Button>
+            <Button type="submit" className="flex-1">Save</Button>
           </div>
         </form>
       </Modal>
@@ -780,7 +780,7 @@ function WebhooksSection({ organizationId }: { organizationId: Id<"organizations
         <Button
           onClick={() => { setShowForm(true); setEditingId(null); setForm({ name: "", url: "", events: "", secret: "" }); }}
         >
-          Adicionar Webhook
+          Add Webhook
         </Button>
       </div>
 
@@ -801,10 +801,10 @@ function WebhooksSection({ organizationId }: { organizationId: Id<"organizations
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0 ml-3">
                   <Badge variant={webhook.isActive ? "success" : "default"}>
-                    {webhook.isActive ? "Ativo" : "Inativo"}
+                    {webhook.isActive ? "Active" : "Inactive"}
                   </Badge>
-                  <button onClick={() => handleEdit(webhook)} className="text-sm text-brand-500 hover:text-brand-400">Editar</button>
-                  <button onClick={() => setConfirmDeleteId(webhook._id)} className="text-sm text-semantic-error hover:text-semantic-error/80">Excluir</button>
+                  <button onClick={() => handleEdit(webhook)} className="text-sm text-brand-500 hover:text-brand-400">Edit</button>
+                  <button onClick={() => setConfirmDeleteId(webhook._id)} className="text-sm text-semantic-error hover:text-semantic-error/80">Delete</button>
                 </div>
               </div>
               <div className="flex gap-1 flex-wrap">
@@ -816,7 +816,7 @@ function WebhooksSection({ organizationId }: { organizationId: Id<"organizations
           ))}
         </div>
       ) : webhooks ? (
-        <p className="text-text-secondary">Nenhum webhook configurado.</p>
+        <p className="text-text-secondary">No webhooks configured.</p>
       ) : null}
 
       <ConfirmDialog
@@ -825,20 +825,20 @@ function WebhooksSection({ organizationId }: { organizationId: Id<"organizations
         onConfirm={() => {
           if (confirmDeleteId) handleDelete(confirmDeleteId);
         }}
-        title="Excluir Webhook"
-        description="Tem certeza que deseja excluir este webhook? Esta ação não pode ser desfeita."
-        confirmLabel="Excluir"
+        title="Delete Webhook"
+        description="Are you sure you want to delete this webhook? This action cannot be undone."
+        confirmLabel="Delete"
         variant="danger"
       />
 
       <Modal
         open={showForm}
         onClose={() => { setShowForm(false); setEditingId(null); }}
-        title={editingId ? "Editar Webhook" : "Adicionar Webhook"}
+        title={editingId ? "Edit Webhook" : "Add Webhook"}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <Input
-            label="Nome"
+            label="Name"
             type="text"
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -849,11 +849,11 @@ function WebhooksSection({ organizationId }: { organizationId: Id<"organizations
             type="url"
             value={form.url}
             onChange={(e) => setForm({ ...form, url: e.target.value })}
-            placeholder="https://exemplo.com/webhook"
+            placeholder="https://example.com/webhook"
             required
           />
           <Input
-            label="Eventos (separados por vírgula)"
+            label="Events (comma-separated)"
             type="text"
             value={form.events}
             onChange={(e) => setForm({ ...form, events: e.target.value })}
@@ -870,8 +870,8 @@ function WebhooksSection({ organizationId }: { organizationId: Id<"organizations
             />
           )}
           <div className="flex gap-2 pt-4">
-            <Button type="button" variant="secondary" onClick={() => { setShowForm(false); setEditingId(null); }} className="flex-1">Cancelar</Button>
-            <Button type="submit" className="flex-1">Salvar</Button>
+            <Button type="button" variant="secondary" onClick={() => { setShowForm(false); setEditingId(null); }} className="flex-1">Cancel</Button>
+            <Button type="submit" className="flex-1">Save</Button>
           </div>
         </form>
       </Modal>

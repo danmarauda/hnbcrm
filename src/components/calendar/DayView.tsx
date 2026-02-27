@@ -89,7 +89,7 @@ export function DayView({ date, events, onEventClick, onSlotClick, onSelectDay }
       {/* All-day events */}
       {allDayEvents.length > 0 && (
         <div className="px-4 py-2 border-b border-border bg-surface-raised">
-          <div className="text-xs font-medium text-text-muted mb-1">Dia Inteiro</div>
+          <div className="text-xs font-medium text-text-muted mb-1">All Day</div>
           <div className="space-y-1">
             {allDayEvents.map((event) => (
               <div

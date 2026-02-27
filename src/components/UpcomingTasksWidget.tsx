@@ -32,22 +32,22 @@ type PriorityFilter = "all" | "urgent" | "high" | "medium" | "low";
 type TypeFilter = "all" | "task" | "reminder";
 
 const SMART_FILTERS: { value: SmartFilter; label: string }[] = [
-  { value: "today", label: "Hoje" },
-  { value: "overdue", label: "Atrasadas" },
-  { value: "week", label: "Esta Semana" },
-  { value: "mine", label: "Minhas Tarefas" },
+  { value: "today", label: "Today" },
+  { value: "overdue", label: "Overdue" },
+  { value: "week", label: "Esta Week" },
+  { value: "mine", label: "Minhas Tasks" },
   { value: "all", label: "Todas" },
 ];
 
 const PRIORITY_FILTERS: { value: PriorityFilter; label: string }[] = [
-  { value: "urgent", label: "Urgente" },
-  { value: "high", label: "Alta" },
+  { value: "urgent", label: "Urgent" },
+  { value: "high", label: "High" },
   { value: "medium", label: "M\u00e9dia" },
-  { value: "low", label: "Baixa" },
+  { value: "low", label: "Low" },
 ];
 
 const TYPE_FILTERS: { value: TypeFilter; label: string }[] = [
-  { value: "task", label: "Tarefas" },
+  { value: "task", label: "Tasks" },
   { value: "reminder", label: "Lembretes" },
 ];
 
@@ -61,10 +61,10 @@ const ACTIVITY_ICONS: Record<string, React.ElementType> = {
 };
 
 const PRIORITY_BADGE: Record<string, { variant: "default" | "info" | "warning" | "error"; label: string }> = {
-  low: { variant: "default", label: "Baixa" },
+  low: { variant: "default", label: "Low" },
   medium: { variant: "info", label: "M\u00e9dia" },
-  high: { variant: "warning", label: "Alta" },
-  urgent: { variant: "error", label: "Urgente" },
+  high: { variant: "warning", label: "High" },
+  urgent: { variant: "error", label: "Urgent" },
 };
 
 interface TaskItem {
@@ -197,12 +197,12 @@ export function UpcomingTasksWidget({
     endOfWeek.setHours(23, 59, 59, 999);
 
     const groups: { key: string; label: string; tasks: TaskItem[]; color: string }[] = [
-      { key: "overdue", label: "Atrasadas", tasks: [], color: "text-semantic-error" },
-      { key: "today", label: "Hoje", tasks: [], color: "text-brand-500" },
+      { key: "overdue", label: "Overdue", tasks: [], color: "text-semantic-error" },
+      { key: "today", label: "Today", tasks: [], color: "text-brand-500" },
       { key: "tomorrow", label: "Amanh\u00e3", tasks: [], color: "text-text-primary" },
-      { key: "week", label: "Esta Semana", tasks: [], color: "text-text-primary" },
+      { key: "week", label: "Esta Week", tasks: [], color: "text-text-primary" },
       { key: "later", label: "Depois", tasks: [], color: "text-text-secondary" },
-      { key: "noDate", label: "Sem Data", tasks: [], color: "text-text-muted" },
+      { key: "noDate", label: "No Date", tasks: [], color: "text-text-muted" },
     ];
 
     for (const task of filteredTasks) {
@@ -227,9 +227,9 @@ export function UpcomingTasksWidget({
   const handleComplete = async (taskId: Id<"tasks">) => {
     try {
       await completeTask({ taskId });
-      toast.success("Tarefa conclu\u00edda!");
+      toast.success("Task conclu\u00edda!");
     } catch {
-      toast.error("Falha ao concluir tarefa");
+      toast.error("Failed to complete task");
     }
   };
 
@@ -258,16 +258,16 @@ export function UpcomingTasksWidget({
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <h3 className="text-lg font-semibold text-text-primary">Próximas Tarefas</h3>
+          <h3 className="text-lg font-semibold text-text-primary">Upcoming Tasks</h3>
           {taskCounts && taskCounts.overdue > 0 && (
-            <Badge variant="error">{taskCounts.overdue} atrasada{taskCounts.overdue > 1 ? "s" : ""}</Badge>
+            <Badge variant="error">{taskCounts.overdue} overdue</Badge>
           )}
         </div>
         <button
-          onClick={() => navigate("/app/tarefas")}
+          onClick={() => navigate("/app/tasks")}
           className="flex items-center gap-1 text-sm text-brand-500 hover:text-brand-400 transition-colors font-medium"
         >
-          Ver todas
+          View all
           <ChevronRight size={16} />
         </button>
       </div>
@@ -366,16 +366,16 @@ export function UpcomingTasksWidget({
             <ListChecks size={24} className="text-text-muted" />
           </div>
           <p className="text-sm font-medium text-text-primary mb-1">
-            Nenhuma tarefa encontrada
+            No tasks found
           </p>
           <p className="text-xs text-text-muted text-center">
             {hasActiveFilters
-              ? "Tente ajustar os filtros."
-              : "As tarefas aparecer\u00e3o aqui automaticamente."}
+              ? "Try adjusting your filters."
+              : "Tasks will appear here automatically."}
           </p>
           {hasActiveFilters && (
             <Button variant="ghost" size="sm" className="mt-3" onClick={clearFilters}>
-              Limpar filtros
+              Clear filters
             </Button>
           )}
         </div>
@@ -418,7 +418,7 @@ export function UpcomingTasksWidget({
                         task={task}
                         now={now}
                         onComplete={() => handleComplete(task._id)}
-                        onNavigate={() => navigate("/app/tarefas")}
+                        onNavigate={() => navigate("/app/tasks")}
                       />
                     ))}
                   </div>
@@ -433,9 +433,9 @@ export function UpcomingTasksWidget({
               variant="ghost"
               size="sm"
               className="w-full"
-              onClick={() => navigate("/app/tarefas")}
+              onClick={() => navigate("/app/tasks")}
             >
-              Ver todas as tarefas
+              View all tasks
               <ChevronRight size={14} />
             </Button>
           </div>
@@ -474,7 +474,7 @@ function TaskRow({
           onComplete();
         }}
         className="shrink-0 w-5 h-5 rounded-full border-2 border-border-strong hover:border-brand-500 flex items-center justify-center transition-colors"
-        aria-label="Concluir tarefa"
+        aria-label="Complete task"
       />
 
       {/* Activity type icon */}
@@ -538,9 +538,9 @@ function formatRelativeDate(dueDate: number, now: number): string {
   const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
 
   if (diffDays < -1) return `${Math.abs(diffDays)}d atr\u00e1s`;
-  if (diffDays === -1) return "Ontem";
-  if (diffDays === 0) return "Hoje";
+  if (diffDays === -1) return "Yesterday";
+  if (diffDays === 0) return "Today";
   if (diffDays === 1) return "Amanh\u00e3";
   if (diffDays <= 7) return `${diffDays}d`;
-  return new Date(dueDate).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
+  return new Date(dueDate).toLocaleDateString("en-US", { day: "2-digit", month: "short" });
 }

@@ -47,9 +47,9 @@ function slugify(text: string): string {
 }
 
 const HUMAN_ROLES: { value: Role; label: string; desc: string }[] = [
-  { value: "agent", label: "Agente", desc: "Acesso basico a leads e contatos" },
-  { value: "manager", label: "Gerente", desc: "Gerencia leads, equipe e relatorios" },
-  { value: "admin", label: "Admin", desc: "Acesso total a toda organizacao" },
+  { value: "agent", label: "Agent", desc: "Basic access to leads and contacts" },
+  { value: "manager", label: "Manager", desc: "Manages leads, team, and reports" },
+  { value: "admin", label: "Admin", desc: "Full access to the entire organization" },
 ];
 
 export function InviteMemberModal({
@@ -106,7 +106,7 @@ export function InviteMemberModal({
     try {
       if (memberType === "human") {
         if (!email.trim()) {
-          toast.error("Email e obrigatorio para membros humanos.");
+          toast.error("Email is required for human members.");
           setIsSubmitting(false);
           return;
         }
@@ -123,8 +123,8 @@ export function InviteMemberModal({
         setStep("result");
         toast.success(
           result.isNewUser
-            ? "Membro convidado com sucesso!"
-            : "Membro adicionado a organizacao!"
+            ? "Member invited successfully!"
+            : "Member added to organization!"
         );
       } else {
         // Create AI agent
@@ -149,10 +149,10 @@ export function InviteMemberModal({
 
         setResultMemberName(name.trim());
         setStep("result");
-        toast.success("Agente IA criado com sucesso!");
+        toast.success("AI agent created successfully!");
       }
     } catch (error: any) {
-      toast.error(error.message || "Falha ao adicionar membro.");
+      toast.error(error.message || "Failed to add member.");
     } finally {
       setIsSubmitting(false);
     }
@@ -161,7 +161,7 @@ export function InviteMemberModal({
   const handleCopy = async (text: string) => {
     await navigator.clipboard.writeText(text);
     setCopied(true);
-    toast.success("Copiado!");
+    toast.success("Copied!");
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -186,7 +186,7 @@ export function InviteMemberModal({
   const renderTypeStep = () => (
     <div className="space-y-4">
       <p className="text-sm text-text-secondary">
-        Selecione o tipo de membro que deseja adicionar.
+        Select the type of member you want to add.
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -202,9 +202,9 @@ export function InviteMemberModal({
             <User size={24} className="text-brand-500" />
           </div>
           <div className="text-center">
-            <p className="text-sm font-semibold text-text-primary">Humano</p>
+            <p className="text-sm font-semibold text-text-primary">Human</p>
             <p className="text-xs text-text-muted mt-1">
-              Convide por email com senha temporaria
+              Invite by email with a temporary password
             </p>
           </div>
         </button>
@@ -221,9 +221,9 @@ export function InviteMemberModal({
             <Bot size={24} className="text-semantic-warning" />
           </div>
           <div className="text-center">
-            <p className="text-sm font-semibold text-text-primary">Agente IA</p>
+            <p className="text-sm font-semibold text-text-primary">AI Agent</p>
             <p className="text-xs text-text-muted mt-1">
-              Crie um agente com chave API para automacoes
+              Create an agent with an API key for automations
             </p>
           </div>
         </button>
@@ -235,7 +235,7 @@ export function InviteMemberModal({
   const renderHumanForm = () => (
     <>
       <Input
-        label="Nome *"
+        label="Name *"
         value={name}
         onChange={(e) => setName(e.target.value)}
         placeholder="Joao Silva"
@@ -253,7 +253,7 @@ export function InviteMemberModal({
 
       <div>
         <label className="block text-[13px] font-medium text-text-secondary mb-1.5">
-          Funcao
+          Role
         </label>
         <div className="flex flex-wrap gap-2">
           {HUMAN_ROLES.map((r) => (
@@ -277,7 +277,7 @@ export function InviteMemberModal({
       {/* Custom permissions toggle */}
       <div className="flex items-center justify-between">
         <span className="text-sm text-text-secondary">
-          Personalizar permissoes
+          Customize permissions
         </span>
         <button
           type="button"
@@ -315,16 +315,16 @@ export function InviteMemberModal({
       <div className="flex items-start gap-3 p-3 bg-surface-sunken rounded-lg border border-border">
         <Sparkles size={18} className="text-semantic-warning shrink-0 mt-0.5" />
         <p className="text-xs text-text-secondary leading-relaxed">
-          Agentes IA operam via <strong>chave API</strong> para automacoes, bots e integracoes.
-          Apos criar, use a chave no header <code className="text-text-primary bg-surface-overlay px-1 rounded">X-API-Key</code> das requisicoes.
+          AI agents operate via <strong>API keys</strong> for automations, bots, and integrations.
+          After creating, use the key in the <code className="text-text-primary bg-surface-overlay px-1 rounded">X-API-Key</code> request header.
         </p>
       </div>
 
       <Input
-        label="Nome do Agente *"
+        label="Agent Name *"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        placeholder="Ex: Bot de Vendas, Agente de Qualificacao"
+        placeholder="e.g.: Sales Bot, Qualification Agent"
         required
       />
 
@@ -333,7 +333,7 @@ export function InviteMemberModal({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Key size={16} className="text-brand-500" />
-            <span className="text-sm font-medium text-text-primary">Gerar Chave API</span>
+            <span className="text-sm font-medium text-text-primary">Generate API Key</span>
           </div>
           <button
             type="button"
@@ -355,12 +355,12 @@ export function InviteMemberModal({
         </div>
         {generateApiKey && name.trim() && (
           <p className="text-xs text-text-muted">
-            Nome da chave: <code className="text-text-primary bg-surface-overlay px-1 rounded">{slugify(name.trim())}</code>
+            Key name: <code className="text-text-primary bg-surface-overlay px-1 rounded">{slugify(name.trim())}</code>
           </p>
         )}
         {!generateApiKey && (
           <p className="text-xs text-text-muted">
-            Voce pode gerar chaves depois em Configuracoes &gt; Chaves API.
+              You can generate keys later in Settings &gt; API Keys.
           </p>
         )}
       </div>
@@ -368,7 +368,7 @@ export function InviteMemberModal({
       {/* Permissions */}
       <div className="flex items-center justify-between">
         <span className="text-sm text-text-secondary">
-          Personalizar permissoes
+          Customize permissions
         </span>
         <button
           type="button"
@@ -391,7 +391,7 @@ export function InviteMemberModal({
 
       {!customPermissions && (
         <p className="text-xs text-text-muted -mt-2">
-          Padrao: acesso a leads, contatos e conversas do agente.
+          Default: access to the agent's leads, contacts, and conversations.
         </p>
       )}
 
@@ -417,7 +417,7 @@ export function InviteMemberModal({
           onClick={() => setStep("type")}
           className="flex-1"
         >
-          Voltar
+          Back
         </Button>
         <Button
           type="submit"
@@ -425,12 +425,12 @@ export function InviteMemberModal({
           className="flex-1"
         >
           {isSubmitting
-            ? "Criando..."
+            ? "Creating..."
             : memberType === "human"
-              ? "Convidar Membro"
+              ? "Invite Member"
               : generateApiKey
-                ? "Criar Agente e Chave"
-                : "Criar Agente"}
+                ? "Create Agent and Key"
+                : "Create Agent"}
         </Button>
       </div>
     </form>
@@ -447,7 +447,7 @@ export function InviteMemberModal({
           {resultMemberName}
         </p>
         <p className="text-sm text-text-secondary mt-1">
-          {memberType === "human" ? "Membro adicionado com sucesso." : "Agente IA criado com sucesso."}
+          {memberType === "human" ? "Member added successfully." : "AI agent created successfully."}
         </p>
       </div>
 
@@ -456,7 +456,7 @@ export function InviteMemberModal({
         <>
           <div>
             <label className="block text-[13px] font-medium text-text-secondary mb-1.5">
-              Senha temporaria
+              Temporary password
             </label>
             <div className="flex items-center gap-2 bg-surface-sunken border border-border rounded-lg p-3">
               <code className="flex-1 text-sm font-mono text-text-primary break-all select-all">
@@ -465,7 +465,7 @@ export function InviteMemberModal({
               <button
                 onClick={() => setRevealed(!revealed)}
                 className="flex-shrink-0 p-1.5 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-raised transition-colors"
-                aria-label={revealed ? "Ocultar" : "Revelar"}
+                aria-label={revealed ? "Hide" : "Reveal"}
               >
                 {revealed ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -479,13 +479,13 @@ export function InviteMemberModal({
             className="w-full"
           >
             {copied ? <Check size={18} /> : <Copy size={18} />}
-            {copied ? "Copiada!" : "Copiar Senha"}
+            {copied ? "Copied!" : "Copy Password"}
           </Button>
 
           <div className="flex gap-3 bg-semantic-warning/5 border border-semantic-warning/20 rounded-lg p-3">
             <ShieldAlert size={20} className="flex-shrink-0 text-semantic-warning mt-0.5" />
             <p className="text-sm text-text-secondary leading-relaxed">
-              Envie esta senha ao membro de forma segura. Ele sera obrigado a altera-la no primeiro acesso.
+              Send this password to the member securely. They will be required to change it on first access.
             </p>
           </div>
         </>
@@ -496,7 +496,7 @@ export function InviteMemberModal({
         <>
           <div>
             <label className="block text-[13px] font-medium text-text-secondary mb-1.5">
-              Chave API
+              API Key
             </label>
             <div className="flex items-center gap-2 bg-surface-sunken border border-border rounded-lg p-3">
               <code className="flex-1 text-sm font-mono text-text-primary break-all select-all">
@@ -505,7 +505,7 @@ export function InviteMemberModal({
               <button
                 onClick={() => setRevealed(!revealed)}
                 className="flex-shrink-0 p-1.5 rounded-md text-text-muted hover:text-text-primary hover:bg-surface-raised transition-colors"
-                aria-label={revealed ? "Ocultar" : "Revelar"}
+                aria-label={revealed ? "Hide" : "Reveal"}
               >
                 {revealed ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
@@ -519,29 +519,29 @@ export function InviteMemberModal({
             className="w-full"
           >
             {copied ? <Check size={18} /> : <Copy size={18} />}
-            {copied ? "Copiada!" : "Copiar Chave API"}
+            {copied ? "Copied!" : "Copy API Key"}
           </Button>
 
           <div className="flex gap-3 bg-semantic-warning/5 border border-semantic-warning/20 rounded-lg p-3">
             <ShieldAlert size={20} className="flex-shrink-0 text-semantic-warning mt-0.5" />
             <p className="text-sm text-text-secondary leading-relaxed">
-              Salve esta chave em local seguro. Voce nao podera ve-la novamente.
-              Use no header <code className="bg-surface-overlay px-1 rounded text-text-primary">X-API-Key</code> das requisicoes.
+              Save this key securely. You will not be able to see it again.
+              Use no header <code className="bg-surface-overlay px-1 rounded text-text-primary">X-API-Key</code> request header.
             </p>
           </div>
         </>
       )}
 
       <Button variant="secondary" onClick={handleClose} className="w-full">
-        Fechar
+        Close
       </Button>
     </div>
   );
 
   const titles: Record<Step, string> = {
-    type: "Adicionar Membro",
-    form: memberType === "human" ? "Convidar Membro" : "Criar Agente IA",
-    result: memberType === "human" ? "Membro Criado" : "Agente IA Criado",
+    type: "Add Member",
+    form: memberType === "human" ? "Invite Member" : "Create AI Agent",
+    result: memberType === "human" ? "Member Created" : "AI Agent Created",
   };
 
   return (

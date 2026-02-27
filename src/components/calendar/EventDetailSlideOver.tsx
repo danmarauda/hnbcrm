@@ -48,10 +48,10 @@ export function EventDetailSlideOver({ open, onClose, eventId, onEdit }: EventDe
     if (!eventId) return;
     try {
       await completeEvent({ eventId: eventId as Id<"calendarEvents"> });
-      toast.success("Evento concluido!");
+      toast.success("Event completed!");
       onClose();
     } catch (error) {
-      toast.error("Erro ao concluir evento");
+      toast.error("Failed to complete event");
       console.error(error);
     }
   };
@@ -60,10 +60,10 @@ export function EventDetailSlideOver({ open, onClose, eventId, onEdit }: EventDe
     if (!eventId) return;
     try {
       await cancelEvent({ eventId: eventId as Id<"calendarEvents"> });
-      toast.success("Evento cancelado!");
+      toast.success("Event canceled!");
       onClose();
     } catch (error) {
-      toast.error("Erro ao cancelar evento");
+      toast.error("Failed to cancel event");
       console.error(error);
     }
   };
@@ -72,18 +72,18 @@ export function EventDetailSlideOver({ open, onClose, eventId, onEdit }: EventDe
     if (!eventId) return;
     try {
       await deleteEvent({ eventId: eventId as Id<"calendarEvents"> });
-      toast.success("Evento excluido!");
+      toast.success("Event deleted!");
       setShowDeleteConfirm(false);
       onClose();
     } catch (error) {
-      toast.error("Erro ao excluir evento");
+      toast.error("Failed to delete event");
       console.error(error);
     }
   };
 
   if (!event) {
     return (
-      <SlideOver open={open} onClose={onClose} title="Evento">
+      <SlideOver open={open} onClose={onClose} title="Event">
         <div className="flex justify-center py-8">
           <Spinner size="lg" />
         </div>
@@ -100,7 +100,7 @@ export function EventDetailSlideOver({ open, onClose, eventId, onEdit }: EventDe
   };
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString("pt-BR", {
+    return date.toLocaleDateString("en-US", {
       day: "numeric",
       month: "long",
       year: "numeric",
@@ -109,7 +109,7 @@ export function EventDetailSlideOver({ open, onClose, eventId, onEdit }: EventDe
 
   return (
     <>
-      <SlideOver open={open} onClose={onClose} title="Detalhes do Evento">
+      <SlideOver open={open} onClose={onClose} title="Event Details">
         <div className="p-4 md:p-6 space-y-6">
           {/* Header */}
           <div>
@@ -136,7 +136,7 @@ export function EventDetailSlideOver({ open, onClose, eventId, onEdit }: EventDe
                   </div>
                 )}
                 {isAllDay && (
-                  <div className="text-xs text-text-muted">Dia inteiro</div>
+                  <div className="text-xs text-text-muted">All day</div>
                 )}
               </div>
             </div>
@@ -157,7 +157,7 @@ export function EventDetailSlideOver({ open, onClose, eventId, onEdit }: EventDe
                   rel="noopener noreferrer"
                   className="text-sm text-brand-500 hover:text-brand-400 transition-colors flex items-center gap-1"
                 >
-                  Link da reuniao
+                  Meeting link
                   <ExternalLink size={14} />
                 </a>
               </div>
@@ -167,7 +167,7 @@ export function EventDetailSlideOver({ open, onClose, eventId, onEdit }: EventDe
           {/* Description */}
           {event.description && (
             <div>
-              <h3 className="text-sm font-medium text-text-secondary mb-2">Descricao</h3>
+              <h3 className="text-sm font-medium text-text-secondary mb-2">Description</h3>
               <p className="text-sm text-text-primary whitespace-pre-wrap">{event.description}</p>
             </div>
           )}
@@ -175,7 +175,7 @@ export function EventDetailSlideOver({ open, onClose, eventId, onEdit }: EventDe
           {/* Linked Records */}
           {(event.lead || event.contact) && (
             <div>
-              <h3 className="text-sm font-medium text-text-secondary mb-2">Vinculado a</h3>
+              <h3 className="text-sm font-medium text-text-secondary mb-2">Linked to</h3>
               <div className="space-y-2">
                 {event.lead && (
                   <div className="flex items-center gap-2 px-3 py-2 bg-surface-raised rounded-lg border border-border">
@@ -190,8 +190,8 @@ export function EventDetailSlideOver({ open, onClose, eventId, onEdit }: EventDe
                   <div className="flex items-center gap-2 px-3 py-2 bg-surface-raised rounded-lg border border-border">
                     <User size={16} className="text-text-muted" />
                     <div>
-                      <div className="text-xs text-text-muted">Contato</div>
-                      <div className="text-sm font-medium text-text-primary">{[event.contact.firstName, event.contact.lastName].filter(Boolean).join(" ") || "Sem nome"}</div>
+                      <div className="text-xs text-text-muted">Contact</div>
+                      <div className="text-sm font-medium text-text-primary">{[event.contact.firstName, event.contact.lastName].filter(Boolean).join(" ") || "No name"}</div>
                     </div>
                   </div>
                 )}
@@ -202,7 +202,7 @@ export function EventDetailSlideOver({ open, onClose, eventId, onEdit }: EventDe
           {/* Assignee */}
           {event.assignee && (
             <div>
-              <h3 className="text-sm font-medium text-text-secondary mb-2">Responsavel</h3>
+              <h3 className="text-sm font-medium text-text-secondary mb-2">Assignee</h3>
               <div className="flex items-center gap-2">
                 <Avatar name={event.assignee.name} type={event.assignee.type} size="sm" />
                 <span className="text-sm text-text-primary">{event.assignee.name}</span>
@@ -215,7 +215,7 @@ export function EventDetailSlideOver({ open, onClose, eventId, onEdit }: EventDe
             <div>
               <h3 className="text-sm font-medium text-text-secondary mb-2 flex items-center gap-2">
                 <Users size={16} />
-                Participantes
+                Participants
               </h3>
               <div className="space-y-2">
                 {event.attendeesResolved.map((attendee) => (
@@ -233,7 +233,7 @@ export function EventDetailSlideOver({ open, onClose, eventId, onEdit }: EventDe
             <div>
               <h3 className="text-sm font-medium text-text-secondary mb-2 flex items-center gap-2">
                 <FileText size={16} />
-                Notas
+                Notes
               </h3>
               <p className="text-sm text-text-primary whitespace-pre-wrap">{event.notes}</p>
             </div>
@@ -249,7 +249,7 @@ export function EventDetailSlideOver({ open, onClose, eventId, onEdit }: EventDe
                   onClick={handleComplete}
                 >
                   <CheckCircle2 size={16} />
-                  Concluir
+                  Complete
                 </Button>
                 <Button
                   variant="ghost"
@@ -257,7 +257,7 @@ export function EventDetailSlideOver({ open, onClose, eventId, onEdit }: EventDe
                   onClick={handleCancel}
                 >
                   <XCircle size={16} />
-                  Cancelar
+                  Cancel
                 </Button>
               </>
             )}
@@ -270,7 +270,7 @@ export function EventDetailSlideOver({ open, onClose, eventId, onEdit }: EventDe
               }}
             >
               <Edit size={16} />
-              Editar
+              Edit
             </Button>
             <Button
               variant="ghost"
@@ -278,7 +278,7 @@ export function EventDetailSlideOver({ open, onClose, eventId, onEdit }: EventDe
               onClick={() => setShowDeleteConfirm(true)}
             >
               <Trash2 size={16} />
-              Excluir
+              Delete
             </Button>
           </div>
         </div>
@@ -288,9 +288,9 @@ export function EventDetailSlideOver({ open, onClose, eventId, onEdit }: EventDe
         open={showDeleteConfirm}
         onClose={() => setShowDeleteConfirm(false)}
         onConfirm={handleDelete}
-        title="Excluir Evento"
-        description="Tem certeza que deseja excluir este evento? Esta acao nao pode ser desfeita."
-        confirmLabel="Excluir"
+        title="Delete Event"
+        description="Are you sure you want to delete this event? This action cannot be undone."
+        confirmLabel="Delete"
         variant="danger"
       />
     </>
